@@ -1,1 +1,0 @@
-/usr/bin/cc   -m64 CMakeFiles/gl.dir/gl/camera.c.o CMakeFiles/gl.dir/gl/gl.c.o CMakeFiles/gl.dir/gl/log.c.o CMakeFiles/gl.dir/gl/window.c.o  -o gl  -lGLEW -lGL -lGLU -lSDL2 -lm 
