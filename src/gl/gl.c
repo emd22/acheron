@@ -9,18 +9,44 @@
 
 #include <GL/glew.h>
 #include <GL/gl.h>
-#include <GL/glu.h>
 
 #include <math.h>
 
 #define MOUSE_SPEED 0.10
-#define PLAYER_SPEED 0.25
+#define PLAYER_SPEED 0.10
 
 camera_t camera;
 window_t window;
 bool running = true;
 bool mouse_captured = true;
+
+unsigned arrayid;
+unsigned vbuf;
  
+void make_triangle() {
+    static const float buffer_data[] = {
+        -1.0f, -1.0f, 0.0f,
+         1.0f, -1.0f, 0.0f,
+         0.0f,  1.0f, 0.0f
+    };
+    glGenBuffers(1, &vbuf);
+    glBindBuffer(GL_ARRAY_BUFFER, vbuf);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(buffer_data), buffer_data, GL_STATIC_DRAW);
+}
+
+void draw_triangle() {
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, vbuf);
+    glVertexAttribPointer(
+        0, 3,
+        GL_FLOAT,
+        GL_FALSE,
+        0, NULL
+    );
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDisableVertexAttribArray(0);
+}
+
 void init() {
     glClearColor(0.0, 0, 0.0, 1);
     glViewport(0, 0, 640, 480);
@@ -33,14 +59,16 @@ void init() {
     camera_select(&camera);
     //camera.pitch = 10;
     log_msg(LOG_INFO, "Camera initialized\n");
+    make_triangle();
 }
  
 void draw() {
-    glBegin(GL_TRIANGLES);
-        glVertex3f( 0.0,  2.0, -5.0);
-        glVertex3f(-2.0, -2.0, -5.0);
-        glVertex3f( 2.0, -2.0, -5.0);
-    glEnd();
+/*    glBegin(GL_TRIANGLES);*/
+/*        glVertex3f( 0.0,  2.0, -5.0);*/
+/*        glVertex3f(-2.0, -2.0, -5.0);*/
+/*        glVertex3f( 2.0, -2.0, -5.0);*/
+/*    glEnd();*/
+    draw_triangle();
     camera_update(&camera);
 }
 
@@ -50,23 +78,22 @@ void check_mouse(double xrel, double yrel) {
     camera.pitch += yrel*MOUSE_SPEED;
     camera.yaw   += xrel*MOUSE_SPEED;
     camera_check(&camera);
-    log_msg(LOG_INFO, "RY:%f RP:%f\n", camera.yaw, camera.pitch);
 }
  
 void check_key(int key, uint8_t state) {
     (void)state;
     
     if (key == SDLK_w) {
-        camera_move(&camera, 1, PLAYER_SPEED);
+        camera_move(&camera, CAMERA_DIRECTION_FORWARD, PLAYER_SPEED);
     }
     if (key == SDLK_s) {
-        camera_move(&camera, -1, PLAYER_SPEED);
+        camera_move(&camera, CAMERA_DIRECTION_BACKWARD, PLAYER_SPEED);
     }
     if (key == SDLK_a) {
-        camera_move(&camera, 2, PLAYER_SPEED);
+        camera_move(&camera, CAMERA_DIRECTION_LEFT, PLAYER_SPEED);
     }
     if (key == SDLK_d) {
-        camera_move(&camera, 3, PLAYER_SPEED);
+        camera_move(&camera, CAMERA_DIRECTION_RIGHT, PLAYER_SPEED);
     }
     else if (key == SDLK_ESCAPE) {
         mouse_captured = !mouse_captured;
@@ -87,14 +114,23 @@ void check_event(SDL_Event *event) {
 }
  
 int main() {
+
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         log_msg(LOG_FATAL, "Could not start SDL\n");
         return 1;
     }
-
     window = window_new("Ethan's 3D Engine", 640, 480, 0);
     window_set_default(&window);
-    SDL_GL_SetSwapInterval(0);
+    
+    glewExperimental = GL_TRUE;
+    if (glewInit() != GLEW_OK) {
+        log_msg(LOG_FATAL, "Could not initialize GLEW\n");
+        return 1;
+    }
+
+    SDL_GL_SetSwapInterval(1);
+    glGenVertexArrays(1, &arrayid);
+    glBindVertexArray(arrayid);
     
     init();
    

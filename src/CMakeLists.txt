@@ -15,6 +15,6 @@ include_directories(
   ${CMAKE_CURRENT_LIST_DIR}/../include
 )
 add_executable(${BUILD_NAME} ${SOURCES} ${HEADERS})
-target_link_libraries(${BUILD_NAME} GLEW GL GLU SDL2 m ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(${BUILD_NAME} GLEW GL SDL2 m ${CMAKE_THREAD_LIBS_INIT})
 set_target_properties(${BUILD_NAME} PROPERTIES COMPILE_FLAGS "${CXX_FLAGS} -m64" LINK_FLAGS "-m64")
 add_definitions(${GCC_COVERAGE_COMPILE_FLAGS})

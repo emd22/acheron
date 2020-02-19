@@ -1,5 +1,10 @@
-#ifndef CAMERA_H
-#define CAMERA_H
+#ifndef C3D_CAMERA_H
+#define C3D_CAMERA_H
+
+#define CAMERA_DIRECTION_FORWARD   1
+#define CAMERA_DIRECTION_BACKWARD -1
+#define CAMERA_DIRECTION_LEFT      2
+#define CAMERA_DIRECTION_RIGHT     3
 
 typedef struct {
     float x, y, z;

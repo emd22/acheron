@@ -1,5 +1,5 @@
-#ifndef LOG_H
-#define LOG_H
+#ifndef C3D_LOG_H
+#define C3D_LOG_H
 
 #include <stdarg.h>
 
