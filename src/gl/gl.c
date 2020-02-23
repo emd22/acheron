@@ -5,6 +5,7 @@
 
 #include <gl/window.h>
 #include <gl/camera.h>
+#include <gl/shader.h>
 #include <gl/log.h>
 
 #include <GL/glew.h>
@@ -22,6 +23,7 @@ bool mouse_captured = true;
 
 unsigned arrayid;
 unsigned vbuf;
+unsigned progid;
  
 void make_triangle() {
     static const float buffer_data[] = {
@@ -48,7 +50,7 @@ void draw_triangle() {
 }
 
 void init() {
-    glClearColor(0.0, 0, 0.0, 1);
+    glClearColor(0.2, 0.0, 0.2, 1);
     glViewport(0, 0, 640, 480);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -69,7 +71,6 @@ void draw() {
 /*        glVertex3f( 2.0, -2.0, -5.0);*/
 /*    glEnd();*/
     draw_triangle();
-    camera_update(&camera);
 }
 
 void check_mouse(double xrel, double yrel) {
@@ -113,12 +114,14 @@ void check_event(SDL_Event *event) {
     }
 }
  
-int main() {
-
+int main() {    
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         log_msg(LOG_FATAL, "Could not start SDL\n");
         return 1;
     }
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+    
     window = window_new("Ethan's 3D Engine", 640, 480, 0);
     window_set_default(&window);
     
@@ -127,13 +130,18 @@ int main() {
         log_msg(LOG_FATAL, "Could not initialize GLEW\n");
         return 1;
     }
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     SDL_GL_SetSwapInterval(1);
     glGenVertexArrays(1, &arrayid);
     glBindVertexArray(arrayid);
     
+    unsigned vert = shader_load("../shaders/m_vert.glsl", SHADER_VERTEX);
+    unsigned frag = shader_load("../shaders/m_frag.glsl", SHADER_FRAGMENT);
+    progid = shaders_link(vert, frag);
+
     init();
-   
+    
     window_set_mouse_mode(WINDOW_MOUSE_DISABLED);
    
     SDL_Event event;
@@ -143,10 +151,10 @@ int main() {
             check_event(&event);
             
         glClear(GL_COLOR_BUFFER_BIT);
+        glUseProgram(progid);
+        camera_update(&camera, progid);
         draw();
         window_buffers_swap(&window);
-        //glfwSwapBuffers(window);
-        //glfwPollEvents();
     }
     window_destroy(&window);
     SDL_Quit();
