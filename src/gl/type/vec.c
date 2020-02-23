@@ -1,8 +1,13 @@
 #include <gl/type/vec.h>
 
-void vec4f_get_data(vec4f_t *vec, float *data) {
-    data[0] = vec->w;
-    data[1] = vec->x;
-    data[2] = vec->y;
-    data[3] = vec->z;
+float vec4f_get(vector4f_t *vec, int index) {
+    if (index == 0)
+        return vec->w;
+    else if (index == 1)
+        return vec->x;
+    else if (index == 2)
+        return vec->y;
+    else if (index == 3)
+        return vec->z;
+    return -1;
 }

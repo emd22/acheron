@@ -102,8 +102,10 @@ void camera_update(camera_t *camera, unsigned shaderid) {
         }
     );
     
-    mat4_t mvp1 = mat4_mul(&projection, &view);
-    mat4_t mvp = mat4_mul(&mvp1, &model);
+    mat4_t mvp1 = mat4_mul(projection, view);
+    mat4_t mvp = mat4_mul(mvp1, model);
+    
+    mvp = mat4_mul_vec4(mvp, (vector4f_t){1, 1, 1, 3});
 
     unsigned matrixid = glGetUniformLocation(shaderid, "MVP");
     glUniformMatrix4fv(matrixid, 1, GL_FALSE, mvp.val);
