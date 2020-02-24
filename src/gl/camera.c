@@ -33,12 +33,6 @@ void camera_check(camera_t *_camera) {
         _camera->yaw = 0;
 }
 
-mat4_t camera_perspective(float fovy, float aspect, float znear, float zfar) {
-    mat4_t mat;
-    math_perspective(&mat, fovy, aspect, znear, zfar);
-    return mat;
-}
-
 void camera_move(camera_t *camera, int direction, float speed) {
     float add = 0;
     if (direction == CAMERA_DIRECTION_LEFT) {
@@ -66,32 +60,27 @@ void camera_select(camera_t *camera) {
 }
  
 void camera_update(camera_t *camera, unsigned shaderid) {
-    /*    const int   eye_angle = 85;*/
-/*    const float cam_len   = 1.0f;*/
-/*    const float dim_ratio = (float)640/(float)480;*/
-    //mat4_t projection = camera_perspective(eye_angle, dim_ratio, cam_len, 1024.0);
+    const float fovy = 45;
+    const float cam_len   = 0.1f;
+    const float aspect = (float)640/(float)480;
     //floatset(projection.val, 1, 16);
     //mat4_t view;
     (void)camera;
-    mat4_t model, view, projection;
-    mat4_set(
-        &view,
-        (float []){
-            1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f
-        }
+    static float mv = 0;
+    static float dir = 0.1;
+    mv += dir;
+    if (mv >= 5 || mv <= -5) {
+        dir = -dir;
+    }
+    mat4_t model, view, projection;//, projection;
+    view = math_lookat(
+        (vector3f_t){4, 3, 3},
+        (vector3f_t){0, 0, 0},
+        (vector3f_t){0, -1, 0}
     );
-    mat4_set(
-        &projection,
-        (float []){
-            1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f
-        }
-    );
+    //mat4_t projection = camera_perspective(eye_angle, dim_ratio, cam_len, 100.0);
+    math_perspective(&projection, fovy, aspect, cam_len, 100);
+    
     mat4_set(
         &model,
         (float []){
@@ -101,11 +90,16 @@ void camera_update(camera_t *camera, unsigned shaderid) {
             0.0f, 0.0f, 0.0f, 1.0f
         }
     );
+    //static float angle = 0;
+    //rotz += 1.0f;
+    //angle += 1.0f;
+    //if (angle > 360)
+    //    angle = 1;
+    mat4_t tmp = mat4_mul(projection, view);
+    mat4_t mvp = mat4_mul(tmp, model);
     
-    mat4_t mvp1 = mat4_mul(projection, view);
-    mat4_t mvp = mat4_mul(mvp1, model);
-    
-    mvp = mat4_mul_vec4(mvp, (vector4f_t){1, 1, 1, 3});
+    //mat4_rotate(&mvp, (vector3f_t){degrees_to_radians(1), degrees_to_radians(1), degrees_to_radians(1)});
+    //mvp = mat4_mul_vec4(mvp, (vector4f_t){0.2, 0.2, 0.2, 1});
 
     unsigned matrixid = glGetUniformLocation(shaderid, "MVP");
     glUniformMatrix4fv(matrixid, 1, GL_FALSE, mvp.val);

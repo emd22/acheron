@@ -16,5 +16,6 @@ typedef struct {
 } vector4_t;
 
 float vec4f_get(vector4f_t *vec, int index);
+vector3f_t vec3f_sub_vec3f(vector3f_t vec0, vector3f_t vec1);
 
 #endif
