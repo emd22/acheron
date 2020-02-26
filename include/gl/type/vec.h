@@ -3,19 +3,25 @@
 
 // float
 typedef struct {
-    float w, x, y, z;
-} __attribute__((packed)) vector4f_t;
+    float x, y, z, w;
+} vector4f_t;
 
 typedef struct {
     float x, y, z;
-} __attribute__((packed)) vector3f_t;
+} vector3f_t;
 
 // int type
 typedef struct {
-    int w, x, y, z;
+    int x, y, z, w;
 } vector4_t;
 
+typedef struct {
+    int x, y, z;
+} vector3_t;
+
 float vec4f_get(vector4f_t *vec, int index);
+void vec4f_set(vector4f_t *vec, int index, float value);
+float vec4f_mul_inner(vector4f_t a, vector4f_t b);
 vector3f_t vec3f_sub_vec3f(vector3f_t vec0, vector3f_t vec1);
 
 #endif

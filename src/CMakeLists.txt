@@ -6,7 +6,7 @@ project(${BUILD_NAME} C)
 
 set(CMAKE_SYSTEM_NAME Linux)
 set(CMAKE_CXX_COMPILER gcc)
-set(CXX_FLAGS "-O2 -Wall -Wextra -Wpedantic -Werror -DDEBUG")
+set(CXX_FLAGS "-O2 -Wall -Wextra -Wpedantic -Werror")
 
 file(GLOB_RECURSE SOURCES "${BUILD_NAME}/*.c")
 file(GLOB_RECURSE HEADERS "../include/*.h")

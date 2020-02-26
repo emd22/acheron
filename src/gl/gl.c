@@ -51,7 +51,7 @@ void draw_triangle() {
 
 void init() {
     glClearColor(0.2, 0.0, 0.2, 1);
-    glViewport(0, 0, 640, 480);
+    glViewport(0, 0, 1024, 768);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glMatrixMode(GL_MODELVIEW);
@@ -65,11 +65,6 @@ void init() {
 }
  
 void draw() {
-/*    glBegin(GL_TRIANGLES);*/
-/*        glVertex3f( 0.0,  2.0, -5.0);*/
-/*        glVertex3f(-2.0, -2.0, -5.0);*/
-/*        glVertex3f( 2.0, -2.0, -5.0);*/
-/*    glEnd();*/
     draw_triangle();
 }
 
@@ -122,7 +117,7 @@ int main() {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
     
-    window = window_new("Ethan's 3D Engine", 640, 480, 0);
+    window = window_new("Ethan's 3D Engine", 1024, 768, 0);
     window_set_default(&window);
     
     glewExperimental = GL_TRUE;
