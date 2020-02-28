@@ -56,11 +56,11 @@ void init() {
     glLoadIdentity();
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    log_msg(LOG_INFO, "OpenGL Camera initialized\n");
+    log_msg(LOG_INFO, "OpenGL Camera initialized\n", 0);
     camera = camera_new();
     camera_select(&camera);
     //camera.pitch = 10;
-    log_msg(LOG_INFO, "Camera initialized\n");
+    log_msg(LOG_INFO, "Camera initialized\n", 0);
     make_triangle();
 }
  
@@ -111,7 +111,7 @@ void check_event(SDL_Event *event) {
  
 int main() {    
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        log_msg(LOG_FATAL, "Could not start SDL\n");
+        log_msg(LOG_FATAL, "Could not start SDL\n", 0);
         return 1;
     }
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
@@ -122,7 +122,7 @@ int main() {
     
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK) {
-        log_msg(LOG_FATAL, "Could not initialize GLEW\n");
+        log_msg(LOG_FATAL, "Could not initialize GLEW\n", 0);
         return 1;
     }
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);

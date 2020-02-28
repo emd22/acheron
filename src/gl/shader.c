@@ -20,7 +20,7 @@ void check_status(unsigned id) {
 }
 
 unsigned shaders_link(unsigned shader0, unsigned shader1) {
-    log_msg(LOG_INFO, "Linking shaders\n");
+    log_msg(LOG_INFO, "Linking shaders\n", 0);
     unsigned id = glCreateProgram(); // Program ID
     // attach shaders for linking
     glAttachShader(id, shader0);
@@ -56,7 +56,7 @@ unsigned shader_load(const char *path, int type) {
     log_msg(LOG_INFO, "Loading shader '%s' of type '%s'\n", filename_from_path((char *)path), (type == GL_VERTEX_SHADER) ? typestrs[0] : typestrs[1]);
     FILE *fp = fopen(path, "rb");
     if (fp == NULL) {
-        log_msg(LOG_ERROR, "Shader could not be opened\n");
+        log_msg(LOG_ERROR, "Shader could not be opened\n", 0);
         return 0;
     }
     // seek file pointer to end of file, get pointer location
@@ -72,13 +72,13 @@ unsigned shader_load(const char *path, int type) {
     
     fclose(fp);
     
-    log_msg(LOG_INFO, "Compiling shader\n");
+    log_msg(LOG_INFO, "Compiling shader\n", 0);
     
     glShaderSource(id, 1, (const char **)&data, NULL);
     glCompileShader(id);
     free(data);
     
     check_status(id);
-    log_msg(LOG_INFO, "Done\n");
+    log_msg(LOG_INFO, "Done\n", 0);
     return id;
 }

@@ -27,7 +27,7 @@ window_t window_new(const char *title, int width, int height, int flags) {
     window.height = height;
     window.context = SDL_GL_CreateContext(window.win);
     if (window.context == NULL) {
-        log_msg(LOG_ERROR, "window.context == NULL!\n");
+        log_msg(LOG_ERROR, "window.context == NULL!\n", 0);
     }
     window.flags   = WINDOW_INITED;
     return window;

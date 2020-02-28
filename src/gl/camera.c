@@ -18,7 +18,7 @@ camera_t camera_new(void) {
 }
 
 float degrees_to_radians(float degrees) {
-    return (degrees*M_PI/180);
+    return (degrees*C3D_PI/180);
 }
 
 void camera_check(camera_t *_camera) {
@@ -63,16 +63,26 @@ void camera_update(camera_t *camera, unsigned shaderid) {
     //floatset(projection.val, 1, 16);
     //mat4_t view;
     (void)camera;
+    static float mv = 0.0f;
+    static float dir = 0.05f;
+    mv += dir;
+    if (mv > 2 || mv <= -2)
+        dir = -dir;
         
     mat4_t model, view, projection;
-    view = math_lookat(
-        (vector3f_t){4, 3, 3},
-        (vector3f_t){0, 0, 0},
-        (vector3f_t){0, 1, 0}
+    mat4_set(
+        &view, 
+        (float []){
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f,
+        }
     );
+    //mat4_translate(&view, (vector3f_t){4, 3, 3});
     
-    math_perspective(&projection, 45, 4.0f/3.0f, 0.1f, 100.0f);
-    
+    math_perspective(&projection, 95, 4.0f/3.0f, 0.1f, 100.0f);
+
     mat4_set(
         &model,
         (float []){
@@ -82,6 +92,7 @@ void camera_update(camera_t *camera, unsigned shaderid) {
             0.0f, 0.0f, 0.0f, 1.0f
         }
     );
+    mat4_translate(&view, (vector3f_t){mv, 0, -7-mv});
     
     mat4_t tmp = mat4_mul(projection, view);
     mat4_t mvp = mat4_mul(tmp, model);

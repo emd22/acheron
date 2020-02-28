@@ -53,22 +53,16 @@ mat4_t math_lookat(vector3f_t from, vector3f_t to, vector3f_t upvec) {
 
 void math_perspective(mat4_t *mat, float fovy, float aspect, float znear, float zfar) {
     float a = 1.0f/tan(fovy/2.0f);
-    float *data = mat->val;
-    data[0] = a/aspect;
-    data[1] = 0;
-    data[2] = 0;
-    data[3] = 0;
-    data[4] = 0;
-    data[5] = a;
-    data[6] = 0;
-    data[7] = 0;
-    data[8] = 0;
-    data[9] = 0;
-    data[10] = -((zfar+znear)/(zfar-znear));
-    data[11] = -1;
-    data[12] = 0;
-    data[13] = 0;
-    data[14] = -((2.0f*zfar*znear)/(zfar-znear));
-    data[15] = 0;
+    const float zn = -((zfar+znear)/(zfar-znear));
+    const float zn2 = -((2.0f*zfar*znear)/(zfar-znear));
+    mat4_set(
+        mat, 
+        (float []){
+            a/aspect, 0, 0,   0,
+            0,        a, 0,   0,
+            0,        0, zn, -1,
+            0,        0, zn2, 0,
+        }
+    );
 }
 
