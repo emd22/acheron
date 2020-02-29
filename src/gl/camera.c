@@ -63,12 +63,10 @@ void camera_update(camera_t *camera, unsigned shaderid) {
     //floatset(projection.val, 1, 16);
     //mat4_t view;
     (void)camera;
-    static float mv = 0.0f;
-    static float dir = 0.05f;
-    mv += dir;
-    if (mv > 2 || mv <= -2)
-        dir = -dir;
-        
+    static float angle = 0.0f;
+    angle += 0.1;
+    if (angle >= 360)
+        angle = 0.1;
     mat4_t model, view, projection;
     mat4_set(
         &view, 
@@ -92,8 +90,8 @@ void camera_update(camera_t *camera, unsigned shaderid) {
             0.0f, 0.0f, 0.0f, 1.0f
         }
     );
-    mat4_translate(&view, (vector3f_t){mv, 0, -7-mv});
-    
+    mat4_translate(&view, (vector3f_t){0, 0, -7});
+    view = mat4_rotate_x(view, angle);
     mat4_t tmp = mat4_mul(projection, view);
     mat4_t mvp = mat4_mul(tmp, model);
 

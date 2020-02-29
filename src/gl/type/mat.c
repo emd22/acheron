@@ -47,6 +47,22 @@ void mat4_translate_in_place(mat4_t *mat, vector3f_t t) {
     }
 }
 
+mat4_t mat4_sub(mat4_t a, mat4_t b) {
+    int i;
+    mat4_t res;
+    for (i = 0; i < 4; i++)
+        vec4f_sub((vector4f_t *)(res.val+i*4), *(vector4f_t *)(a.val+i*4), *(vector4f_t *)(b.val+i*4));
+    return res;
+}
+
+mat4_t mat4_add(mat4_t a, mat4_t b) {
+    int i;
+    mat4_t res;
+    for (i = 0; i < 4; i++)
+        vec4f_add((vector4f_t *)(res.val+i*4), *(vector4f_t *)(a.val+i*4), *(vector4f_t *)(b.val+i*4));
+    return res;
+}
+
 // TODO: pass in result matrix as pointer instead
 mat4_t mat4_mul(mat4_t mat0, mat4_t mat1) {
     mat4_t res;
@@ -107,7 +123,17 @@ mat4_t mat4_rotate(mat4_t *mat, vector3f_t r, float angle) {
             }
         );
         mat4_from_vec3_mul_outer(&t, r, r);
+        
         mat4_scale(&s, s, sn);
+        mat4_t c;
+        mat4_identity(&c);
+        c = mat4_sub(c, t);
+        mat4_scale(&c, c, cn);
+        t = mat4_add(t, c);
+        t = mat4_add(t, s);
+        t.val[15] = 1;
+        res = mat4_mul(*mat, t);
+        return res;
     }
     else {
         return *mat;

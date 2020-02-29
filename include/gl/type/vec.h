@@ -27,6 +27,16 @@ enum {
         for (i = 0; i < n; i++) \
             vecf_set_at(r, TYPE_VEC2F+n, i, vecf_get_at(&v, TYPE_VEC2F+n, i)*s); \
     } \
+    inline void vec##n##f_add(type *v, type a, type b) { \
+        int i; \
+        for (i = 0; i < n; i++) \
+            vecf_set_at(&v, TYPE_VEC2F+n, i, vecf_get_at(&a, TYPE_VEC2F+n, i)+vecf_get_at(&b, TYPE_VEC2F+n, i)); \
+    } \
+    inline void vec##n##f_sub(type *v, type a, type b) { \
+        int i; \
+        for (i = 0; i < n; i++) \
+            vecf_set_at(&v, TYPE_VEC2F+n, i, vecf_get_at(&a, TYPE_VEC2F+n, i)-vecf_get_at(&b, TYPE_VEC2F+n, i)); \
+    } \
     inline float vec##n##f_len(type v) { \
         return sqrtf(vec##n##f_mul_inner(v, v)); \
     } \

@@ -13,7 +13,7 @@ A simple 3d game engine written in C. This is mainly a learning tool,
 - Run `make` to build and link the executable.
 
 ### To do
-- [ ] Replace all old GLU function calls with custom math functions
-- [ ] Replace OpenGL 2.x calls with much better OpenGL 3 ones
+- [X] Replace all old GLU function calls with custom math functions
+- [X] Replace OpenGL 2.x calls with much better OpenGL 3 ones
 - [ ] Implement model loading from files
 - [ ] Implement simple lighting and shading
