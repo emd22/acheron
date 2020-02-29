@@ -12,8 +12,23 @@
 // TODO: Some optimizations and loop unrolling
 // code should be changed to modify pointer instead of returning new matrix.
 
-void mat4_set(mat4_t *mat, float *data) {
-    memcpy(mat->val, data, sizeof(float)*16);
+inline void mat4_set(mat4_t *mat, float *data) {
+    mat->val[0] = data[0];
+    mat->val[1] = data[1];
+    mat->val[2] = data[2];
+    mat->val[3] = data[3];
+    mat->val[4] = data[4];
+    mat->val[5] = data[5];
+    mat->val[6] = data[6];
+    mat->val[7] = data[7];
+    mat->val[8] = data[8];
+    mat->val[9] = data[9];
+    mat->val[10] = data[10];
+    mat->val[11] = data[11];
+    mat->val[12] = data[12];
+    mat->val[13] = data[13];
+    mat->val[14] = data[14];
+    mat->val[15] = data[15];
 }
 
 // https://github.com/datenwolf/linmath.h/blob/master/linmath.h
@@ -47,20 +62,16 @@ void mat4_translate_in_place(mat4_t *mat, vector3f_t t) {
     }
 }
 
-mat4_t mat4_sub(mat4_t a, mat4_t b) {
+void mat4_sub(mat4_t *mat0, mat4_t mat1) {
     int i;
-    mat4_t res;
     for (i = 0; i < 4; i++)
-        vec4f_sub((vector4f_t *)(res.val+i*4), *(vector4f_t *)(a.val+i*4), *(vector4f_t *)(b.val+i*4));
-    return res;
+        vec4f_sub((vector4f_t *)(mat0->val+i*4), *(vector4f_t *)(mat0->val+i*4), *(vector4f_t *)(mat1.val+i*4));
 }
 
-mat4_t mat4_add(mat4_t a, mat4_t b) {
+void mat4_add(mat4_t *mat0, mat4_t mat1) {
     int i;
-    mat4_t res;
     for (i = 0; i < 4; i++)
-        vec4f_add((vector4f_t *)(res.val+i*4), *(vector4f_t *)(a.val+i*4), *(vector4f_t *)(b.val+i*4));
-    return res;
+        vec4f_add((vector4f_t *)(mat0->val+i*4), *(vector4f_t *)(mat0->val+i*4), *(vector4f_t *)(mat1.val+i*4));
 }
 
 // TODO: pass in result matrix as pointer instead
@@ -127,10 +138,10 @@ mat4_t mat4_rotate(mat4_t *mat, vector3f_t r, float angle) {
         mat4_scale(&s, s, sn);
         mat4_t c;
         mat4_identity(&c);
-        c = mat4_sub(c, t);
+        mat4_sub(&c, t);
         mat4_scale(&c, c, cn);
-        t = mat4_add(t, c);
-        t = mat4_add(t, s);
+        mat4_add(&t, c);
+        mat4_add(&t, s);
         t.val[15] = 1;
         res = mat4_mul(*mat, t);
         return res;
@@ -141,7 +152,7 @@ mat4_t mat4_rotate(mat4_t *mat, vector3f_t r, float angle) {
     return res;
 }
 
-mat4_t mat4_rotate_x(mat4_t mat1, float angle) {
+mat4_t mat4_rotate_x(mat4_t mat, float angle) {
     const float sn = sinf(angle);
     const float cn = cosf(angle);
     
@@ -155,6 +166,42 @@ mat4_t mat4_rotate_x(mat4_t mat1, float angle) {
             0.0f, 0.0f, 0.0f, 1.0f
         }
     );
-    res = mat4_mul(mat1, rot);
+    res = mat4_mul(mat, rot);
     return res;
+}
+
+mat4_t mat4_rotate_y(mat4_t mat, float angle) {
+    const float sn = sinf(angle);
+    const float cn = cosf(angle);
+    
+    mat4_t rot;
+    mat4_set(
+        &rot,
+        (float []){
+              cn, 0.0f,   sn, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+             -sn, 0.0f,   cn, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f
+        }
+    );
+    rot = mat4_mul(mat, rot);
+    return rot;
+}
+
+mat4_t mat4_rotate_z(mat4_t mat, float angle) {
+    const float sn = sinf(angle);
+    const float cn = cosf(angle);
+    
+    mat4_t rot;
+    mat4_set(
+        &rot,
+        (float []){
+              cn,   sn, 0.0f, 0.0f,
+             -sn,   cn, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 1.0f
+        }
+    );
+    rot = mat4_mul(mat, rot);
+    return rot;
 }

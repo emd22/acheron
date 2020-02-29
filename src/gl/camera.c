@@ -9,28 +9,34 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
+#define RADIAN_MAX 6.2831
+
 camera_t *selected_camera = NULL;
 
 camera_t camera_new(void) {
     camera_t camera;
-    memset(&camera, 0, sizeof(camera_t));
+    camera.rotation = (vector3f_t){0.0f, 0.0f, 0.0f};
+    camera.position = (vector3f_t){0.0f, 0.0f, 0.0f};
+    camera.direction = (vector3f_t){0.0f, 0.0f, 0.0f};
     return camera;
 }
 
-float degrees_to_radians(float degrees) {
-    return (degrees*C3D_PI/180);
-}
-
-void camera_check(camera_t *_camera) {
-    if (_camera->pitch > 90)
-        _camera->pitch = 90;
-    else if (_camera->pitch < -90)
-        _camera->pitch = -90;
-    
-    if (_camera->yaw >= 360)
-        _camera->yaw = 0;
-    else if (_camera->yaw <= -360)
-        _camera->yaw = 0;
+void camera_clamp_rotation(camera_t *camera) {
+    // Rotation X
+    if (camera->rotation.x > 6.2831f/*360deg in radians*/)
+        camera->rotation.x = 0.0f;
+    else if (camera->rotation.x < 0)
+        camera->rotation.x = 6.2831f;
+    // Rotation Y
+    if (camera->rotation.y > 6.2831f)
+        camera->rotation.y = 0.0f;
+    else if (camera->rotation.y < 0)
+        camera->rotation.y = 6.2831f;
+    // Rotation Z
+    if (camera->rotation.z > 6.2831f)
+        camera->rotation.z = 0.0f;
+    else if (camera->rotation.z < 0)
+        camera->rotation.z = 6.2831f;
 }
 
 void camera_move(camera_t *camera, int direction, float speed) {
@@ -43,16 +49,10 @@ void camera_move(camera_t *camera, int direction, float speed) {
         add = 90;
         direction = -1;
     }
-    float ny = degrees_to_radians(camera->yaw+add);
-    camera->z -= cos(ny)*direction*speed;
-    camera->x -= sin(ny)*direction*speed;
+    float ny = math_deg_to_rad(camera->rotation.x+add);
+    camera->position.z -= cos(ny)*direction*speed;
+    camera->position.x -= sin(ny)*direction*speed;
     //log_msg(LOG_INFO, "%.02f %.02f\n", camera->z, camera->x);s
-}
-
-void floatset(float *b, int v, int amt) {
-    int i;
-    for (i = 0; i < amt; i++)
-        b[i] = v;
 }
 
 void camera_select(camera_t *camera) {
@@ -60,13 +60,8 @@ void camera_select(camera_t *camera) {
 }
  
 void camera_update(camera_t *camera, unsigned shaderid) {
-    //floatset(projection.val, 1, 16);
-    //mat4_t view;
-    (void)camera;
-    static float angle = 0.0f;
-    angle += 0.1;
-    if (angle >= 360)
-        angle = 0.1;
+    window_t *window = window_get_default();
+    
     mat4_t model, view, projection;
     mat4_set(
         &view, 
@@ -79,7 +74,7 @@ void camera_update(camera_t *camera, unsigned shaderid) {
     );
     //mat4_translate(&view, (vector3f_t){4, 3, 3});
     
-    math_perspective(&projection, 95, 4.0f/3.0f, 0.1f, 100.0f);
+    math_perspective(&projection, 95, (float)window->width/(float)window->height, 0.1f, 100.0f);
 
     mat4_set(
         &model,
@@ -90,8 +85,12 @@ void camera_update(camera_t *camera, unsigned shaderid) {
             0.0f, 0.0f, 0.0f, 1.0f
         }
     );
-    mat4_translate(&view, (vector3f_t){0, 0, -7});
-    view = mat4_rotate_x(view, angle);
+    mat4_translate(&view, (vector3f_t){camera->position.x, camera->position.y, camera->position.z});
+    view.val[12] += camera->direction.x;
+    view.val[13] += camera->direction.y;
+    view.val[14] += camera->direction.z;
+    view = mat4_rotate_x(view, -camera->rotation.x);
+    view = mat4_rotate_y(view, -camera->rotation.y);
     mat4_t tmp = mat4_mul(projection, view);
     mat4_t mvp = mat4_mul(tmp, model);
 

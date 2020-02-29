@@ -29,7 +29,7 @@ window_t window_new(const char *title, int width, int height, int flags) {
     if (window.context == NULL) {
         log_msg(LOG_ERROR, "window.context == NULL!\n", 0);
     }
-    window.flags   = WINDOW_INITED;
+    window.flags = WINDOW_INITED;
     return window;
 }
 
@@ -39,7 +39,7 @@ void window_set_default(window_t *window) {
 }
 
 window_t *window_get_default(void) {
-    log_msg(LOG_INFO, "Getting window with size %dx%d\n", default_window->width, default_window->height);
+    //log_msg(LOG_INFO, "Getting window with size %dx%d\n", default_window->width, default_window->height);
     return default_window;
 }
 

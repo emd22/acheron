@@ -6,6 +6,7 @@
 #include <gl/window.h>
 #include <gl/camera.h>
 #include <gl/shader.h>
+#include <gl/math.h>
 #include <gl/log.h>
 
 #include <GL/glew.h>
@@ -58,6 +59,7 @@ void init() {
     glLoadIdentity();
     log_msg(LOG_INFO, "OpenGL Camera initialized\n", 0);
     camera = camera_new();
+    camera.position.z = -7;
     camera_select(&camera);
     //camera.pitch = 10;
     log_msg(LOG_INFO, "Camera initialized\n", 0);
@@ -71,9 +73,14 @@ void draw() {
 void check_mouse(double xrel, double yrel) {
     if (!mouse_captured)
         return;
-    camera.pitch += yrel*MOUSE_SPEED;
-    camera.yaw   += xrel*MOUSE_SPEED;
-    camera_check(&camera);
+    const float roty = math_deg_to_rad(xrel*MOUSE_SPEED);
+    const float rotx = math_deg_to_rad(yrel*MOUSE_SPEED);
+    camera.rotation.x += rotx;
+    camera.rotation.y += roty;
+    //camera.direction.x = cos(roty)*sin(rotx);
+    //camera.direction.y += sin(roty);
+    //camera.direction.z = cos(roty)*sin(rotx);
+    camera_clamp_rotation(&camera);
 }
  
 void check_key(int key, uint8_t state) {
@@ -105,7 +112,7 @@ void check_event(SDL_Event *event) {
         check_key(event->key.keysym.sym, event->key.state);
     }
     else if (event->type == SDL_MOUSEMOTION) {
-        check_mouse(-event->motion.xrel, -event->motion.yrel);
+        check_mouse(event->motion.xrel, event->motion.yrel);
     }
 }
  
