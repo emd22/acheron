@@ -14,7 +14,7 @@
 
 #include <math.h>
 
-#define MOUSE_SPEED 0.10
+#define MOUSE_SPEED 0.001
 #define PLAYER_SPEED 0.10
 
 camera_t camera;
@@ -52,14 +52,14 @@ void draw_triangle() {
 
 void init() {
     glClearColor(0.2, 0.0, 0.2, 1);
-    glViewport(0, 0, 1024, 768);
+    glViewport(0, 0, 800, 600);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     log_msg(LOG_INFO, "OpenGL Camera initialized\n", 0);
     camera = camera_new();
-    camera.position.z = -7;
+    //camera.position.z = -4;
     camera_select(&camera);
     //camera.pitch = 10;
     log_msg(LOG_INFO, "Camera initialized\n", 0);
@@ -73,20 +73,16 @@ void draw() {
 void check_mouse(double xrel, double yrel) {
     if (!mouse_captured)
         return;
-    const float roty = math_deg_to_rad(xrel*MOUSE_SPEED);
-    const float rotx = math_deg_to_rad(yrel*MOUSE_SPEED);
-    camera.rotation.x += rotx;
-    camera.rotation.y += roty;
-    //camera.direction.x = cos(roty)*sin(rotx);
-    //camera.direction.y += sin(roty);
-    //camera.direction.z = cos(roty)*sin(rotx);
-    camera_clamp_rotation(&camera);
+    const float rotx = (xrel*MOUSE_SPEED);
+    const float roty = (yrel*MOUSE_SPEED);
+    camera.rotation.y += rotx;
+    camera.rotation.x -= roty;
 }
  
 void check_key(int key, uint8_t state) {
     (void)state;
     
-    if (key == SDLK_w) {
+    /*if (key == SDLK_w) {
         camera_move(&camera, CAMERA_DIRECTION_FORWARD, PLAYER_SPEED);
     }
     if (key == SDLK_s) {
@@ -97,8 +93,8 @@ void check_key(int key, uint8_t state) {
     }
     if (key == SDLK_d) {
         camera_move(&camera, CAMERA_DIRECTION_RIGHT, PLAYER_SPEED);
-    }
-    else if (key == SDLK_ESCAPE) {
+    }*/
+    if (key == SDLK_ESCAPE) {
         mouse_captured = !mouse_captured;
         SDL_SetRelativeMouseMode(mouse_captured);
     }
@@ -124,7 +120,7 @@ int main() {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
     
-    window = window_new("Ethan's 3D Engine", 1024, 768, 0);
+    window = window_new("Ethan's 3D Engine", 800, 600, 0);
     window_set_default(&window);
     
     glewExperimental = GL_TRUE;

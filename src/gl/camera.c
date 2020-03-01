@@ -86,11 +86,12 @@ void camera_update(camera_t *camera, unsigned shaderid) {
         }
     );
     mat4_translate(&view, (vector3f_t){camera->position.x, camera->position.y, camera->position.z});
+    view = mat4_rotate_x(view, -camera->rotation.x);
+    view = mat4_rotate_y(view, -camera->rotation.y);
+    mat4_translate(&model, (vector3f_t){0, 0, -6});
     view.val[12] += camera->direction.x;
     view.val[13] += camera->direction.y;
     view.val[14] += camera->direction.z;
-    view = mat4_rotate_x(view, -camera->rotation.x);
-    view = mat4_rotate_y(view, -camera->rotation.y);
     mat4_t tmp = mat4_mul(projection, view);
     mat4_t mvp = mat4_mul(tmp, model);
 
