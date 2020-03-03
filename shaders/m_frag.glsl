@@ -1,7 +1,10 @@
-#version 400
+#version 400 core
 
-out vec4 out_colour;
+in vec2 UV;
+out vec3 outputColour;
+
+uniform sampler2D textureSampler;
 
 void main(){
-    out_colour = vec4(0.5, 0.3, 0.7, 1);
+    outputColour = texture(textureSampler, UV).rgb;
 }

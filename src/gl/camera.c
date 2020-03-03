@@ -43,25 +43,25 @@ void camera_move(camera_t *camera, int direction, float speed) {
     float add = 0;
     if (direction == CAMERA_DIRECTION_LEFT) {
         add = 90;
-        direction = 1;
+        direction = -1;
     }
     else if (direction == CAMERA_DIRECTION_RIGHT) {
         add = 90;
-        direction = -1;
+        direction = 1;
     }
-    float ny = math_deg_to_rad(camera->rotation.x+add);
-    camera->position.z -= cos(ny)*direction*speed;
+    float ny = (camera->rotation.y+math_deg_to_rad(add));
     camera->position.x -= sin(ny)*direction*speed;
-    //log_msg(LOG_INFO, "%.02f %.02f\n", camera->z, camera->x);s
+    camera->position.z += cos(ny)*direction*speed;
+    (void)add;
 }
 
 void camera_select(camera_t *camera) {
+    window_t *window = window_get_default();
+    math_perspective(&camera->mat_projection, 95, (float)window->width/(float)window->height, 0.1f, 100.0f);
     selected_camera = camera;
 }
  
 void camera_update(camera_t *camera, unsigned shaderid) {
-    window_t *window = window_get_default();
-    
     mat4_t model, view, projection;
     mat4_set(
         &view, 
@@ -74,8 +74,6 @@ void camera_update(camera_t *camera, unsigned shaderid) {
     );
     //mat4_translate(&view, (vector3f_t){4, 3, 3});
     
-    math_perspective(&projection, 95, (float)window->width/(float)window->height, 0.1f, 100.0f);
-
     mat4_set(
         &model,
         (float []){
@@ -85,15 +83,17 @@ void camera_update(camera_t *camera, unsigned shaderid) {
             0.0f, 0.0f, 0.0f, 1.0f
         }
     );
-    mat4_translate(&view, (vector3f_t){camera->position.x, camera->position.y, camera->position.z});
-    view = mat4_rotate_x(view, -camera->rotation.x);
-    view = mat4_rotate_y(view, -camera->rotation.y);
-    mat4_translate(&model, (vector3f_t){0, 0, -6});
+    //mat4_translate(&view, (vector3f_t){});
+    projection = mat4_rotate_x(camera->mat_projection, camera->rotation.x);
+    projection = mat4_rotate_y(projection, -camera->rotation.y);
+    mat4_translate(&view, (vector3f_t){camera->position.x, camera->position.y, camera->position.z-6});
     view.val[12] += camera->direction.x;
     view.val[13] += camera->direction.y;
     view.val[14] += camera->direction.z;
-    mat4_t tmp = mat4_mul(projection, view);
-    mat4_t mvp = mat4_mul(tmp, model);
+    //mv += 0.1;
+    //mat4_translate(&model, (vector3f_t){sinf(mv), 0, 0});
+    mat4_t tmp = mat4_mul(projection, model);
+    mat4_t mvp = mat4_mul(tmp, view);
 
     unsigned matrixid = glGetUniformLocation(shaderid, "MVP");
     glUniformMatrix4fv(matrixid, 1, GL_FALSE, mvp.val);

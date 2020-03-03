@@ -69,7 +69,6 @@ unsigned shader_load(const char *path, int type) {
     fread(data, 1, fsize, fp);
     // set terminating null character
     data[fsize] = 0;
-    
     fclose(fp);
     
     log_msg(LOG_INFO, "Compiling shader\n", 0);

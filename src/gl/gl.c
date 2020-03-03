@@ -3,6 +3,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include <gl/bmp.h>
+
 #include <gl/window.h>
 #include <gl/camera.h>
 #include <gl/shader.h>
@@ -23,18 +26,113 @@ bool running = true;
 bool mouse_captured = true;
 
 unsigned arrayid;
-unsigned vbuf;
+unsigned vbuf, cbuf;
 unsigned progid;
  
 void make_triangle() {
     static const float buffer_data[] = {
-        -1.0f, -1.0f, 0.0f,
-         1.0f, -1.0f, 0.0f,
-         0.0f,  1.0f, 0.0f
+            -1.0f,-1.0f,-1.0f, // triangle 1 : begin
+            -1.0f,-1.0f, 1.0f,
+            -1.0f, 1.0f, 1.0f, // triangle 1 : end
+            1.0f, 1.0f,-1.0f, // triangle 2 : begin
+            -1.0f,-1.0f,-1.0f,
+            -1.0f, 1.0f,-1.0f, // triangle 2 : end
+            1.0f,-1.0f, 1.0f,
+            -1.0f,-1.0f,-1.0f,
+            1.0f,-1.0f,-1.0f,
+            1.0f, 1.0f,-1.0f,
+            1.0f,-1.0f,-1.0f,
+            -1.0f,-1.0f,-1.0f,
+            -1.0f,-1.0f,-1.0f,
+            -1.0f, 1.0f, 1.0f,
+            -1.0f, 1.0f,-1.0f,
+            1.0f,-1.0f, 1.0f,
+            -1.0f,-1.0f, 1.0f,
+            -1.0f,-1.0f,-1.0f,
+            -1.0f, 1.0f, 1.0f,
+            -1.0f,-1.0f, 1.0f,
+            1.0f,-1.0f, 1.0f,
+            1.0f, 1.0f, 1.0f,
+            1.0f,-1.0f,-1.0f,
+            1.0f, 1.0f,-1.0f,
+            1.0f,-1.0f,-1.0f,
+            1.0f, 1.0f, 1.0f,
+            1.0f,-1.0f, 1.0f,
+            1.0f, 1.0f, 1.0f,
+            1.0f, 1.0f,-1.0f,
+            -1.0f, 1.0f,-1.0f,
+            1.0f, 1.0f, 1.0f,
+            -1.0f, 1.0f,-1.0f,
+            -1.0f, 1.0f, 1.0f,
+            1.0f, 1.0f, 1.0f,
+            -1.0f, 1.0f, 1.0f,
+            1.0f,-1.0f, 1.0f
     };
     glGenBuffers(1, &vbuf);
     glBindBuffer(GL_ARRAY_BUFFER, vbuf);
     glBufferData(GL_ARRAY_BUFFER, sizeof(buffer_data), buffer_data, GL_STATIC_DRAW);
+    unsigned textureid;
+    glGenTextures(1, &textureid);
+    glBindTexture(GL_TEXTURE_2D, textureid);
+    int width, height;
+    BITMAPINFO *binfo;
+    unsigned char *data = bmp_load("../images/test.bmp", &binfo);
+    width = binfo->bmiHeader.biWidth;
+    height = binfo->bmiHeader.biHeight;
+    
+    if (data == NULL) {
+        printf("CANNOT LOAD IMAGE\n");
+        exit(1);
+    }
+    else {
+        printf("nice, %dx%d\n", binfo->bmiHeader.biWidth, binfo->bmiHeader.biHeight);
+    }
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    
+    static const GLfloat uv_buffer_data[] = {
+        0.000059f, 1.0f-0.000004f,
+        0.000103f, 1.0f-0.336048f,
+        0.335973f, 1.0f-0.335903f,
+        1.000023f, 1.0f-0.000013f,
+        0.667979f, 1.0f-0.335851f,
+        0.999958f, 1.0f-0.336064f,
+        0.667979f, 1.0f-0.335851f,
+        0.336024f, 1.0f-0.671877f,
+        0.667969f, 1.0f-0.671889f,
+        1.000023f, 1.0f-0.000013f,
+        0.668104f, 1.0f-0.000013f,
+        0.667979f, 1.0f-0.335851f,
+        0.000059f, 1.0f-0.000004f,
+        0.335973f, 1.0f-0.335903f,
+        0.336098f, 1.0f-0.000071f,
+        0.667979f, 1.0f-0.335851f,
+        0.335973f, 1.0f-0.335903f,
+        0.336024f, 1.0f-0.671877f,
+        1.000004f, 1.0f-0.671847f,
+        0.999958f, 1.0f-0.336064f,
+        0.667979f, 1.0f-0.335851f,
+        0.668104f, 1.0f-0.000013f,
+        0.335973f, 1.0f-0.335903f,
+        0.667979f, 1.0f-0.335851f,
+        0.335973f, 1.0f-0.335903f,
+        0.668104f, 1.0f-0.000013f,
+        0.336098f, 1.0f-0.000071f,
+        0.000103f, 1.0f-0.336048f,
+        0.000004f, 1.0f-0.671870f,
+        0.336024f, 1.0f-0.671877f,
+        0.000103f, 1.0f-0.336048f,
+        0.336024f, 1.0f-0.671877f,
+        0.335973f, 1.0f-0.335903f,
+        0.667969f, 1.0f-0.671889f,
+        1.000004f, 1.0f-0.671847f,
+        0.667979f, 1.0f-0.335851f
+    };
+    glGenBuffers(1, &cbuf);
+    glBindBuffer(GL_ARRAY_BUFFER, cbuf);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(uv_buffer_data), uv_buffer_data, GL_STATIC_DRAW);
+    
 }
 
 void draw_triangle() {
@@ -46,8 +144,21 @@ void draw_triangle() {
         GL_FALSE,
         0, NULL
     );
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, cbuf);
+    glVertexAttribPointer(
+        1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
+        2,                                // size
+        GL_FLOAT,                         // type
+        GL_FALSE,                         // normalized?
+        0,                                // stride
+        NULL                          // array buffer offset
+    );
+    glDrawArrays(GL_TRIANGLES, 0, 12*3);
+    
     glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
 }
 
 void init() {
@@ -76,13 +187,13 @@ void check_mouse(double xrel, double yrel) {
     const float rotx = (xrel*MOUSE_SPEED);
     const float roty = (yrel*MOUSE_SPEED);
     camera.rotation.y += rotx;
-    camera.rotation.x -= roty;
+    camera.rotation.x += roty;
 }
  
 void check_key(int key, uint8_t state) {
     (void)state;
     
-    /*if (key == SDLK_w) {
+    if (key == SDLK_w) {
         camera_move(&camera, CAMERA_DIRECTION_FORWARD, PLAYER_SPEED);
     }
     if (key == SDLK_s) {
@@ -93,7 +204,7 @@ void check_key(int key, uint8_t state) {
     }
     if (key == SDLK_d) {
         camera_move(&camera, CAMERA_DIRECTION_RIGHT, PLAYER_SPEED);
-    }*/
+    }
     if (key == SDLK_ESCAPE) {
         mouse_captured = !mouse_captured;
         SDL_SetRelativeMouseMode(mouse_captured);
@@ -139,6 +250,8 @@ int main() {
     progid = shaders_link(vert, frag);
 
     init();
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
     
     window_set_mouse_mode(WINDOW_MOUSE_DISABLED);
    
@@ -148,7 +261,7 @@ int main() {
         while (SDL_PollEvent(&event))
             check_event(&event);
             
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(progid);
         camera_update(&camera, progid);
         draw();

@@ -1,7 +1,7 @@
 #ifndef C3D_CAMERA_H
 #define C3D_CAMERA_H
 
-#include <gl/type/vec.h>
+#include <gl/types.h>
 
 #define CAMERA_DIRECTION_FORWARD   1
 #define CAMERA_DIRECTION_BACKWARD -1
@@ -12,6 +12,7 @@ typedef struct {
     vector3f_t position;
     vector3f_t direction;
     vector3f_t rotation;
+    mat4_t mat_projection;
 } camera_t;
 
 camera_t camera_new(void);

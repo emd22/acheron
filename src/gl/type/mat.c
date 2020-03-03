@@ -130,7 +130,6 @@ mat4_t mat4_rotate(mat4_t *mat, vector3f_t r, float angle) {
                 -r.z,   0.0f,  r.x,  0.0f,
                  r.y,  -r.x,   0.0f, 0.0f,
                  0.0f,  0.0f,  0.0f, 0.0f
-                
             }
         );
         mat4_from_vec3_mul_outer(&t, r, r);
