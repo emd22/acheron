@@ -21,7 +21,6 @@ image_bmp_t bmp_load(const char *filename) {
     int bitsize;
     int infosize;
     bmp_file_header_t file_header;
-    uint8_t *data;
     
     image_bmp_t bmp;
     bmp.data = NULL;
@@ -59,7 +58,7 @@ image_bmp_t bmp_load(const char *filename) {
     header->important_colours  = read_dword(fp);
 
     if (infosize > 40)
-	    if (fread(bmp.colours, infosize - 40, 1, fp) < 1) {
+	    if (fread(bmp.info.colours, infosize - 40, 1, fp) < 1) {
             goto error;
         }
         
@@ -68,35 +67,36 @@ image_bmp_t bmp_load(const char *filename) {
                    header->pixel_bit_count+7)/8 *
   	           abs(header->image_height);
 
-    if ((bits = malloc(bitsize)) == NULL) {
+    if ((bmp.data = malloc(bitsize)) == NULL) {
         goto error;
     }
 
-    if (fread(bits, 1, bitsize, fp) < (unsigned long)bitsize) {
-        goto errors
+    if (fread(bmp.data, 1, bitsize, fp) < (unsigned long)bitsize) {
+        goto error;
     }
 
     /* Swap red and blue */
     length = (header->image_width*3+3) & ~3;
     uint8_t *ptr;
     uint8_t temp;
-    for (y = 0; y < (*info)->bmiHeader.biHeight; y++)
-        ptr = bits+y*length;
+    for (y = 0; y < header->image_height; y++) {
+        ptr = (bmp.data)+y*length;
         x = header->image_width;
         for (; x > 0; x--, ptr += 3) {
 	        temp   = ptr[0];
 	        ptr[0] = ptr[2];
 	        ptr[2] = temp;
 	    }
+    }
 
     /* OK, everything went fine - return the allocated bitmap... */
+    log_msg(LOG_INFO, "Done\n", 0);
     fclose(fp);
-    bmp.data = data;
     return bmp;
 error:;
-    if (data != NULL)
-        free(data);
-    data = NULL;
+    if (bmp.data != NULL)
+        free(bmp.data);
+    bmp.data = NULL;
     return bmp;
 }
 
@@ -201,8 +201,7 @@ read_dword(FILE *fp)
     }
 
 static int                        
-read_long(FILE *fp)               
-    {
+read_long(FILE *fp) {
     unsigned char b0, b1, b2, b3; 
 
     b0 = getc(fp);
@@ -211,7 +210,7 @@ read_long(FILE *fp)
     b3 = getc(fp);
 
     return ((int)(((((b3 << 8) | b2) << 8) | b1) << 8) | b0);
-    
+}
 /*
 static int                     
 write_word(FILE           *fp, 

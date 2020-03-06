@@ -3,8 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include <gl/bmp.h>
+#include <gl/image.h>
 
 #include <gl/window.h>
 #include <gl/camera.h>
@@ -74,20 +73,16 @@ void make_triangle() {
     unsigned textureid;
     glGenTextures(1, &textureid);
     glBindTexture(GL_TEXTURE_2D, textureid);
-    int width, height;
-    BITMAPINFO *binfo;
-    unsigned char *data = bmp_load("../images/test.bmp", &binfo);
-    width = binfo->bmiHeader.biWidth;
-    height = binfo->bmiHeader.biHeight;
     
-    if (data == NULL) {
-        printf("CANNOT LOAD IMAGE\n");
+    image_t image = image_load("../images/test.bmp", IMAGE_BMP);
+    
+    if (image.data == NULL) {
+        printf("Error loading image\n");
         exit(1);
     }
-    else {
-        printf("nice, %dx%d\n", binfo->bmiHeader.biWidth, binfo->bmiHeader.biHeight);
-    }
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+    log_msg(LOG_INFO, "Loaded image of size %dx%d\n", image.width, image.height);
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width, image.height, 0, GL_RGB, GL_UNSIGNED_BYTE, image.data);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     
