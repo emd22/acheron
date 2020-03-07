@@ -15,9 +15,7 @@ camera_t *selected_camera = NULL;
 
 camera_t camera_new(void) {
     camera_t camera;
-    camera.rotation = (vector3f_t){0.0f, 0.0f, 0.0f};
-    camera.position = (vector3f_t){0.0f, 0.0f, 0.0f};
-    camera.direction = (vector3f_t){0.0f, 0.0f, 0.0f};
+    memset(&camera, 0, sizeof(camera_t));
     return camera;
 }
 
@@ -39,19 +37,25 @@ void camera_clamp_rotation(camera_t *camera) {
         camera->rotation.z = 6.2831f;
 }
 
-void camera_move(camera_t *camera, int direction, float speed) {
+void camera_move(camera_t *camera) {
     float add = 0;
-    if (direction == CAMERA_DIRECTION_LEFT) {
+
+    if (camera->move.x != 0)
         add = 90;
-        direction = -1;
-    }
-    else if (direction == CAMERA_DIRECTION_RIGHT) {
-        add = 90;
-        direction = 1;
-    }
+        
+    float movez = camera->move.z;// ? camera->move.z : 1;
+    float movex = camera->move.x;
+    if (camera->move.z == 0 && camera->move.x != 0)
+        // multiply by 1 to get either -1 or 1
+        movez = camera->move.x*1;
+        
+    if (camera->move.x == 0 && camera->move.z != 0)
+        // multiply by 1 to get either -1 or 1
+        movex = camera->move.z*1;
+    
     float ny = (camera->rotation.y+math_deg_to_rad(add));
-    camera->position.x -= sin(ny)*direction*speed;
-    camera->position.z += cos(ny)*direction*speed;
+    camera->position.x -= sin(ny)*movex*camera->move_speed;
+    camera->position.z += cos(ny)*movez*camera->strafe_speed;
     (void)add;
 }
 
@@ -87,9 +91,6 @@ void camera_update(camera_t *camera, unsigned shaderid) {
     projection = mat4_rotate_x(camera->mat_projection, camera->rotation.x);
     projection = mat4_rotate_y(projection, -camera->rotation.y);
     mat4_translate(&view, (vector3f_t){camera->position.x, camera->position.y, camera->position.z-6});
-    view.val[12] += camera->direction.x;
-    view.val[13] += camera->direction.y;
-    view.val[14] += camera->direction.z;
     //mv += 0.1;
     //mat4_translate(&model, (vector3f_t){sinf(mv), 0, 0});
     mat4_t tmp = mat4_mul(projection, model);

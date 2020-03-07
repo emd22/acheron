@@ -165,6 +165,8 @@ void init() {
     glLoadIdentity();
     log_msg(LOG_INFO, "OpenGL Camera initialized\n", 0);
     camera = camera_new();
+    camera.move_speed = 0.1f;
+    camera.strafe_speed = 0.1f;
     //camera.position.z = -4;
     camera_select(&camera);
     //camera.pitch = 10;
@@ -185,24 +187,38 @@ void check_mouse(double xrel, double yrel) {
     camera.rotation.x += roty;
 }
  
-void check_key(int key, uint8_t state) {
-    (void)state;
-    
+void on_keydown(int key) {
     if (key == SDLK_w) {
-        camera_move(&camera, CAMERA_DIRECTION_FORWARD, PLAYER_SPEED);
+        camera.move.z = 1.0f;
     }
-    if (key == SDLK_s) {
-        camera_move(&camera, CAMERA_DIRECTION_BACKWARD, PLAYER_SPEED);
+    else if (key == SDLK_s) {
+        camera.move.z = -1.0f;
     }
-    if (key == SDLK_a) {
-        camera_move(&camera, CAMERA_DIRECTION_LEFT, PLAYER_SPEED);
+    else if (key == SDLK_a) {
+        camera.move.x = -1.0f;
     }
-    if (key == SDLK_d) {
-        camera_move(&camera, CAMERA_DIRECTION_RIGHT, PLAYER_SPEED);
+    else if (key == SDLK_d) {
+        camera.move.x = 1.0f;
     }
-    if (key == SDLK_ESCAPE) {
+    else if (key == SDLK_ESCAPE) {
         mouse_captured = !mouse_captured;
         SDL_SetRelativeMouseMode(mouse_captured);
+    }
+}
+
+void on_keyup(int key) {
+    if (key == SDLK_w) {
+        camera.move.z = 0.0f;
+    }
+    else if (key == SDLK_s) {
+        camera.move.z = 0.0f;
+    }
+    else if (key == SDLK_a) {
+        camera.move.x = 0.0f;
+    }
+    else if (key == SDLK_d) {
+        camera.move.x = 0.0f;
+        
     }
 }
 
@@ -211,7 +227,10 @@ void check_event(SDL_Event *event) {
         running = false;
     }
     else if (event->type == SDL_KEYDOWN) {
-        check_key(event->key.keysym.sym, event->key.state);
+        on_keydown(event->key.keysym.sym);
+    }
+    else if (event->type == SDL_KEYUP) {
+        on_keyup(event->key.keysym.sym);
     }
     else if (event->type == SDL_MOUSEMOTION) {
         check_mouse(event->motion.xrel, event->motion.yrel);
@@ -258,6 +277,8 @@ int main() {
             
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(progid);
+        if (camera.move.x || camera.move.z)
+            camera_move(&camera);
         camera_update(&camera, progid);
         draw();
         window_buffers_swap(&window);
