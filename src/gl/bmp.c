@@ -187,9 +187,7 @@ read_word(FILE *fp)
     }
 
 
-static unsigned int               
-read_dword(FILE *fp)              
-    {
+static unsigned int read_dword(FILE *fp) {
     unsigned char b0, b1, b2, b3; 
 
     b0 = getc(fp);
