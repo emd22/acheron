@@ -1,22 +1,23 @@
 #include <gl/type/buffer.h>
 #include <gl/log.h>
 
-#define EXPAND_TYPE(buffer) (buffer->flags >> 14)
+#include <stdlib.h>
+#include <string.h>
 
 int buffer_init(buffer_t *buffer, unsigned obj_sz, unsigned start_size) {
-    buffer->used = 0;
+    buffer->index = 0;
     buffer->obj_sz = obj_sz;
-    buffer->start_size = start_size;
+    buffer->size = start_size;
     
-    EXPAND_TYPE(buffer) = BUFFER_ABSOLUTE;
-    buffer->data = malloc(obj_sz*start_size);
+    unsigned long bytes_sz = (unsigned long)obj_sz*(unsigned long)start_size;
+    buffer->data = malloc(bytes_sz);
+    log_msg(LOG_INFO, "Allocating buffer of size %.01f KiB\n", (float)bytes_sz/1024.0f);
     
     if (buffer->data == NULL) {
         log_msg(
                 LOG_ERROR, 
-                "Error allocating buffer of size %u*%u(%lu)", 
-                obj_sz, start_size, 
-                (unsigned long)((unsigned long)obj_sz*(unsigned long)start_size)
+                "Error allocating buffer of size %u*%u(%lu)\n", 
+                obj_sz, start_size, bytes_sz
         );
         return 1;
     }
@@ -24,32 +25,30 @@ int buffer_init(buffer_t *buffer, unsigned obj_sz, unsigned start_size) {
     return 0;
 }
 
-void buffer_set_option(buffer_t *buffer, int option, int value) {
-    if (option == BUFFER_OPTION_EXPAND) {
-        EXPAND_TYPE(buffer) = value;
+void buffer_push(buffer_t *buffer, void *obj) {
+    if (buffer->index >= buffer->size) {
+        buffer_resize(buffer);
     }
+    unsigned long index = (buffer->index)*(buffer->obj_sz);
+    memcpy(((unsigned char *)buffer->data)+(index), obj, buffer->obj_sz);
+    buffer->index++;
 }
 
-void buffer_resize(buffer_t *buffer, int size) {
-    if (buffer->data == NULL)
+void buffer_resize(buffer_t *buffer) {
+    if (buffer->data == NULL) {
+        log_msg(LOG_ERROR, "buffer->data == NULL\n", 0);
         return;
-        
-    switch (EXPAND_TYPE(buffer)) {
-        case BUFFER_ABSOLUTE:
-            buffer->data = realloc(buffer->data, buffer->obj_sz*size);
-            buffer->size = buffer->obj_sz*size;
-            break;
-        case BUFFER_DOUBLE:
-            buffer->data = realloc(buffer->data, buffer->size*2);
-            buffer->size *= 2;
-            break;
-        case BUFFER_ADD:
-            buffer->data = realloc(buffer->data, buffer->size+size);
-            buffer->size += size;
-            break;
-        default:
-            break;
-            
+    }
+    if (buffer->index > buffer->size)
+        buffer->size = buffer->index;
+
+    log_msg(LOG_INFO, "Resizing buffer from %lu to %lu\n", buffer->size, buffer->size*2);
+    buffer->size *= 2;
+    void *newb;
+    newb = realloc(buffer->data, buffer->size*buffer->obj_sz);
+    buffer->data = newb;
+    if (buffer->data == NULL) {
+        log_msg(LOG_ERROR, "Error resizing buffer\n", 0);
     }
 }
 

@@ -11,6 +11,8 @@
 #include <gl/math.h>
 #include <gl/log.h>
 
+#include <gl/model/obj.h>
+
 #include <GL/glew.h>
 #include <GL/gl.h>
 
@@ -21,6 +23,8 @@
 
 camera_t camera;
 window_t window;
+image_t image;
+model_obj_t model;
 bool running = true;
 bool mouse_captured = true;
 
@@ -29,52 +33,16 @@ unsigned vbuf, cbuf;
 unsigned progid;
  
 void make_triangle() {
-    static const float buffer_data[] = {
-            -1.0f,-1.0f,-1.0f, // triangle 1 : begin
-            -1.0f,-1.0f, 1.0f,
-            -1.0f, 1.0f, 1.0f, // triangle 1 : end
-            1.0f, 1.0f,-1.0f, // triangle 2 : begin
-            -1.0f,-1.0f,-1.0f,
-            -1.0f, 1.0f,-1.0f, // triangle 2 : end
-            1.0f,-1.0f, 1.0f,
-            -1.0f,-1.0f,-1.0f,
-            1.0f,-1.0f,-1.0f,
-            1.0f, 1.0f,-1.0f,
-            1.0f,-1.0f,-1.0f,
-            -1.0f,-1.0f,-1.0f,
-            -1.0f,-1.0f,-1.0f,
-            -1.0f, 1.0f, 1.0f,
-            -1.0f, 1.0f,-1.0f,
-            1.0f,-1.0f, 1.0f,
-            -1.0f,-1.0f, 1.0f,
-            -1.0f,-1.0f,-1.0f,
-            -1.0f, 1.0f, 1.0f,
-            -1.0f,-1.0f, 1.0f,
-            1.0f,-1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f,
-            1.0f,-1.0f,-1.0f,
-            1.0f, 1.0f,-1.0f,
-            1.0f,-1.0f,-1.0f,
-            1.0f, 1.0f, 1.0f,
-            1.0f,-1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f,
-            1.0f, 1.0f,-1.0f,
-            -1.0f, 1.0f,-1.0f,
-            1.0f, 1.0f, 1.0f,
-            -1.0f, 1.0f,-1.0f,
-            -1.0f, 1.0f, 1.0f,
-            1.0f, 1.0f, 1.0f,
-            -1.0f, 1.0f, 1.0f,
-            1.0f,-1.0f, 1.0f
-    };
+    model = obj_load("../models/test.obj");
+
     glGenBuffers(1, &vbuf);
     glBindBuffer(GL_ARRAY_BUFFER, vbuf);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(buffer_data), buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, model.vertices.index*sizeof(vector3f_t), model.vertices.data, GL_STATIC_DRAW);
     unsigned textureid;
     glGenTextures(1, &textureid);
     glBindTexture(GL_TEXTURE_2D, textureid);
     
-    image_t image = image_load("../images/test.bmp", IMAGE_BMP);
+    image = image_load("../images/bama.bmp", IMAGE_BMP);
     
     if (image.data == NULL) {
         printf("Error loading image\n");
@@ -85,48 +53,10 @@ void make_triangle() {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width, image.height, 0, GL_RGB, GL_UNSIGNED_BYTE, image.data);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    
-    static const GLfloat uv_buffer_data[] = {
-        0.000059f, 1.0f-0.000004f,
-        0.000103f, 1.0f-0.336048f,
-        0.335973f, 1.0f-0.335903f,
-        1.000023f, 1.0f-0.000013f,
-        0.667979f, 1.0f-0.335851f,
-        0.999958f, 1.0f-0.336064f,
-        0.667979f, 1.0f-0.335851f,
-        0.336024f, 1.0f-0.671877f,
-        0.667969f, 1.0f-0.671889f,
-        1.000023f, 1.0f-0.000013f,
-        0.668104f, 1.0f-0.000013f,
-        0.667979f, 1.0f-0.335851f,
-        0.000059f, 1.0f-0.000004f,
-        0.335973f, 1.0f-0.335903f,
-        0.336098f, 1.0f-0.000071f,
-        0.667979f, 1.0f-0.335851f,
-        0.335973f, 1.0f-0.335903f,
-        0.336024f, 1.0f-0.671877f,
-        1.000004f, 1.0f-0.671847f,
-        0.999958f, 1.0f-0.336064f,
-        0.667979f, 1.0f-0.335851f,
-        0.668104f, 1.0f-0.000013f,
-        0.335973f, 1.0f-0.335903f,
-        0.667979f, 1.0f-0.335851f,
-        0.335973f, 1.0f-0.335903f,
-        0.668104f, 1.0f-0.000013f,
-        0.336098f, 1.0f-0.000071f,
-        0.000103f, 1.0f-0.336048f,
-        0.000004f, 1.0f-0.671870f,
-        0.336024f, 1.0f-0.671877f,
-        0.000103f, 1.0f-0.336048f,
-        0.336024f, 1.0f-0.671877f,
-        0.335973f, 1.0f-0.335903f,
-        0.667969f, 1.0f-0.671889f,
-        1.000004f, 1.0f-0.671847f,
-        0.667979f, 1.0f-0.335851f
-    };
+
     glGenBuffers(1, &cbuf);
     glBindBuffer(GL_ARRAY_BUFFER, cbuf);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(uv_buffer_data), uv_buffer_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, model.uvs.index*sizeof(vector2f_t), model.uvs.data, GL_STATIC_DRAW);
     
 }
 
@@ -150,7 +80,7 @@ void draw_triangle() {
         0,                                // stride
         NULL                          // array buffer offset
     );
-    glDrawArrays(GL_TRIANGLES, 0, 12*3);
+    glDrawArrays(GL_TRIANGLES, 0, model.vertices.size*3);
     
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
@@ -283,6 +213,7 @@ int main() {
         draw();
         window_buffers_swap(&window);
     }
+    //image_destroy(&image);
     window_destroy(&window);
     SDL_Quit();
     return 0;

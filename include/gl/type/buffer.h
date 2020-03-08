@@ -1,16 +1,6 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 
-enum {
-    BUFFER_ABSOLUTE,
-    BUFFER_DOUBLE,
-    BUFFER_ADD,
-};
-
-enum {
-    BUFFER_OPTION_EXPAND,
-};
-
 typedef struct {
     void *data;
     // object size in bytes
@@ -18,7 +8,11 @@ typedef struct {
     unsigned index;
     // allocated size in objects
     unsigned size;
-    unsigned short flags;
 } buffer_t;
+
+int  buffer_init(buffer_t *buffer, unsigned obj_sz, unsigned start_size);
+void buffer_push(buffer_t *buffer, void *obj);
+void buffer_resize(buffer_t *buffer);
+void buffer_destroy(buffer_t *buffer);
 
 #endif
