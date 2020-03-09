@@ -97,6 +97,7 @@ error:;
     if (bmp.data != NULL)
         free(bmp.data);
     bmp.data = NULL;
+    fclose(fp);
     return bmp;
 }
 

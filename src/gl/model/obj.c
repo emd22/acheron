@@ -55,7 +55,6 @@ model_obj_t obj_load(const char *path) {
             vector3f_t normal;
             fscanf(fp, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
             buffer_push(&temp_normals, &normal);
-            log_msg(LOG_INFO, "NRML: %f %f %f\n", normal.x, normal.y, normal.z);
         }
         else if (!strcmp(line, "f")) {
             unsigned vertex_index[3], uv_index[3], normal_index[3];
@@ -104,7 +103,7 @@ model_obj_t obj_load(const char *path) {
     return model;
 }
 
-void obj_destory(model_obj_t *model) {
+void obj_destroy(model_obj_t *model) {
     buffer_destroy(&model->vertices);
     buffer_destroy(&model->uvs);
     buffer_destroy(&model->normals);

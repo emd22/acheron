@@ -13,5 +13,6 @@ typedef struct {
 } model_obj_t;
 
 model_obj_t obj_load(const char *path);
+void obj_destroy(model_obj_t *model);
 
 #endif

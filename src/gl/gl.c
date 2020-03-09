@@ -225,24 +225,25 @@ int main() {
     window_set_mouse_mode(WINDOW_MOUSE_DISABLED);
    
     SDL_Event event;
-    
    
     while (running) {
         while (SDL_PollEvent(&event))
             check_event(&event);
             
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glUseProgram(progid);
         if (camera.move.x || camera.move.z)
             camera_move(&camera);
         camera_update(&camera, progid);
-        unsigned lightid = glGetUniformLocation(progid, "lightPos");
-        float lpos[3] = {2, 2, 2};
-        glUniform3fv(lightid, 3, lpos);
+        //unsigned lightid = glGetUniformLocation(progid, "lightPos");
+        //float lpos[3] = {2, 2, 2};
+        //glUniform3fv(lightid, 3, lpos);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         draw();
         window_buffers_swap(&window);
     }
+    glDeleteProgram(progid);
     image_destroy(&image);
+    obj_destroy(&model);
     window_destroy(&window);
     
     SDL_Quit();
