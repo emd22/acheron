@@ -16,6 +16,7 @@ camera_t *selected_camera = NULL;
 camera_t camera_new(void) {
     camera_t camera;
     memset(&camera, 0, sizeof(camera_t));
+    camera.fov = 45;
     return camera;
 }
 
@@ -61,7 +62,7 @@ void camera_move(camera_t *camera) {
 
 void camera_select(camera_t *camera) {
     window_t *window = window_get_default();
-    math_perspective(&camera->mat_projection, 95, (float)window->width/(float)window->height, 0.1f, 100.0f);
+    math_perspective(&camera->mat_projection, camera->fov, (float)window->width/(float)window->height, 0.1f, 100.0f);
     selected_camera = camera;
 }
  

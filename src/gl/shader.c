@@ -64,7 +64,7 @@ unsigned shader_load(const char *path, int type) {
     unsigned long fsize = ftell(fp);
     rewind(fp);
     
-    char *data = malloc(fsize);
+    char *data = malloc(fsize+1);
     // read shader file into buffer
     fread(data, 1, fsize, fp);
     // set terminating null character

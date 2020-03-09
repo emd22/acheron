@@ -29,7 +29,7 @@ bool running = true;
 bool mouse_captured = true;
 
 unsigned arrayid;
-unsigned vbuf, cbuf;
+unsigned vbuf, cbuf, nbuf;
 unsigned progid;
  
 void make_triangle() {
@@ -58,6 +58,10 @@ void make_triangle() {
     glBindBuffer(GL_ARRAY_BUFFER, cbuf);
     glBufferData(GL_ARRAY_BUFFER, model.uvs.index*sizeof(vector2f_t), model.uvs.data, GL_STATIC_DRAW);
     
+    glGenBuffers(1, &nbuf);
+    glBindBuffer(GL_ARRAY_BUFFER, nbuf);
+    glBufferData(GL_ARRAY_BUFFER, model.normals.index*sizeof(vector3f_t), model.normals.data, GL_STATIC_DRAW);
+    
 }
 
 void draw_triangle() {
@@ -73,17 +77,28 @@ void draw_triangle() {
     glEnableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, cbuf);
     glVertexAttribPointer(
-        1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
-        2,                                // size
-        GL_FLOAT,                         // type
-        GL_FALSE,                         // normalized?
-        0,                                // stride
-        NULL                          // array buffer offset
+        1, 2, 
+        GL_FLOAT, 
+        GL_FALSE, 
+        0,
+        NULL
     );
+    
+    glEnableVertexAttribArray(2);
+    glBindBuffer(GL_ARRAY_BUFFER, nbuf);
+    glVertexAttribPointer(
+        2, 3,
+        GL_FLOAT,
+        GL_FALSE,
+        0,
+        NULL
+    );
+    
     glDrawArrays(GL_TRIANGLES, 0, model.vertices.size*3);
     
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(2);
 }
 
 void init() {
@@ -134,6 +149,9 @@ void on_keydown(int key) {
         mouse_captured = !mouse_captured;
         SDL_SetRelativeMouseMode(mouse_captured);
     }
+    else if (key == SDLK_q) {
+        running = false;
+    }
 }
 
 void on_keyup(int key) {
@@ -148,7 +166,6 @@ void on_keyup(int key) {
     }
     else if (key == SDLK_d) {
         camera.move.x = 0.0f;
-        
     }
 }
 
@@ -162,6 +179,14 @@ void check_event(SDL_Event *event) {
     else if (event->type == SDL_KEYUP) {
         on_keyup(event->key.keysym.sym);
     }
+    /*else if (event->type == SDL_MOUSEBUTTONDOWN) {
+        camera.fov = 95.0f;
+        camera_select(&camera);
+    }
+    else if (event->type == SDL_MOUSEBUTTONUP) {
+        camera.fov = 45.0f;
+        camera_select(&camera);
+    }*/
     else if (event->type == SDL_MOUSEMOTION) {
         check_mouse(event->motion.xrel, event->motion.yrel);
     }
@@ -183,7 +208,7 @@ int main() {
         log_msg(LOG_FATAL, "Could not initialize GLEW\n", 0);
         return 1;
     }
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    //SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     SDL_GL_SetSwapInterval(1);
     glGenVertexArrays(1, &arrayid);
@@ -200,6 +225,7 @@ int main() {
     window_set_mouse_mode(WINDOW_MOUSE_DISABLED);
    
     SDL_Event event;
+    
    
     while (running) {
         while (SDL_PollEvent(&event))
@@ -210,11 +236,15 @@ int main() {
         if (camera.move.x || camera.move.z)
             camera_move(&camera);
         camera_update(&camera, progid);
+        unsigned lightid = glGetUniformLocation(progid, "lightPos");
+        float lpos[3] = {2, 2, 2};
+        glUniform3fv(lightid, 3, lpos);
         draw();
         window_buffers_swap(&window);
     }
-    //image_destroy(&image);
+    image_destroy(&image);
     window_destroy(&window);
+    
     SDL_Quit();
     return 0;
 }

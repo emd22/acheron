@@ -15,13 +15,10 @@ typedef struct {
     vector3f_t move;
     mat4_t mat_projection;
     
-    float velocity;
-    float max_speed;
-    float friction;
-    float acceleration;
-    
     float move_speed;
     float strafe_speed;
+    
+    float fov;
 } camera_t;
 
 camera_t camera_new(void);
