@@ -1,6 +1,8 @@
 #include <gl/shader.h>
 #include <gl/log.h>
 
+#include <gl/type/vec.h>
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -84,6 +86,18 @@ unsigned shader_load(const char *path, int type) {
 }
 
 void shader_set_mat4(unsigned shaderid, const char *var, mat4_t *mat) {
-    unsigned matrixid = glGetUniformLocation(shaderid, var);
-    glUniformMatrix4fv(matrixid, 1, GL_FALSE, mat->val);
+    glUniformMatrix4fv(glGetUniformLocation(shaderid, var), 1, GL_FALSE, mat->val);
 }
+
+void shader_set_float(unsigned shaderid, const char *var, float val) {
+    glUniform1f(glGetUniformLocation(shaderid, var), val);
+}
+
+void shader_set_vec3f(unsigned shaderid, const char *var, vector3f_t vec) {
+    glUniform3f(glGetUniformLocation(shaderid, var), vec.x, vec.y, vec.z);
+}
+
+void shader_set_int(unsigned shaderid, const char *var, int val) {
+    glUniform1i(glGetUniformLocation(shaderid, var), val);
+}
+

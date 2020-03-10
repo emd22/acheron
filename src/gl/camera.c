@@ -69,6 +69,7 @@ void camera_select(camera_t *camera) {
  
 void camera_update(camera_t *camera, unsigned shaderid) {
     mat4_t model, view, projection;
+    static float rot = 0.0f;
     mat4_set(
         &view, 
         (float []){
@@ -89,14 +90,16 @@ void camera_update(camera_t *camera, unsigned shaderid) {
             0.0f, 0.0f, 0.0f, 1.0f
         }
     );
+    //mat4_translate(&model, (vector3f_t){0, 0, sin(rot += 0.1f)*2.0f});
+    model = mat4_rotate_y(model, rot += 0.05f);
     //mat4_translate(&view, (vector3f_t){});
     projection = mat4_rotate_x(camera->mat_projection, camera->rotation.x);
     projection = mat4_rotate_y(projection, -camera->rotation.y);
-    mat4_translate(&view, (vector3f_t){camera->position.x, camera->position.y, camera->position.z-6});
+    mat4_translate(&view, (vector3f_t){camera->position.x, camera->position.y, camera->position.z});
     //mv += 0.1;
     //mat4_translate(&model, (vector3f_t){sinf(mv), 0, 0});
-    mat4_t tmp = mat4_mul(projection, model);
-    mat4_t mvp = mat4_mul(tmp, view);
+    mat4_t tmp = mat4_mul(projection, view);
+    mat4_t mvp = mat4_mul(tmp, model);
     
     shader_set_mat4(shaderid, "M", &model);
     shader_set_mat4(shaderid, "V", &view);

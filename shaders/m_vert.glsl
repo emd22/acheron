@@ -11,20 +11,14 @@ uniform mat4 V;
 out vec2 fragUV;
 out vec3 fragNormal;
 out vec3 fragPos;
-out vec3 fragEyeDirection;
-out vec3 fragLightDirection;
 out vec3 fragLightPos_world;
 out vec3 fragPos_world;
 
 void main() {
     gl_Position = MVP * vec4(vertPosition, 1.0);
-    fragPos = vec3(vec4(vertPosition, 1.0));
-    vec3 vertexPosition = (V * M * vec4(vertPosition, 1)).xyz;
-    fragEyeDirection = vec3(0, 0, 0)-vertexPosition;
+    fragPos = vertPosition;
     fragLightPos_world = vec3(5, 5, 5);
-    vec3 lightPosition = (V * vec4(fragLightPos_world, 1)).xyz;
     fragPos_world = (M*vec4(vertPosition, 1.0f)).xyz;
-    fragLightDirection = lightPosition + fragEyeDirection;
     fragUV = vertUV;
     fragNormal = normalize(vertNormal);
 }

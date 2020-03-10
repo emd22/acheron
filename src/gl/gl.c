@@ -64,6 +64,17 @@ void make_triangle() {
     
 }
 
+void set_material(void) {
+    shader_set_int(progid, "material.diffuse", 0);
+    shader_set_int(progid, "material.specular", 1);
+    shader_set_float(progid, "material.shininess", 100.0f);
+    
+    shader_set_vec3f(progid, "dirLight.direction", (vector3f_t){0.0f, 0.0f, 0.0f});
+    shader_set_vec3f(progid, "dirLight.ambient", (vector3f_t){0.8f, 0.8f, 0.8f});
+    shader_set_vec3f(progid, "dirLight.diffuse", (vector3f_t){0.4f, 0.4f, 0.4f});
+    shader_set_vec3f(progid, "dirLight.specular", (vector3f_t){2.0f, 2.5f, 0.5f});
+}
+
 void draw_triangle() {
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, vbuf);
@@ -109,9 +120,11 @@ void init() {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     log_msg(LOG_INFO, "OpenGL Camera initialized\n", 0);
+    set_material();
     camera = camera_new();
     camera.move_speed = 0.1f;
     camera.strafe_speed = 0.1f;
+    camera.position.z = -5;
     //camera.position.z = -4;
     camera_select(&camera);
     //camera.pitch = 10;
@@ -217,6 +230,7 @@ int main() {
     unsigned vert = shader_load("../shaders/m_vert.glsl", SHADER_VERTEX);
     unsigned frag = shader_load("../shaders/m_frag.glsl", SHADER_FRAGMENT);
     progid = shaders_link(vert, frag);
+    glUseProgram(progid);
 
     init();
     glEnable(GL_DEPTH_TEST);

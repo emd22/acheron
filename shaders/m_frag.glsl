@@ -3,36 +3,57 @@
 in vec2 fragUV;
 in vec3 fragNormal;
 in vec3 fragPos;
-in vec3 fragEyeDirection;
-in vec3 fragLightDirection;
 in vec3 fragLightPos_world;
 in vec3 fragPos_world;
+
+// https://learnopengl.com/Lighting/Multiple-lights
+
+#define MAX_DIRECITONAL_LIGHTS 8
+
+struct Material {
+    sampler2D diffuse;
+    sampler2D specular;
+    float shininess;
+};
+
+struct DirectionalLight {
+    vec3 direction;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+};
 
 out vec3 outputColour;
 
 uniform sampler2D textureSampler;
+uniform Material material;
+uniform DirectionalLight dirLight;
+
+vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir);
 
 void main() {
-    // ambient
-    vec3 lightColour = vec3(1, 1, 0.50);
-    float lightPower = 50.0f;
-    
-    vec3 materialDiffuseColour = vec3(1, 1, 1);
-    vec3 materialAmbientColour = materialDiffuseColour*0.1f;
-    
-    float lightDistance = length(fragLightPos_world - fragPos_world);
-
     vec3 norm = normalize(fragNormal);
-    vec3 lightd = normalize(fragLightDirection);
+    vec3 viewDir = normalize(fragPos_world-fragPos);
+    vec3 result = CalcDirectionalLight(dirLight, norm, viewDir);
     
-    float cosTheta = clamp(dot(norm, lightd), 0, 1);
-    
-    vec3 eyevec = normalize(fragEyeDirection);
-    vec3 refl = reflect(-lightd, norm);
-    
-    float cosAlpha = clamp(dot(eyevec, refl), 0, 1);
-    
-    outputColour = 
-        materialAmbientColour +
-        materialDiffuseColour * lightColour * lightPower * cosTheta / (lightDistance*lightDistance);
+    outputColour = result;
 }
+
+vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir) {
+    vec3 lightDir = normalize(-light.direction);
+    // diffuse
+    float diff = max(dot(normal, lightDir), 0.0f);
+    // specular
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0f), material.shininess);
+    // final
+    vec3 ambient = light.ambient * vec3(texture(material.diffuse, fragUV));
+    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, fragUV));
+    vec3 specular = light.specular * spec * vec3(texture(material.specular, fragUV));
+    return (ambient + diffuse + specular);
+}
+
+
+
+
+
