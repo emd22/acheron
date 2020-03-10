@@ -12,7 +12,7 @@ void check_status(unsigned id) {
     int info_log_length;
 	glGetShaderiv(id, GL_INFO_LOG_LENGTH, &info_log_length);
 	if (info_log_length > 0) {
-	    char info_log[256];
+	    char info_log[2048];
 	    glGetShaderInfoLog(id, info_log_length, NULL, info_log);
 	    log_msg(LOG_WARN, "info_log_length > 0! (%d)\n", info_log_length);
 	    log_msg(LOG_ERROR, "Info Log:\n%s\n", info_log);
@@ -48,6 +48,7 @@ char *filename_from_path(char *str) {
     return newb+1;
 }
 
+
 unsigned shader_load(const char *path, int type) {
     unsigned id = glCreateShader(type);
     const char *typestrs[] = {
@@ -80,4 +81,9 @@ unsigned shader_load(const char *path, int type) {
     check_status(id);
     log_msg(LOG_INFO, "Done\n", 0);
     return id;
+}
+
+void shader_set_mat4(unsigned shaderid, const char *var, mat4_t *mat) {
+    unsigned matrixid = glGetUniformLocation(shaderid, var);
+    glUniformMatrix4fv(matrixid, 1, GL_FALSE, mat->val);
 }

@@ -102,7 +102,7 @@ void draw_triangle() {
 }
 
 void init() {
-    glClearColor(0.2, 0.0, 0.2, 1);
+    glClearColor(0.0, 0.0, 0.0, 1);
     glViewport(0, 0, 800, 600);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -198,7 +198,7 @@ int main() {
         return 1;
     }
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,0);
     
     window = window_new("Ethan's 3D Engine", 800, 600, 0);
     window_set_default(&window);

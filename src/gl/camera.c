@@ -3,6 +3,7 @@
 #include <gl/log.h>
 #include <gl/math.h>
 #include <gl/types.h>
+#include <gl/shader.h>
 
 #include <math.h>
 
@@ -96,7 +97,8 @@ void camera_update(camera_t *camera, unsigned shaderid) {
     //mat4_translate(&model, (vector3f_t){sinf(mv), 0, 0});
     mat4_t tmp = mat4_mul(projection, model);
     mat4_t mvp = mat4_mul(tmp, view);
-
-    unsigned matrixid = glGetUniformLocation(shaderid, "MVP");
-    glUniformMatrix4fv(matrixid, 1, GL_FALSE, mvp.val);
+    
+    shader_set_mat4(shaderid, "M", &model);
+    shader_set_mat4(shaderid, "V", &view);
+    shader_set_mat4(shaderid, "MVP", &mvp);
 }
