@@ -11,7 +11,6 @@ int buffer_init(buffer_t *buffer, unsigned obj_sz, unsigned start_size) {
     
     unsigned long bytes_sz = (unsigned long)obj_sz*(unsigned long)start_size;
     buffer->data = malloc(bytes_sz);
-    log_msg(LOG_INFO, "Allocating buffer of size %.01f KiB\n", (float)bytes_sz/1024.0f);
     
     if (buffer->data == NULL) {
         log_msg(

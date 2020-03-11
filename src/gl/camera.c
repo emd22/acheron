@@ -56,7 +56,7 @@ void camera_move(camera_t *camera) {
         movex = camera->move.z*1;
     
     float ny = (camera->rotation.y+math_deg_to_rad(add));
-    camera->position.x -= sin(ny)*movex*camera->move_speed;
+    camera->position.x += sin(ny)*movex*camera->move_speed;
     camera->position.z += cos(ny)*movez*camera->strafe_speed;
     (void)add;
 }
@@ -91,11 +91,11 @@ void camera_update(camera_t *camera, unsigned shaderid) {
         }
     );
     //mat4_translate(&model, (vector3f_t){0, 0, sin(rot += 0.1f)*2.0f});
-    model = mat4_rotate_y(model, rot += 0.05f);
+    model = mat4_rotate_y(model, rot += 0.01f);
     //mat4_translate(&view, (vector3f_t){});
     projection = mat4_rotate_x(camera->mat_projection, camera->rotation.x);
     projection = mat4_rotate_y(projection, -camera->rotation.y);
-    mat4_translate(&view, (vector3f_t){camera->position.x, camera->position.y, camera->position.z});
+    mat4_translate(&view, (vector3f_t){-camera->position.x, -camera->position.y, camera->position.z});
     //mv += 0.1;
     //mat4_translate(&model, (vector3f_t){sinf(mv), 0, 0});
     mat4_t tmp = mat4_mul(projection, view);

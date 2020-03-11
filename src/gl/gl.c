@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include <gl/image.h>
+#include <gl/texture.h>
 
 #include <gl/window.h>
 #include <gl/camera.h>
@@ -23,7 +23,7 @@
 
 camera_t camera;
 window_t window;
-image_t image;
+texture_t bama, bama_spec;
 model_obj_t model;
 bool running = true;
 bool mouse_captured = true;
@@ -32,32 +32,30 @@ unsigned arrayid;
 unsigned vbuf, cbuf, nbuf;
 unsigned progid;
  
-void make_triangle() {
+void load_models() {
     model = obj_load("../models/test.obj");
+    
+    bama = texture_load("../images/bama.bmp");
+    bama_spec = texture_load("../images/bama_spec.bmp");
+    
+    // assign image to texture0 in fragment shader
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, bama.id);
+    // assign image2 to texture1 in fragment shader
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, bama_spec.id);
 
+    // vertices
     glGenBuffers(1, &vbuf);
     glBindBuffer(GL_ARRAY_BUFFER, vbuf);
     glBufferData(GL_ARRAY_BUFFER, model.vertices.index*sizeof(vector3f_t), model.vertices.data, GL_STATIC_DRAW);
-    unsigned textureid;
-    glGenTextures(1, &textureid);
-    glBindTexture(GL_TEXTURE_2D, textureid);
-    
-    image = image_load("../images/bama.bmp", IMAGE_BMP);
-    
-    if (image.data == NULL) {
-        printf("Error loading image\n");
-        exit(1);
-    }
-    log_msg(LOG_INFO, "Loaded image of size %dx%d\n", image.width, image.height);
-    
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.width, image.height, 0, GL_RGB, GL_UNSIGNED_BYTE, image.data);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
+    // colour(uvs)
     glGenBuffers(1, &cbuf);
     glBindBuffer(GL_ARRAY_BUFFER, cbuf);
     glBufferData(GL_ARRAY_BUFFER, model.uvs.index*sizeof(vector2f_t), model.uvs.data, GL_STATIC_DRAW);
     
+    // normals
     glGenBuffers(1, &nbuf);
     glBindBuffer(GL_ARRAY_BUFFER, nbuf);
     glBufferData(GL_ARRAY_BUFFER, model.normals.index*sizeof(vector3f_t), model.normals.data, GL_STATIC_DRAW);
@@ -67,15 +65,15 @@ void make_triangle() {
 void set_material(void) {
     shader_set_int(progid, "material.diffuse", 0);
     shader_set_int(progid, "material.specular", 1);
-    shader_set_float(progid, "material.shininess", 100.0f);
+    shader_set_float(progid, "material.shininess", 32.0f);
     
-    shader_set_vec3f(progid, "dirLight.direction", (vector3f_t){0.0f, 0.0f, 0.0f});
-    shader_set_vec3f(progid, "dirLight.ambient", (vector3f_t){0.8f, 0.8f, 0.8f});
+    shader_set_vec3f(progid, "dirLight.direction", (vector3f_t){-0.3f, 0.0f, -0.40f});
+    shader_set_vec3f(progid, "dirLight.ambient", (vector3f_t){0.15f, 0.15f, 0.15f});
     shader_set_vec3f(progid, "dirLight.diffuse", (vector3f_t){0.4f, 0.4f, 0.4f});
-    shader_set_vec3f(progid, "dirLight.specular", (vector3f_t){2.0f, 2.5f, 0.5f});
+    shader_set_vec3f(progid, "dirLight.specular", (vector3f_t){0.5f, 0.5f, 0.5f});
 }
 
-void draw_triangle() {
+void draw_models() {
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, vbuf);
     glVertexAttribPointer(
@@ -114,26 +112,28 @@ void draw_triangle() {
 
 void init() {
     glClearColor(0.0, 0.0, 0.0, 1);
-    glViewport(0, 0, 800, 600);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    log_msg(LOG_INFO, "OpenGL Camera initialized\n", 0);
+    glViewport(0, 0, window.width, window.height);
+    
     set_material();
+    
     camera = camera_new();
     camera.move_speed = 0.1f;
     camera.strafe_speed = 0.1f;
     camera.position.z = -5;
-    //camera.position.z = -4;
+    
+    // select camera to be default and calculate perspective matrix
     camera_select(&camera);
-    //camera.pitch = 10;
     log_msg(LOG_INFO, "Camera initialized\n", 0);
-    make_triangle();
+    
+    load_models();
+    
+    // fix overlapping polygons
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
 }
  
 void draw() {
-    draw_triangle();
+    draw_models();
 }
 
 void check_mouse(double xrel, double yrel) {
@@ -211,7 +211,7 @@ int main() {
         return 1;
     }
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION,0);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
     
     window = window_new("Ethan's 3D Engine", 800, 600, 0);
     window_set_default(&window);
@@ -233,8 +233,6 @@ int main() {
     glUseProgram(progid);
 
     init();
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
     
     window_set_mouse_mode(WINDOW_MOUSE_DISABLED);
    
@@ -248,6 +246,7 @@ int main() {
         if (camera.move.x || camera.move.z)
             camera_move(&camera);
         camera_update(&camera, progid);
+        shader_set_vec3f(progid, "viewPos", camera.position);
         //unsigned lightid = glGetUniformLocation(progid, "lightPos");
         //float lpos[3] = {2, 2, 2};
         //glUniform3fv(lightid, 3, lpos);
@@ -256,7 +255,8 @@ int main() {
         window_buffers_swap(&window);
     }
     glDeleteProgram(progid);
-    image_destroy(&image);
+    texture_destroy(&bama);
+    texture_destroy(&bama_spec);
     obj_destroy(&model);
     window_destroy(&window);
     
