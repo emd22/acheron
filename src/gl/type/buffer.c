@@ -41,7 +41,7 @@ void buffer_resize(buffer_t *buffer) {
     if (buffer->index > buffer->size)
         buffer->size = buffer->index;
 
-    log_msg(LOG_INFO, "Resizing buffer from %lu to %lu\n", buffer->size, buffer->size*2);
+    log_msg(LOG_INFO, "Resizing buffer from %luKB to %luKB\n", buffer->size/1024, buffer->size*2/1024);
     buffer->size *= 2;
     void *newb;
     newb = realloc(buffer->data, buffer->size*buffer->obj_sz);
