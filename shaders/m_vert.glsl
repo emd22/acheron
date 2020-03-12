@@ -6,7 +6,6 @@ layout(location = 2) in vec3 vertNormal;
 
 uniform mat4 MVP;
 uniform mat4 M;
-uniform mat4 V;
 
 out vec3 fragPos;
 out vec2 fragUV;

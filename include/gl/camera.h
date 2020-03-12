@@ -19,6 +19,8 @@ typedef struct {
     float strafe_speed;
     
     float fov;
+    
+    mat4_t vp_mat;
 } camera_t;
 
 camera_t camera_new(void);

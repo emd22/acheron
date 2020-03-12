@@ -1,6 +1,7 @@
 #include <gl/model.h>
 #include <gl/model/obj.h>
 #include <gl/log.h>
+#include <gl/shader.h>
 
 #include <string.h>
 #include <stdlib.h>
@@ -45,6 +46,47 @@ model_t model_load(const char *path, int type) {
     glBufferData(GL_ARRAY_BUFFER, model.normals->index*sizeof(vector3f_t), model.normals->data, GL_STATIC_DRAW);
     
     return model;
+}
+
+void model_draw(model_t *model, camera_t *camera, unsigned shaderid) {
+    mat4_t val = mat4_mul(camera->vp_mat, model->matrix);
+    shader_set_mat4(shaderid, "M", &(model->matrix));
+    shader_set_mat4(shaderid, "MVP", &val);
+    
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, model->vertex_id);
+    glVertexAttribPointer(
+        0, 3,
+        GL_FLOAT,
+        GL_FALSE,
+        0, NULL
+    );
+    
+    glEnableVertexAttribArray(1);
+    glBindBuffer(GL_ARRAY_BUFFER, model->uv_id);
+    glVertexAttribPointer(
+        1, 2, 
+        GL_FLOAT, 
+        GL_FALSE, 
+        0,
+        NULL
+    );
+    
+    glEnableVertexAttribArray(2);
+    glBindBuffer(GL_ARRAY_BUFFER, model->normal_id);
+    glVertexAttribPointer(
+        2, 3,
+        GL_FLOAT,
+        GL_FALSE,
+        0,
+        NULL
+    );
+    
+    glDrawArrays(GL_TRIANGLES, 0, model->vertices->size*3);
+    
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(2);
 }
 
 void model_destroy(model_t *model) {

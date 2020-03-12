@@ -58,7 +58,7 @@ void set_material(void) {
 }
 
 void draw_models() {
-    glEnableVertexAttribArray(0);
+    /*glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, model.vertex_id);
     glVertexAttribPointer(
         0, 3,
@@ -91,7 +91,8 @@ void draw_models() {
     
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(2);
+    glDisableVertexAttribArray(2);*/
+    model_draw(&model, &camera, progid);
 }
 
 void init() {
