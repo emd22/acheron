@@ -45,6 +45,8 @@ model_t model_load(const char *path, int type) {
     glBindBuffer(GL_ARRAY_BUFFER, model.normal_id);
     glBufferData(GL_ARRAY_BUFFER, model.normals->index*sizeof(vector3f_t), model.normals->data, GL_STATIC_DRAW);
     
+    mat4_set(&model.matrix, MAT4_IDENTITY);
+    
     return model;
 }
 
@@ -55,32 +57,15 @@ void model_draw(model_t *model, camera_t *camera, unsigned shaderid) {
     
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, model->vertex_id);
-    glVertexAttribPointer(
-        0, 3,
-        GL_FLOAT,
-        GL_FALSE,
-        0, NULL
-    );
+    glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, NULL);
     
     glEnableVertexAttribArray(1);
     glBindBuffer(GL_ARRAY_BUFFER, model->uv_id);
-    glVertexAttribPointer(
-        1, 2, 
-        GL_FLOAT, 
-        GL_FALSE, 
-        0,
-        NULL
-    );
+    glVertexAttribPointer(1, 2, GL_FLOAT, 0, 0, NULL);
     
     glEnableVertexAttribArray(2);
     glBindBuffer(GL_ARRAY_BUFFER, model->normal_id);
-    glVertexAttribPointer(
-        2, 3,
-        GL_FLOAT,
-        GL_FALSE,
-        0,
-        NULL
-    );
+    glVertexAttribPointer(2, 3, GL_FLOAT, 0, 0, NULL);
     
     glDrawArrays(GL_TRIANGLES, 0, model->vertices->size*3);
     

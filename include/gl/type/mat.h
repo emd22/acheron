@@ -3,6 +3,9 @@
 
 #include <gl/type/vec.h>
 
+#define MAT4_IDENTITY \
+    (float []){1, 0, 0, 0,/**/ 0, 1, 0, 0, /**/ 0, 0, 1, 0, /**/ 0, 0, 0, 1}
+
 typedef struct {
     float val[16];
 } mat4_t;

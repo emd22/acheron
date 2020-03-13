@@ -68,39 +68,13 @@ void camera_select(camera_t *camera) {
 }
  
 void camera_update(camera_t *camera, unsigned shaderid) {
-    mat4_t model, view, projection;
+    mat4_t view, projection;
     (void)shaderid;
-    mat4_set(
-        &view, 
-        (float []){
-            1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f,
-        }
-    );
-    //mat4_translate(&view, (vector3f_t){4, 3, 3});
+    mat4_set(&view, MAT4_IDENTITY);
     
-    mat4_set(
-        &model,
-        (float []){
-            1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f
-        }
-    );
-    //mat4_translate(&model, (vector3f_t){0, 0, sin(rot += 0.1f)*2.0f});
-    //model = mat4_rotate_y(model, rot += 0.01f);
-    //mat4_translate(&view, (vector3f_t){});
     projection = mat4_rotate_x(camera->mat_projection, camera->rotation.x);
     projection = mat4_rotate_y(projection, -camera->rotation.y);
     mat4_translate(&view, (vector3f_t){-camera->position.x, -camera->position.y, camera->position.z});
-    //mv += 0.1;
-    //mat4_translate(&model, (vector3f_t){sinf(mv), 0, 0});
+
     camera->vp_mat = mat4_mul(projection, view);
-    //mat4_t mvp = mat4_mul(camera->vp_mat, model);
-    
-    //shader_set_mat4(shaderid, "M", &model);
-    //shader_set_mat4(shaderid, "MVP", &mvp);
 }

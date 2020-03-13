@@ -23,8 +23,8 @@
 
 camera_t camera;
 window_t window;
-texture_t bama, bama_spec;
-model_t model;
+texture_t image, image_spec;
+model_t model, model2;
 bool running = true;
 bool mouse_captured = true;
 
@@ -33,17 +33,19 @@ unsigned progid;
  
 void load_models() {
     
-    bama = texture_load("../images/blank.bmp");
-    bama_spec = texture_load("../images/bama_spec.bmp");
+    image = texture_load("../images/blank.bmp");
+    image_spec = texture_load("../images/bama_spec.bmp");
     
     // assign image to texture0 in fragment shader
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, bama.id);
+    glBindTexture(GL_TEXTURE_2D, image.id);
     // assign specular to texture1 in fragment shader
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, bama_spec.id);
+    glBindTexture(GL_TEXTURE_2D, image_spec.id);
 
     model = model_load("../models/cube.obj", MODEL_OBJ);
+    model2 = model_load("../models/cube.obj", MODEL_OBJ);
+    mat4_translate(&(model2.matrix), (vector3f_t){4, 0, 0});
 }
 
 void set_material(void) {
@@ -58,41 +60,10 @@ void set_material(void) {
 }
 
 void draw_models() {
-    /*glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, model.vertex_id);
-    glVertexAttribPointer(
-        0, 3,
-        GL_FLOAT,
-        GL_FALSE,
-        0, NULL
-    );
-    
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, model.uv_id);
-    glVertexAttribPointer(
-        1, 2, 
-        GL_FLOAT, 
-        GL_FALSE, 
-        0,
-        NULL
-    );
-    
-    glEnableVertexAttribArray(2);
-    glBindBuffer(GL_ARRAY_BUFFER, model.normal_id);
-    glVertexAttribPointer(
-        2, 3,
-        GL_FLOAT,
-        GL_FALSE,
-        0,
-        NULL
-    );
-    
-    glDrawArrays(GL_TRIANGLES, 0, model.vertices->size*3);
-    
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(2);*/
+    model.matrix = mat4_rotate_z(model.matrix, 0.1);
+    model2.matrix = mat4_rotate_x(model2.matrix, 0.1);
     model_draw(&model, &camera, progid);
+    model_draw(&model2, &camera, progid);
 }
 
 void init() {
@@ -240,9 +211,10 @@ int main() {
         window_buffers_swap(&window);
     }
     glDeleteProgram(progid);
-    texture_destroy(&bama);
-    texture_destroy(&bama_spec);
+    texture_destroy(&image);
+    texture_destroy(&image_spec);
     model_destroy(&model);
+    model_destroy(&model2);
     window_destroy(&window);
     
     SDL_Quit();
