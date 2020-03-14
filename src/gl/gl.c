@@ -4,14 +4,13 @@
 #include <stdint.h>
 
 #include <gl/texture.h>
-
 #include <gl/window.h>
 #include <gl/camera.h>
 #include <gl/shader.h>
 #include <gl/math.h>
 #include <gl/log.h>
-
 #include <gl/model.h>
+#include <gl/time.h>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -33,8 +32,8 @@ unsigned progid;
  
 void load_models() {
     
-    image = texture_load("../images/blank.bmp");
-    image_spec = texture_load("../images/bama_spec.bmp");
+    image = texture_load("../images/brick.bmp");
+    image_spec = texture_load("../images/brick_spec.bmp");
     
     // assign image to texture0 in fragment shader
     glActiveTexture(GL_TEXTURE0);
@@ -44,8 +43,8 @@ void load_models() {
     glBindTexture(GL_TEXTURE_2D, image_spec.id);
 
     model = model_load("../models/cube.obj", MODEL_OBJ);
-    model2 = model_load("../models/cube.obj", MODEL_OBJ);
-    mat4_translate(&(model2.matrix), (vector3f_t){4, 0, 0});
+    model2 = model_load("../models/level.obj", MODEL_OBJ);
+    mat4_translate(&(model2.matrix), (vector3f_t){0, -2, 0});
 }
 
 void set_material(void) {
@@ -53,15 +52,14 @@ void set_material(void) {
     shader_set_int(progid, "material.specular", 1);
     shader_set_float(progid, "material.shininess", 32.0f);
     
-    shader_set_vec3f(progid, "dirLight.direction", (vector3f_t){-0.3f, 0.0f, -0.40f});
+    shader_set_vec3f(progid, "dirLight.direction", (vector3f_t){-1.0f, -2.0f, -0.40f});
     shader_set_vec3f(progid, "dirLight.ambient", (vector3f_t){0.15f, 0.15f, 0.15f});
     shader_set_vec3f(progid, "dirLight.diffuse", (vector3f_t){0.4f, 0.4f, 0.4f});
     shader_set_vec3f(progid, "dirLight.specular", (vector3f_t){0.5f, 0.5f, 0.5f});
 }
 
 void draw_models() {
-    model.matrix = mat4_rotate_z(model.matrix, 0.1);
-    model2.matrix = mat4_rotate_x(model2.matrix, 0.1);
+    model.matrix = mat4_rotate_z(model.matrix, 0.01);
     model_draw(&model, &camera, progid);
     model_draw(&model2, &camera, progid);
 }
@@ -86,6 +84,8 @@ void init() {
     // fix overlapping polygons
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+    
+    glEnable(GL_CULL_FACE);
 }
  
 void draw() {
@@ -193,10 +193,14 @@ int main() {
     window_set_mouse_mode(WINDOW_MOUSE_DISABLED);
    
     SDL_Event event;
+    
+    time_init();
    
     while (running) {
         while (SDL_PollEvent(&event))
             check_event(&event);
+        
+        time_tick();
             
         glUseProgram(progid);
         if (camera.move.x || camera.move.z)
@@ -209,6 +213,8 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         draw();
         window_buffers_swap(&window);
+
+        //log_msg(LOG_INFO, "fps: %u\n", time_get_fps());
     }
     glDeleteProgram(progid);
     texture_destroy(&image);

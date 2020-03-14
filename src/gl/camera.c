@@ -56,6 +56,7 @@ void camera_move(camera_t *camera) {
         movex = camera->move.z*1;
     
     float ny = (camera->rotation.y+math_deg_to_rad(add));
+    
     camera->position.x += sin(ny)*movex*camera->move_speed;
     camera->position.z += cos(ny)*movez*camera->strafe_speed;
     (void)add;
