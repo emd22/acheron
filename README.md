@@ -1,4 +1,4 @@
-# c3d
+# f3d
 A simple 3d game engine written in C. This is mainly a learning tool,
  but I hope to eventually get it to the point of being a working game!
 ### Requirements
