@@ -17,7 +17,7 @@ camera_t *selected_camera = NULL;
 camera_t camera_new(void) {
     camera_t camera;
     memset(&camera, 0, sizeof(camera_t));
-    camera.fov = math_deg_to_rad(65);
+    camera.fov = 65;
     camera.direction = (vector3f_t){0, 0, 0};
     return camera;
 }
@@ -69,7 +69,13 @@ void camera_move(camera_t *camera, int direction) {
 }
 
 void camera_select(camera_t *camera) {
-    math_perspective(&camera->mat_projection, camera->fov, (float)default_window->width/(float)default_window->height, 0.1f, 100.0f);
+    math_perspective(
+        &camera->mat_projection, 
+        math_deg_to_rad(camera->fov), 
+        (float)default_window->width/(float)default_window->height,
+        0.1f,
+        100.0f
+    );
     selected_camera = camera;
 }
   

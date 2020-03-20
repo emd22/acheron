@@ -71,8 +71,8 @@ void init_gl() {
     
     camera = camera_new();
     camera.move_speed = 0.1f;
-    camera.strafe_speed = 0.1f;
     camera.position = (vector3f_t){0, 0, 0};
+    camera.rotation = (vector3f_t){3.14f, 0, 0};
     
     // select camera to be default and calculate perspective matrix
     camera_select(&camera);
@@ -146,8 +146,8 @@ void load_models() {
     
     level = material_new((material_t){
         "Level",
-        texture_load("../images/bama.bmp", IMAGE_BMP),
-        texture_load("../images/bama_spec.bmp", IMAGE_BMP),
+        texture_load("../images/marble.bmp", IMAGE_BMP),
+        texture_load("../images/marble_spec.bmp", IMAGE_BMP),
         0, 1, 2.0f
     });
 
@@ -158,11 +158,12 @@ void load_models() {
 }
 
 void set_material(void) {
-    
-    shader_set_vec3f(progid, "dirLight.direction", (vector3f_t){-1.0f, -2.0f, -0.40f});
-    shader_set_vec3f(progid, "dirLight.ambient", (vector3f_t){0.15f, 0.15f, 0.15f});
-    shader_set_vec3f(progid, "dirLight.diffuse", (vector3f_t){0.4f, 0.4f, 0.4f});
-    shader_set_vec3f(progid, "dirLight.specular", (vector3f_t){0.5f, 0.5f, 0.5f});
+    light_t *light = light_new(LIGHT_DIRECTIONAL);
+    light->direction = (vector3f_t){-1.0f, -2.0f, -0.4f};
+    light->ambient   = (vector3f_t){0.15f, 0.15f, 0.15f};
+    light->diffuse   = (vector3f_t){0.4f, 0.4f, 0.4f};
+    light->specular  = (vector3f_t){0.5f, 0.5f, 0.5f};
+    light_init(light, progid);
 }
 
 void draw_models() {

@@ -10,5 +10,6 @@
 #include <f3d/engine/log.h>
 #include <f3d/engine/time.h>
 #include <f3d/engine/math.h>
+#include <f3d/engine/light.h>
 
 #endif 

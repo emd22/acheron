@@ -14,11 +14,9 @@ typedef struct {
     
     vector3f_t right, direction, up;
     
-    vector3f_t move;
     mat4_t mat_projection;
     
     float move_speed;
-    float strafe_speed;
     
     float fov;
     
