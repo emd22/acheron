@@ -70,7 +70,7 @@ void init_gl() {
     glUseProgram(progid);
     
     camera = camera_new();
-    camera.move_speed = 0.1f;
+    camera.move_speed = 0.06f;
     camera.position = (vector3f_t){0, 0, 0};
     camera.rotation = (vector3f_t){3.14f, 0, 0};
     

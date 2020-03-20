@@ -4,6 +4,7 @@
 #include <f3d/engine/math.h>
 #include <f3d/engine/types.h>
 #include <f3d/engine/shader.h>
+#include <f3d/engine/time.h>
 
 #include <math.h>
 
@@ -24,43 +25,39 @@ camera_t camera_new(void) {
 
 void camera_clamp_rotation(camera_t *camera) {
     // Rotation X
-    if (camera->rotation.x > 6.2831f/*360deg in radians*/)
+    if (camera->rotation.x > 6.2831f)
         camera->rotation.x = 0.0f;
     else if (camera->rotation.x < 0)
         camera->rotation.x = 6.2831f;
     // Rotation Y
-    if (camera->rotation.y > 6.2831f)
-        camera->rotation.y = 0.0f;
-    else if (camera->rotation.y < 0)
-        camera->rotation.y = 6.2831f;
-    // Rotation Z
-    if (camera->rotation.z > 6.2831f)
-        camera->rotation.z = 0.0f;
-    else if (camera->rotation.z < 0)
-        camera->rotation.z = 6.2831f;
+    if (camera->rotation.y > F3D_PI)
+        camera->rotation.y = F3D_PI;
+    else if (camera->rotation.y < -math_deg_to_rad(60))
+        camera->rotation.y = -math_deg_to_rad(60);
 }
 
 void camera_move(camera_t *camera, int direction) {
-    (void)camera;
-    (void)direction;
-    //vector3f_t position = VEC3F_VALUE(camera->position);
     switch (direction) {
         case CAMERA_FORWARD:
-            camera->direction = vec3f_mul_v(camera->direction, camera->move_speed);
             camera->direction.y = 0;
+            camera->direction = vec3f_mul_v(camera->direction, camera->move_speed);
+            camera->direction = vec3f_mul_v(camera->direction, delta_time);
             vec3f_add(&(camera->position), camera->position, (camera->direction));
             break;
         case CAMERA_BACKWARD:
             camera->direction.y = 0;
             camera->direction = vec3f_mul_v(camera->direction, camera->move_speed);
+            camera->direction = vec3f_mul_v(camera->direction, delta_time);
             vec3f_sub(&(camera->position), camera->position, (camera->direction));
             break;
         case CAMERA_LEFT:
             camera->right = vec3f_mul_v(camera->right, camera->move_speed);
+            camera->right = vec3f_mul_v(camera->right, delta_time);
             vec3f_sub(&(camera->position), camera->position, (camera->right));
             break;
         case CAMERA_RIGHT:
             camera->right = vec3f_mul_v(camera->right, camera->move_speed);
+            camera->right = vec3f_mul_v(camera->right, delta_time);
             vec3f_add(&(camera->position), camera->position, (camera->right));
             break;
         default:
@@ -82,6 +79,7 @@ void camera_select(camera_t *camera) {
 void camera_update(camera_t *camera, unsigned shaderid) {
     mat4_t view, projection = camera->mat_projection;
     (void)shaderid;
+    camera_clamp_rotation(camera);
 
     camera->direction = (vector3f_t){
         cos(camera->rotation.y)*sin(camera->rotation.x),

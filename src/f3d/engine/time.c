@@ -2,25 +2,16 @@
 
 #include <SDL2/SDL.h>
 
-static unsigned last;
-static unsigned fps;
-static unsigned frames;
+static unsigned now, last;
+double delta_time = 0;
 
 void time_init(void) {
-    last = SDL_GetTicks();
-    frames = 0;
-    fps = 0;
+    now = SDL_GetPerformanceCounter();
+    last = 0;
 }
 
 void time_tick(void) {
-    frames++;
-    if (last < SDL_GetTicks()-1.0f*1000) {
-        last = SDL_GetTicks();
-        fps = frames;
-        frames = 0;
-    }
-}
-
-unsigned time_get_fps(void) {
-    return fps;
+    last = now;
+    now = SDL_GetPerformanceCounter();
+    delta_time = (double)((now-last)*1000/(double)SDL_GetPerformanceFrequency());
 }

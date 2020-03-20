@@ -3,7 +3,7 @@
 
 #include <f3d/engine/types.h>
 
-#define C3D_PI 3.1415926535
+#define F3D_PI 3.1415926535
 
 inline double math_deg_to_rad(double degrees) {
     return degrees/57.295779513;
