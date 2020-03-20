@@ -12,7 +12,7 @@
 
 #include <math.h>
 
-#define MOUSE_SPEED 0.001
+#define MOUSE_SPEED 0.0003
 #define PLAYER_SPEED 0.10
 
 void set_material();
@@ -20,8 +20,6 @@ void load_models();
 void draw_models();
 void draw();
 void check_mouse(double xrel, double yrel);
-void on_keydown(int key);
-void on_keyup(int key);
 void check_event(SDL_Event *event);
 
 window_t window;
@@ -109,10 +107,9 @@ int main() {
     time_init();
    
     while (game_info.flags & GAME_IS_RUNNING) {
-        while (SDL_PollEvent(&event))
-            check_event(&event);
-        
         time_tick();
+        while (SDL_PollEvent(&event))
+            check_event(&event);        
             
         glUseProgram(progid);
         move();
@@ -182,8 +179,8 @@ void draw() {
 void check_mouse(double xrel, double yrel) {
     if (!(game_info.controls.flags & CONTROLS_MOUSE_CAPTURED))
         return;
-    camera.rotation.x -= xrel*MOUSE_SPEED;
-    camera.rotation.y -= yrel*MOUSE_SPEED;
+    camera.rotation.x -= xrel*MOUSE_SPEED*delta_time;
+    camera.rotation.y -= yrel*MOUSE_SPEED*delta_time;
     //log_msg(LOG_INFO, "%f, %f\n", math_rad_to_deg(camera.rotation.x), math_rad_to_deg(camera.rotation.y));
 }
 
