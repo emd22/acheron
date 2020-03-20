@@ -45,6 +45,17 @@ void mat4_row(vector4f_t *vec, mat4_t *mat, int i) {
         vecf_set_at(vec, TYPE_VEC4F, k, mat->val[MAT4_INDEX(k, i)]);
 }
 
+void mat4_print(mat4_t *mat) {
+    int i;
+    printf("=== MAT DEBUG ===\n");
+    for (i = 0; i < 16; i++) {
+        printf("%.02f ", mat->val[i]);
+        if (!((i+1) % 4))
+            printf("\n");
+    }
+    printf("=== MAT DEBUG END ===\n");
+}
+
 void mat4_translate(mat4_t *mat, vector3f_t v) {
     mat4_identity(mat);
     mat->val[MAT4_INDEX(3, 0)] = v.x;

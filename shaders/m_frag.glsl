@@ -1,4 +1,4 @@
-#version 400 core
+#version 330 core
 
 // https://learnopengl.com/Lighting/Multiple-lights
 

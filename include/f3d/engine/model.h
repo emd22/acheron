@@ -1,5 +1,5 @@
-#ifndef MODEL_H
-#define MODEL_H
+#ifndef F3D_MODEL_H
+#define F3D_MODEL_H
 
 #include <f3d/engine/model/obj.h>
 #include <f3d/engine/types.h>
@@ -11,6 +11,8 @@ enum {
 };
 
 typedef struct {
+    char name[16];
+
     int type;
     model_obj_t *obj;
     buffer_t *vertices;
@@ -24,7 +26,7 @@ typedef struct {
     mat4_t matrix;
 } model_t;
 
-model_t model_load(const char *path, int type);
+model_t model_load(const char *name, const char *path, int type);
 void model_draw(model_t *model, camera_t *camera, unsigned shaderid);
 void model_destroy(model_t *model);
 

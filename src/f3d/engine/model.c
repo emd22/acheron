@@ -10,7 +10,7 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
-model_t model_load(const char *path, int type) {
+model_t model_load(const char *name, const char *path, int type) {
     model_t model;
     model.type = type;
     if (type == MODEL_OBJ) {
@@ -46,6 +46,9 @@ model_t model_load(const char *path, int type) {
     
     mat4_set(&model.matrix, MAT4_IDENTITY);
     
+    log_msg(LOG_INFO, "Loaded model '%s'\n", name);
+    strcpy(model.name, name);
+    
     return model;
 }
 
@@ -74,6 +77,7 @@ void model_draw(model_t *model, camera_t *camera, unsigned shaderid) {
 }
 
 void model_destroy(model_t *model) {
+    log_msg(LOG_INFO, "Deleting model '%s'\n", model->name);
     if (model->type == MODEL_NONE)
         return;
         

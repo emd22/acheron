@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+unsigned long long buffer_total_used = 0;
+
 int buffer_init(buffer_t *buffer, unsigned obj_sz, unsigned start_size) {
     buffer->index = 0;
     buffer->obj_sz = obj_sz;
@@ -20,7 +22,7 @@ int buffer_init(buffer_t *buffer, unsigned obj_sz, unsigned start_size) {
         );
         return 1;
     }
-        
+    buffer_total_used += bytes_sz;
     return 0;
 }
 
@@ -49,9 +51,11 @@ void buffer_resize(buffer_t *buffer) {
     if (buffer->data == NULL) {
         log_msg(LOG_ERROR, "Error resizing buffer\n", 0);
     }
+    buffer_total_used += buffer->size;
 }
 
 void buffer_destroy(buffer_t *buffer) {
+    buffer_total_used -= buffer->size*buffer->obj_sz;
     free(buffer->data);
     buffer->index = 0;
     buffer->size = 0;

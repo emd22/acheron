@@ -1,4 +1,5 @@
 #include <f3d/engine/type/vec.h>
+#include <f3d/engine/log.h>
 
 #define C3D_FAILURE -1
 #define C3D_SUCCESS 0
@@ -34,6 +35,9 @@ int vecf_set_at(void *vector, int type, int index, float value) {
         else if (index == 3) vec->w = value;
         else return C3D_FAILURE;
     }
+    else {
+        log_msg(LOG_ERROR, "TypeError %d\n", type);
+    }
     return C3D_FAILURE;
 }
 float vecf_get_at(void *vector, int type, int index) {
@@ -63,6 +67,9 @@ float vecf_get_at(void *vector, int type, int index) {
             return vec->z;
         else if (index == 3)
             return vec->w;
+    }
+    else {
+        log_msg(LOG_ERROR, "TypeError %d\n", type);
     }
     return C3D_FAILURE;
 }

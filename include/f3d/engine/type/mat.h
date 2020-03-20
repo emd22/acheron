@@ -1,5 +1,5 @@
-#ifndef C3D_TYPE_MAT_H
-#define C3D_TYPE_MAT_H
+#ifndef F3D_TYPE_MAT_H
+#define F3D_TYPE_MAT_H
 
 #include <f3d/engine/type/vec.h>
 
@@ -11,6 +11,7 @@ typedef struct {
 } mat4_t;
 
 void mat4_set(mat4_t *mat, float *data);
+void mat4_print(mat4_t *mat);
 mat4_t mat4_rotate_x(mat4_t mat, float angle);
 mat4_t mat4_rotate_y(mat4_t mat, float angle);
 mat4_t mat4_rotate_z(mat4_t mat, float angle);

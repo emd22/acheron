@@ -1,5 +1,5 @@
-#ifndef C3D_WINDOW_H
-#define WINDOW_H
+#ifndef F3D_WINDOW_H
+#define F3D_WINDOW_H
 
 #include <SDL2/SDL.h>
 
@@ -15,9 +15,9 @@ typedef struct {
     int flags;
 } window_t;
 
+extern window_t *default_window;
+
 window_t window_new(const char *title, int width, int height, int flags);
-void window_set_default(window_t *window);
-window_t *window_get_default(void);
 void window_buffers_swap(window_t *window);
 void window_set_mouse_mode(int mode);
 void window_destroy(window_t *window);

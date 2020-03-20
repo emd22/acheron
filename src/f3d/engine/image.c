@@ -1,5 +1,5 @@
 #include <f3d/engine/image.h>
-#include <f3d/engine/bmp.h>
+#include <f3d/engine/image/bmp.h>
 #include <stdlib.h>
 
 void load_bmp(image_t *image, const char *path) {

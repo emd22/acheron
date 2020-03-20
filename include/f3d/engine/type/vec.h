@@ -1,7 +1,14 @@
-#ifndef C3D_TYPE_VEC_H
-#define C3D_TYPE_VEC_H
+#ifndef F3D_TYPE_VEC_H
+#define F3D_TYPE_VEC_H
 
 #include <math.h>
+
+#define VECF_TYPE(n) (n+1)
+#define VEC_TYPE(n)  (n)
+
+#define VEC2F_VALUE(vec) (vector2f_t){vec.x, vec.y}
+#define VEC3F_VALUE(vec) (vector3f_t){vec.x, vec.y, vec.z}
+#define VEC4F_VALUE(vec) (vector4f_t){vec.x, vec.y, vec.z, vec.w}
 
 enum {
     // int
@@ -19,23 +26,37 @@ enum {
         float p = 0.0f; \
         int i; \
         for (i = 0; i < n; i++) \
-            p += vecf_get_at(&b, TYPE_VEC2F+n, i)*vecf_get_at(&a, TYPE_VEC2F+n, i); \
+            p += vecf_get_at(&b, VECF_TYPE(n), i)*vecf_get_at(&a, VECF_TYPE(n), i); \
         return p; \
     } \
     inline void vec##n##f_scale(type *r, type v, float s) { \
         int i; \
         for (i = 0; i < n; i++) \
-            vecf_set_at(r, TYPE_VEC2F+n, i, vecf_get_at(&v, TYPE_VEC2F+n, i)*s); \
+            vecf_set_at(r, VECF_TYPE(n), i, vecf_get_at(&v, VECF_TYPE(n), i)*s); \
     } \
     inline void vec##n##f_add(type *v, type a, type b) { \
         int i; \
         for (i = 0; i < n; i++) \
-            vecf_set_at(&v, TYPE_VEC2F+n, i, vecf_get_at(&a, TYPE_VEC2F+n, i)+vecf_get_at(&b, TYPE_VEC2F+n, i)); \
+            vecf_set_at(v, VECF_TYPE(n), i, vecf_get_at(&a, VECF_TYPE(n), i)+vecf_get_at(&b, VECF_TYPE(n), i)); \
     } \
     inline void vec##n##f_sub(type *v, type a, type b) { \
         int i; \
         for (i = 0; i < n; i++) \
-            vecf_set_at(&v, TYPE_VEC2F+n, i, vecf_get_at(&a, TYPE_VEC2F+n, i)-vecf_get_at(&b, TYPE_VEC2F+n, i)); \
+            vecf_set_at(v, VECF_TYPE(n), i, vecf_get_at(&a, VECF_TYPE(n), i)-vecf_get_at(&b, VECF_TYPE(n), i)); \
+    } \
+    inline type vec##n##f_mul(type a, type b) { \
+        type loc; \
+        int i; \
+        for (i = 0; i < n; i++) \
+            vecf_set_at(&loc, VECF_TYPE(n), i, vecf_get_at(&a, VECF_TYPE(n), i)*vecf_get_at(&b, VECF_TYPE(n), i)); \
+        return loc; \
+    } \
+    inline type vec##n##f_mul_v(type a, float b) { \
+        type loc; \
+        int i; \
+        for (i = 0; i < n; i++) \
+            vecf_set_at(&loc, VECF_TYPE(n), i, vecf_get_at(&a, VECF_TYPE(n), i)*b); \
+        return loc; \
     } \
     inline float vec##n##f_len(type v) { \
         return sqrtf(vec##n##f_mul_inner(v, v)); \

@@ -1,5 +1,5 @@
-#ifndef C3D_SHADER_H
-#define C3D_SHADER_H
+#ifndef F3D_SHADER_H
+#define F3D_SHADER_H
 
 #include <f3d/engine/types.h>
 

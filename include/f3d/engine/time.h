@@ -1,5 +1,5 @@
-#ifndef TIME_H
-#define TIME_H
+#ifndef F3D_TIME_H
+#define F3D_TIME_H
 
 void time_init(void);
 void time_tick(void);

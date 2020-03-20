@@ -33,16 +33,6 @@ window_t window_new(const char *title, int width, int height, int flags) {
     return window;
 }
 
-void window_set_default(window_t *window) {
-    log_msg(LOG_INFO, "Setting window with size %dx%d as default\n", window->width, window->height);
-    default_window = window;
-}
-
-window_t *window_get_default(void) {
-    //log_msg(LOG_INFO, "Getting window with size %dx%d\n", default_window->width, default_window->height);
-    return default_window;
-}
-
 void window_buffers_swap(window_t *window) {
     SDL_GL_SwapWindow(window->win);
 }

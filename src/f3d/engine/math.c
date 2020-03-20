@@ -4,7 +4,7 @@
 #include <math.h>
 #include <string.h>
 
-vector3f_t cross_product(vector3f_t vec0, vector3f_t vec1) {
+vector3f_t math_cross(vector3f_t vec0, vector3f_t vec1) {
     vector3f_t res;
     res.x = vec0.y*vec1.z-vec0.z*vec1.y;
     res.y = vec0.z*vec1.x-vec0.x*vec1.z;
@@ -25,15 +25,15 @@ vector3f_t normalize(vector3f_t vec) {
     return res;
 }
 
-float vec3f_dot(vector3f_t vec0, vector3f_t vec1) {
+float math_dot(vector3f_t vec0, vector3f_t vec1) {
     return (vec0.x*vec1.x+vec0.y*vec1.y+vec0.z*vec1.z);
 }
 
 mat4_t math_lookat(vector3f_t from, vector3f_t to, vector3f_t upvec) {
     vector3f_t forward, right, up;
-    forward = normalize(vec3f_sub_vec3f(to, from));
-    right = normalize(cross_product(forward, upvec));
-    up = cross_product(right, forward);
+    forward = normalize(vec3f_sub_vec3f(from, to));
+    right = normalize(math_cross(upvec, forward));
+    up = math_cross(forward, right);
     
     mat4_t res;
     mat4_set(
@@ -42,7 +42,7 @@ mat4_t math_lookat(vector3f_t from, vector3f_t to, vector3f_t upvec) {
             right.x, up.x, -forward.x, 0.0f,
             right.y, up.y, -forward.y, 0.0f,
             right.z, up.z, -forward.z, 0.0f,
-            0,       0,    0,          1.0f
+            0.0f, 0.0f, 0.0f, 1.0f
         }
     );
     mat4_translate_in_place(&res, (vector3f_t){-from.x, -from.y, -from.z});

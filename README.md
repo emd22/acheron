@@ -15,5 +15,5 @@ A simple 3d game engine written in C. This is mainly a learning tool,
 ### To do
 - [X] Replace all old GLU function calls with custom math functions
 - [X] Replace OpenGL 2.x calls with much better OpenGL 3 ones
-- [ ] Implement model loading from files
-- [ ] Implement simple lighting and shading
+- [X] Implement model loading from files
+- [X] Implement simple lighting and shading

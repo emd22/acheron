@@ -1,6 +1,7 @@
 #include <f3d/engine/texture.h>
 #include <f3d/engine/image.h>
 #include <f3d/engine/log.h>
+#include <f3d/engine/types.h>
 
 #include <string.h>
 
@@ -21,19 +22,13 @@ void get_file_extension(char *path, char *buf) {
     buf[index] = 0;
 }
 
-texture_t texture_load(const char *path) {
+texture_t texture_load(const char *path, int type) {
     texture_t tex;
     
     char ext[32];
     get_file_extension((char *)path, ext);
     
-    if (!strcmp(ext, "bmp") || !strcmp(ext, "BMP")) {
-        tex.image = image_load(path, IMAGE_BMP);
-    }
-    else {
-        log_msg(LOG_ERROR, "Unknown image type '%s'\n", ext);
-        return tex;
-    }
+    tex.image = image_load(path, type);
     
     glGenTextures(1, &tex.id);
     glBindTexture(GL_TEXTURE_2D, tex.id);

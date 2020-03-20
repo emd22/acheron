@@ -1,11 +1,5 @@
-/*
- * Windows BMP file definitions for OpenGL.
- *
- * Written by Michael Sweet.
- */
-
-#ifndef C3D_BITMAP_H
-#define C3D_BITMAP_H
+#ifndef F3D_BITMAP_H
+#define F3D_BITMAP_H
 
 #include <stdint.h>
     
@@ -17,9 +11,6 @@ typedef struct {
     uint32_t offset;
 } __attribute__((packed)) bmp_file_header_t;
 
-// format marker
-#define BF_TYPE 0x4D42             /* "MB" */
-    
 typedef struct {
     // header size
     uint32_t size;
@@ -62,5 +53,5 @@ typedef struct {
 image_bmp_t bmp_load(const char *filename);
 extern int32_t  bmp_save(const char *filename, bmp_info_t *info, uint8_t *data);
 
-#endif /* !_BITMAP_H_ */
+#endif
 

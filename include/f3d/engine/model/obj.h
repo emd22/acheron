@@ -1,5 +1,5 @@
-#ifndef MODEL_OBJ_H
-#define MODEL_OBJ_H
+#ifndef F3D_MODEL_OBJ_H
+#define F3D_MODEL_OBJ_H
 
 #include <f3d/engine/types.h>
 

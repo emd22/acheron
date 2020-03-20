@@ -1,7 +1,7 @@
-#ifndef IMAGE_H
-#define IMAGE_H
+#ifndef F3D_IMAGE_H
+#define F3D_IMAGE_H
 
-#include <f3d/engine/bmp.h>
+#include <f3d/engine/image/bmp.h>
 
 enum {
     IMAGE_NONE,

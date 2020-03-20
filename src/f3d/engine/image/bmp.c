@@ -1,4 +1,4 @@
-#include <f3d/engine/bmp.h>
+#include <f3d/engine/image/bmp.h>
 #include <f3d/engine/log.h>
 
 #include <stdio.h>
