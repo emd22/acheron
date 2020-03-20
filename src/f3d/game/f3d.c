@@ -69,7 +69,6 @@ void init_gl() {
     progid = shaders_link(vert, frag);
     glUseProgram(progid);
     
-    
     camera = camera_new();
     camera.move_speed = 0.1f;
     camera.strafe_speed = 0.1f;
@@ -86,7 +85,7 @@ void init_gl() {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     
     window_set_mouse_mode(WINDOW_MOUSE_DISABLED);
 }
@@ -107,7 +106,6 @@ int main() {
     init_gl();
    
     SDL_Event event;
-    
     time_init();
    
     while (game_info.flags & GAME_IS_RUNNING) {
@@ -183,10 +181,8 @@ void draw() {
 void check_mouse(double xrel, double yrel) {
     if (!(game_info.controls.flags & CONTROLS_MOUSE_CAPTURED))
         return;
-    const float rotx = (xrel*MOUSE_SPEED);
-    const float roty = (yrel*MOUSE_SPEED);
-    camera.rotation.x += rotx;
-    camera.rotation.y += roty;
+    camera.rotation.x -= xrel*MOUSE_SPEED;
+    camera.rotation.y -= yrel*MOUSE_SPEED;
     //log_msg(LOG_INFO, "%f, %f\n", math_rad_to_deg(camera.rotation.x), math_rad_to_deg(camera.rotation.y));
 }
 

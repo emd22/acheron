@@ -31,10 +31,9 @@ float math_dot(vector3f_t vec0, vector3f_t vec1) {
 
 mat4_t math_lookat(vector3f_t from, vector3f_t to, vector3f_t upvec) {
     vector3f_t forward, right, up;
-    forward = normalize(vec3f_sub_vec3f(from, to));
-    right = normalize(math_cross(upvec, forward));
-    up = math_cross(forward, right);
-    
+    forward = normalize(vec3f_sub_vec3f(to, from));
+    right = normalize(math_cross(forward, upvec));
+    up = math_cross(right, forward);
     mat4_t res;
     mat4_set(
         &res, 
@@ -42,7 +41,7 @@ mat4_t math_lookat(vector3f_t from, vector3f_t to, vector3f_t upvec) {
             right.x, up.x, -forward.x, 0.0f,
             right.y, up.y, -forward.y, 0.0f,
             right.z, up.z, -forward.z, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f
+            0.0f,    0.0f,  0.0f,      1.0f
         }
     );
     mat4_translate_in_place(&res, (vector3f_t){-from.x, -from.y, -from.z});

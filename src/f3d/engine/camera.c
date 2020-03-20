@@ -48,12 +48,12 @@ void camera_move(camera_t *camera, int direction) {
         case CAMERA_FORWARD:
             camera->direction = vec3f_mul_v(camera->direction, camera->move_speed);
             camera->direction.y = 0;
-            vec3f_sub(&(camera->position), camera->position, (camera->direction));
+            vec3f_add(&(camera->position), camera->position, (camera->direction));
             break;
         case CAMERA_BACKWARD:
             camera->direction.y = 0;
             camera->direction = vec3f_mul_v(camera->direction, camera->move_speed);
-            vec3f_add(&(camera->position), camera->position, (camera->direction));
+            vec3f_sub(&(camera->position), camera->position, (camera->direction));
             break;
         case CAMERA_LEFT:
             camera->right = vec3f_mul_v(camera->right, camera->move_speed);
@@ -94,7 +94,7 @@ void camera_update(camera_t *camera, unsigned shaderid) {
     lookto.x = camera->position.x+camera->direction.x;
     lookto.y = camera->position.y+camera->direction.y;
     lookto.z = camera->position.z+camera->direction.z;
-    view = math_lookat(camera->position, lookto, (vector3f_t){0, 1, 0});
+    view = math_lookat(camera->position, lookto, camera->up);
     //mat4_set(&view, MAT4_IDENTITY);
     //log_msg(LOG_INFO, "DIR: (%f,%f,%f)\n", lookto.x, lookto.y, lookto.z);
 
