@@ -1,17 +1,22 @@
 #include <f3d/engine/time.h>
+#include <f3d/engine/log.h>
 
 #include <SDL2/SDL.h>
 
-static unsigned now, last;
-double delta_time = 0;
+static float now, last;
+float delta_time = 0;
 
 void time_init(void) {
-    now = SDL_GetPerformanceCounter();
+    now = SDL_GetTicks();
     last = 0;
 }
 
 void time_tick(void) {
     last = now;
-    now = SDL_GetPerformanceCounter();
-    delta_time = (double)((now-last)*1000/(double)SDL_GetPerformanceFrequency());
+    now = SDL_GetTicks();
+    // divide by 1000 to get seconds
+    delta_time = (now-last)/1000;
+}
+
+void time_end(void) {
 }

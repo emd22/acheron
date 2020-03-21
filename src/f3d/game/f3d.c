@@ -12,8 +12,7 @@
 
 #include <math.h>
 
-#define MOUSE_SPEED 0.0003
-#define PLAYER_SPEED 0.10
+#define MOUSE_SPEED 0.07
 
 void set_material();
 void load_models();
@@ -25,6 +24,7 @@ void check_event(SDL_Event *event);
 window_t window;
 material_t *brick, *level;
 model_t model, model2;
+light_t *flashlight;
 
 camera_t camera;
 
@@ -52,7 +52,7 @@ int init(void) {
     }
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-    SDL_GL_SetSwapInterval(1);
+    SDL_GL_SetSwapInterval(0);
     glGenVertexArrays(1, &arrayid);
     glBindVertexArray(arrayid);
     return 0;
@@ -68,8 +68,8 @@ void init_gl() {
     glUseProgram(progid);
     
     camera = camera_new();
-    camera.move_speed = 0.06f;
-    camera.position = (vector3f_t){0, 0, 0};
+    camera.move_speed = 7.0f;
+    camera.position = (vector3f_t){0, 3, 0};
     camera.rotation = (vector3f_t){3.14f, 0, 0};
     
     // select camera to be default and calculate perspective matrix
@@ -97,6 +97,8 @@ void move() {
         camera_move(&camera, CAMERA_LEFT);
     if (keys_pressed[CONTROL_RIGHT])
         camera_move(&camera, CAMERA_RIGHT);
+    //flashlight->position = camera.position;
+    //light_update(flashlight, progid);
 }
 
 int main() {    
@@ -120,7 +122,9 @@ int main() {
         draw();
         window_buffers_swap(&window);
 
+        time_end();
         //log_msg(LOG_INFO, "fps: %u\n", time_get_fps());
+        SDL_Delay((1000/60-delta_time));
     }
     glDeleteProgram(progid);
     material_destroy(level);
@@ -138,29 +142,38 @@ void load_models() {
         "Brick",
         texture_load("../images/brick.bmp", IMAGE_BMP),
         texture_load("../images/brick_spec.bmp", IMAGE_BMP),
-        0, 1, 22.0f
+        0, 1, 2.0f
     });
     
     level = material_new((material_t){
-        "Level",
+        "Marble",
         texture_load("../images/marble.bmp", IMAGE_BMP),
         texture_load("../images/marble_spec.bmp", IMAGE_BMP),
-        0, 1, 2.0f
+        0, 1, 12.0f
     });
 
     model = model_load("Cube", "../models/cube.obj", MODEL_OBJ);
     model2 = model_load("Level", "../models/level.obj", MODEL_OBJ);
-    mat4_translate(&(model.matrix), (vector3f_t){0, 0, -3});
-    mat4_translate(&(model2.matrix), (vector3f_t){0, -2, 0});
+    mat4_translate(&(model.matrix), (vector3f_t){0, 3, -3});
+    mat4_translate(&(model2.matrix), (vector3f_t){0, 0, 0});
 }
 
 void set_material(void) {
-    light_t *light = light_new(LIGHT_DIRECTIONAL);
-    light->direction = (vector3f_t){-1.0f, -2.0f, -0.4f};
-    light->ambient   = (vector3f_t){0.15f, 0.15f, 0.15f};
-    light->diffuse   = (vector3f_t){0.4f, 0.4f, 0.4f};
-    light->specular  = (vector3f_t){0.5f, 0.5f, 0.5f};
-    light_init(light, progid);
+    /*flashlight = light_new(LIGHT_DIRECTIONAL);
+    flashlight->direction = (vector3f_t){-1.0f, -2.0f, -0.4f};
+    flashlight->ambient   = (vector3f_t){0.15f, 0.15f, 0.15f};
+    flashlight->diffuse   = (vector3f_t){0.4f, 0.4f, 0.4f};
+    flashlight->specular  = (vector3f_t){0.5f, 0.5f, 0.5f};
+    light_init(flashlight, progid);*/
+    flashlight = light_new(LIGHT_POINT);
+    flashlight->position = (vector3f_t){0.0f, 3.0f, 0.0f};
+    flashlight->ambient = (vector3f_t){0.15f, 0.15f, 0.15f};
+    flashlight->diffuse = (vector3f_t){0.8f, 0.8f, 0.8f};
+    flashlight->specular = (vector3f_t){1.0f, 1.0f, 1.0f};
+    flashlight->constant = 1.0f;
+    flashlight->linear = 0.09f;
+    flashlight->quadratic = 0.032f;
+    light_init(flashlight, progid);
 }
 
 void draw_models() {
@@ -181,7 +194,6 @@ void check_mouse(double xrel, double yrel) {
         return;
     camera.rotation.x -= xrel*MOUSE_SPEED*delta_time;
     camera.rotation.y -= yrel*MOUSE_SPEED*delta_time;
-    //log_msg(LOG_INFO, "%f, %f\n", math_rad_to_deg(camera.rotation.x), math_rad_to_deg(camera.rotation.y));
 }
 
 void check_event(SDL_Event *event) {
@@ -194,14 +206,14 @@ void check_event(SDL_Event *event) {
     else if (event->type == SDL_KEYUP) {
         controls_handle_keyup(event->key.keysym.sym);
     }
-    /*else if (event->type == SDL_MOUSEBUTTONDOWN) {
-        camera.fov = 95.0f;
+    else if (event->type == SDL_MOUSEBUTTONDOWN) {
+        camera.fov = 45.0f;
         camera_select(&camera);
     }
     else if (event->type == SDL_MOUSEBUTTONUP) {
-        camera.fov = 45.0f;
+        camera.fov = 75.0f;
         camera_select(&camera);
-    }*/
+    }
     else if (event->type == SDL_MOUSEMOTION) {
         check_mouse(event->motion.xrel, event->motion.yrel);
     }
