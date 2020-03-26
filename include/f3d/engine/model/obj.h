@@ -10,9 +10,9 @@ typedef struct {
     buffer_t uvs;
     // vec3f buffer
     buffer_t normals;
-} model_obj_t;
+} obj_model_t;
 
-model_obj_t obj_load(const char *path);
-void obj_destroy(model_obj_t *model);
+obj_model_t obj_load(const char *path);
+void obj_destroy(obj_model_t *model);
 
 #endif

@@ -5,10 +5,13 @@
 
 typedef struct {
     char name[16];
-    texture_t diffuse;
-    texture_t specular;
+    texture_t *diffuse;
+    texture_t *specular;
+    texture_t *normal;
+    
     int diffuse_id;
     int specular_id;
+    int normal_id;
 
     float shininess;
 } material_t;

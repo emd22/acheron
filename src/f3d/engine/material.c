@@ -17,15 +17,32 @@ material_t *material_new(material_t material) {
 }
 
 void material_update(material_t *mat, unsigned shaderid) {
-    // assign image to texture0 in fragment shader
+    // TODO: flat colours, etc.
+    if (mat->diffuse == NULL) {
+        log_msg(LOG_ERROR, "Diffuse texture for '%s' is NULL!\n", mat->name);
+        return;
+    }
+    // assign diffuse to texture0 in fragment shader
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, mat->diffuse.id);
-    // assign specular to texture1 in fragment shader
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, mat->specular.id);
+    glBindTexture(GL_TEXTURE_2D, mat->diffuse->id);
+    // assign specular
+    if (mat->specular != NULL) {
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, mat->specular->id);
+    }
+    // assign normal
+    if (mat->normal != NULL) {
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, mat->normal->id);
+    }
+    else {
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, mat->diffuse->id);
+    }
 
     shader_set_int(shaderid, "material.diffuse", mat->diffuse_id);
     shader_set_int(shaderid, "material.specular", mat->specular_id);
+    shader_set_int(shaderid, "material.normal", mat->normal_id);
     shader_set_float(shaderid, "material.shininess", mat->shininess);
 }
 
@@ -41,7 +58,9 @@ material_t *material_get(const char *name) {
 
 void material_destroy(material_t *material) {
     log_msg(LOG_INFO, "Deleting material '%s'\n", material->name);
-    texture_destroy(&(material->diffuse));
-    texture_destroy(&(material->specular));
+        
+    texture_destroy(material->diffuse);
+    texture_destroy(material->specular);
+    texture_destroy(material->normal);
     material->name[0] = '*';
 }

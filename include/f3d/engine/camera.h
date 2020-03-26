@@ -14,13 +14,10 @@ typedef struct {
     
     vector3f_t right, direction, up;
     
-    mat4_t mat_projection;
-    
     float move_speed;
-    
     float fov;
     
-    mat4_t vp_mat;
+    mat4_t mat_view, mat_projection;
 } camera_t;
 
 camera_t camera_new(void);

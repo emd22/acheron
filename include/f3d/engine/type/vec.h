@@ -6,6 +6,9 @@
 #define VECF_TYPE(n) (n+1)
 #define VEC_TYPE(n)  (n)
 
+#define VALUE_TO_VEC2F(value) (vector2f_t){value, value};
+#define VALUE_TO_VEC3F(value) (vector3f_t){value, value, value};
+
 #define VEC2F_VALUE(vec) (vector2f_t){vec.x, vec.y}
 #define VEC3F_VALUE(vec) (vector3f_t){vec.x, vec.y, vec.z}
 #define VEC4F_VALUE(vec) (vector4f_t){vec.x, vec.y, vec.z, vec.w}
@@ -64,6 +67,14 @@ enum {
     inline void vec##n##f_norm(type *r, type v) { \
         const float k = 1.0f/vec##n##f_len(v); \
         vec##n##f_scale(r, v, k); \
+    } \
+    inline int vec##n##f_cmp(type v0, type v1) { \
+        int i; \
+        for (i = 0; i < n; i++) { \
+            if (vecf_get_at(&v0, VECF_TYPE(n), i) != vecf_get_at(&v1, VECF_TYPE(n), i)) \
+                return i; \
+        } \
+        return 0; \
     }
 
 

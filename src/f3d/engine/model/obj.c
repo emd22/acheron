@@ -8,10 +8,10 @@
 #include <stdlib.h>
 #include <string.h>
 
-model_obj_t obj_load(const char *path) {
+obj_model_t obj_load(const char *path) {
     // https://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/
 
-    model_obj_t model;
+    obj_model_t model;
     
     buffer_init(&model.vertices, sizeof(vector3f_t), 4096);
     buffer_init(&model.uvs,      sizeof(vector2f_t), 4096);
@@ -103,7 +103,7 @@ model_obj_t obj_load(const char *path) {
     return model;
 }
 
-void obj_destroy(model_obj_t *model) {
+void obj_destroy(obj_model_t *model) {
     buffer_destroy(&model->vertices);
     buffer_destroy(&model->uvs);
     buffer_destroy(&model->normals);

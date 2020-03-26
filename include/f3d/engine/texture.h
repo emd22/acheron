@@ -8,7 +8,7 @@ typedef struct {
     image_t image;
 } texture_t;
 
-texture_t texture_load(const char *path, int type);
+texture_t *texture_load(const char *path, int type);
 void textures_cleanup_all(void);
 void texture_destroy(texture_t *tex);
 

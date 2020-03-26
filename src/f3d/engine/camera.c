@@ -83,7 +83,6 @@ void camera_select(camera_t *camera) {
 }
   
 void camera_update(camera_t *camera, unsigned shaderid) {
-    mat4_t view, projection = camera->mat_projection;
     (void)shaderid;
     camera_clamp_rotation(camera);
 
@@ -98,16 +97,10 @@ void camera_update(camera_t *camera, unsigned shaderid) {
         cos(camera->rotation.x-3.14f/2.0f)
     };
     camera->up = math_cross(camera->right, camera->direction);
-    //projection = mat4_rotate_x(camera->mat_projection, camera->rotation.x);
-    //projection = mat4_rotate_y(projection, -camera->rotation.y);
+    
     vector3f_t lookto;
     lookto.x = camera->position.x+camera->direction.x;
     lookto.y = camera->position.y+camera->direction.y;
     lookto.z = camera->position.z+camera->direction.z;
-    view = math_lookat(camera->position, lookto, camera->up);
-    //mat4_set(&view, MAT4_IDENTITY);
-    //log_msg(LOG_INFO, "DIR: (%f,%f,%f)\n", lookto.x, lookto.y, lookto.z);
-
-    camera->vp_mat = mat4_mul(projection, view);
-    //mat4_print(&camera->vp_mat);
+    camera->mat_view = math_lookat(camera->position, lookto, camera->up);
 }

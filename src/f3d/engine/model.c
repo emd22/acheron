@@ -1,88 +1,127 @@
+#include <f3d/engine/mesh.h>
 #include <f3d/engine/model.h>
 #include <f3d/engine/model/obj.h>
 #include <f3d/engine/log.h>
 #include <f3d/engine/shader.h>
-#include <f3d/engine/type/vec.h>
+#include <f3d/engine/types.h>
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
 
 model_t model_load(const char *name, const char *path, int type) {
     model_t model;
-    model.type = type;
-    if (type == MODEL_OBJ) {
-        model.obj = malloc(sizeof(model_obj_t));
-        model_obj_t obj = obj_load(path);
-        memcpy(model.obj, &obj, sizeof(model_obj_t));
-        
-        model.vertices = &(model.obj->vertices);
-        model.uvs = &(model.obj->uvs);
-        model.normals = &(model.obj->normals);
-    }
-    else {
-        log_msg(LOG_ERROR, "Cannot load model of unknown type\n", 0);
-        model.vertices = NULL;
-        model.normals = NULL;
-        model.uvs = NULL;
-    }
-    
-    // vertices
-    glGenBuffers(1, &model.vertex_id);
-    glBindBuffer(GL_ARRAY_BUFFER, model.vertex_id);
-    glBufferData(GL_ARRAY_BUFFER, model.vertices->index*sizeof(vector3f_t), model.vertices->data, GL_STATIC_DRAW);
-
-    // colour(uvs)
-    glGenBuffers(1, &model.uv_id);
-    glBindBuffer(GL_ARRAY_BUFFER, model.uv_id);
-    glBufferData(GL_ARRAY_BUFFER, model.uvs->index*sizeof(vector2f_t), model.uvs->data, GL_STATIC_DRAW);
-    
-    // normals
-    glGenBuffers(1, &model.normal_id);
-    glBindBuffer(GL_ARRAY_BUFFER, model.normal_id);
-    glBufferData(GL_ARRAY_BUFFER, model.normals->index*sizeof(vector3f_t), model.normals->data, GL_STATIC_DRAW);
-    
+    mesh_t *mesh = mesh_load(path, type);
+    model.mesh = mesh;
+    strcpy(model.name, name);
     mat4_set(&model.matrix, MAT4_IDENTITY);
     
-    log_msg(LOG_INFO, "Loaded model '%s'\n", name);
-    strcpy(model.name, name);
+    model.position = (vector3f_t){0, 0, 0};
+    model.rotation = (vector3f_t){0, 0, 0};
+    model._old_position = model.position;
+    model._old_rotation = model.rotation;
     
+    vector3f_t v0, v1, v2;
+    vector2f_t uv0, uv1, uv2;
+    vector3f_t *vertices = (vector3f_t *)mesh->vertices->data;
+    vector2f_t *uvs = (vector2f_t *)mesh->uvs->data;
+    vector3f_t delta_pos0, delta_pos1;
+    vector2f_t delta_uv0, delta_uv1;
+    vector3f_t tangent, bitangent;
+    float r;
+    
+    vector3f_t *tangents, *bitangents;
+    vector3f_t tmp;
+    
+    tangents = malloc(sizeof(vector3f_t)*3*mesh->vertices->index);
+    bitangents = malloc(sizeof(vector3f_t)*3*mesh->vertices->index);
+    
+    unsigned i;
+    unsigned bufidx = 0;
+    for (i = 0; i < mesh->vertices->index; i += 3) {
+        v0 = vertices[i];
+        v1 = vertices[i+1];
+        v2 = vertices[i+2];
+        
+        uv0 = uvs[i];
+        uv1 = uvs[i+1];
+        uv2 = uvs[i+2];
+        
+        vec3f_sub(&delta_pos0, v1, v0);
+        vec3f_sub(&delta_pos1, v2, v0);
+        vec2f_sub(&delta_uv0, uv1, uv0);
+        vec2f_sub(&delta_uv1, uv2, uv0);
+        
+        r = 1.0f/(delta_uv0.x*delta_uv1.y-delta_uv0.y*delta_uv1.x);
+        
+        vec3f_sub(&tmp, vec3f_mul_v(delta_pos0, delta_uv1.y), vec3f_mul_v(delta_pos1, delta_uv0.y));
+        tangent = vec3f_mul_v(tmp, r);
+        
+        vec3f_sub(&tmp, vec3f_mul_v(delta_pos1, delta_uv0.x), vec3f_mul_v(delta_pos0, delta_uv1.x));
+        bitangent = vec3f_mul_v(tmp, r);
+        
+        bitangents[bufidx] = bitangent;
+        tangents[bufidx++] = tangent;
+        bitangents[bufidx] = bitangent;
+        tangents[bufidx++] = tangent;
+        bitangents[bufidx] = bitangent;
+        tangents[bufidx++] = tangent;
+    }
+    
+    // tangents
+    glGenBuffers(1, &model.tangent_id);
+    glBindBuffer(GL_ARRAY_BUFFER, model.tangent_id);
+    glBufferData(GL_ARRAY_BUFFER, mesh->vertices->index*sizeof(vector3f_t), mesh->normals->data, GL_STATIC_DRAW);
+    
+    // bitangents
+    glGenBuffers(1, &model.bitangent_id);
+    glBindBuffer(GL_ARRAY_BUFFER, model.bitangent_id);
+    glBufferData(GL_ARRAY_BUFFER, mesh->vertices->index*sizeof(vector3f_t), mesh->normals->data, GL_STATIC_DRAW);
+    
+    
+    model.tangents = tangents;
+    model.bitangents = bitangents;
     return model;
 }
 
+void model_attach(model_t *model, mesh_t *mesh) {
+    if (model->mesh->type != MODEL_NONE) {
+        mesh_destroy(model->mesh);
+    }
+    model->mesh = mesh;
+}
+
+void model_update(model_t *model) {
+    mat4_translate(&model->matrix, model->position);
+    if (vec3f_cmp(model->position, model->_old_position)) {
+        // not equal, lets translate matrix
+        mat4_translate(&model->matrix, model->position);
+    }
+    
+    if (model->rotation.x != model->_old_rotation.x)
+        model->matrix = mat4_rotate_x(model->matrix, model->rotation.x);
+    
+    if (model->rotation.y != model->_old_rotation.y)
+        model->matrix = mat4_rotate_y(model->matrix, model->rotation.y);
+        
+    if (model->rotation.z != model->_old_rotation.z)
+        model->matrix = mat4_rotate_z(model->matrix, model->rotation.z);
+    
+    model->_old_position = model->position;
+    model->_old_rotation = model->rotation;
+}
+
 void model_draw(model_t *model, camera_t *camera, unsigned shaderid) {
-    mat4_t val = mat4_mul(camera->vp_mat, model->matrix);
-    shader_set_mat4(shaderid, "M", &(model->matrix));
-    shader_set_mat4(shaderid, "MVP", &val);
+    model_update(model);
+    mesh_draw(model->mesh, &model->matrix, camera, shaderid, model->tangent_id, model->bitangent_id);
     
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, model->vertex_id);
-    glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, NULL);
-    
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, model->uv_id);
-    glVertexAttribPointer(1, 2, GL_FLOAT, 0, 0, NULL);
-    
-    glEnableVertexAttribArray(2);
-    glBindBuffer(GL_ARRAY_BUFFER, model->normal_id);
-    glVertexAttribPointer(2, 3, GL_FLOAT, 0, 0, NULL);
-    
-    glDrawArrays(GL_TRIANGLES, 0, model->vertices->size*3);
-    
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(2);
 }
 
 void model_destroy(model_t *model) {
-    log_msg(LOG_INFO, "Deleting model '%s'\n", model->name);
-    if (model->type == MODEL_NONE)
-        return;
-        
-    if (model->type == MODEL_OBJ) {
-        obj_destroy(model->obj);
-        model->type = MODEL_NONE;
-    }
+    mesh_destroy(model->mesh);
+    free(model->tangents);
+    free(model->bitangents);
 }

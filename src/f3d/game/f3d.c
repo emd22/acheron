@@ -12,6 +12,8 @@
 
 #include <math.h>
 
+#define FRAMERATE_CAP 60
+
 #define MOUSE_SPEED 0.07
 
 void set_material();
@@ -22,9 +24,10 @@ void check_mouse(double xrel, double yrel);
 void check_event(SDL_Event *event);
 
 window_t window;
-material_t *brick, *level;
-model_t model, model2;
-light_t *flashlight;
+material_t *stone, *marble;
+model_t cube, level;
+float count = 0;
+light_t *light;
 
 camera_t camera;
 
@@ -42,7 +45,7 @@ int init(void) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
     
-    window = window_new("Ethan's 3D Engine", 800, 600, 0);
+    window = window_new("Ethan's 3D Engine", 1024, 800, 0);
     default_window = &window;
     
     glewExperimental = GL_TRUE;
@@ -70,7 +73,7 @@ void init_gl() {
     camera = camera_new();
     camera.move_speed = 7.0f;
     camera.position = (vector3f_t){0, 3, 0};
-    camera.rotation = (vector3f_t){3.14f, 0, 0};
+    camera.rotation = (vector3f_t){0, 0, 0};
     
     // select camera to be default and calculate perspective matrix
     camera_select(&camera);
@@ -78,6 +81,8 @@ void init_gl() {
     
     load_models();
     set_material();
+    
+    //glEnable(GL_FRAMEBUFFER_SRGB);
     
     // fix overlapping polygons
     glEnable(GL_DEPTH_TEST);
@@ -124,13 +129,13 @@ int main() {
 
         time_end();
         //log_msg(LOG_INFO, "fps: %u\n", time_get_fps());
-        SDL_Delay((1000/60-delta_time));
+        SDL_Delay((1000/FRAMERATE_CAP-delta_time));
     }
     glDeleteProgram(progid);
-    material_destroy(level);
-    material_destroy(brick);
-    model_destroy(&model);
-    model_destroy(&model2);
+    material_destroy(stone);
+    material_destroy(marble);
+    model_destroy(&cube);
+    model_destroy(&level);
     window_destroy(&window);
     
     SDL_Quit();
@@ -138,51 +143,47 @@ int main() {
 }
 
 void load_models() {
-    brick = material_new((material_t){
-        "Brick",
-        texture_load("../images/brick.bmp", IMAGE_BMP),
-        texture_load("../images/brick_spec.bmp", IMAGE_BMP),
-        0, 1, 2.0f
+    marble = material_new((material_t){
+        "Marble",
+        texture_load("../images/stone.bmp", IMAGE_BMP),
+        texture_load("../images/marble_spec.bmp", IMAGE_BMP),
+        NULL,
+        0, 1, 2, 32.0f
     });
     
-    level = material_new((material_t){
-        "Marble",
+    stone = material_new((material_t){
+        "Stone",
         texture_load("../images/marble.bmp", IMAGE_BMP),
-        texture_load("../images/marble_spec.bmp", IMAGE_BMP),
-        0, 1, 12.0f
+        texture_load("../images/stone_spec.bmp", IMAGE_BMP),
+        texture_load("../images/normal.bmp", IMAGE_BMP),
+        0, 1, 2, 32.0f
     });
 
-    model = model_load("Cube", "../models/cube.obj", MODEL_OBJ);
-    model2 = model_load("Level", "../models/level.obj", MODEL_OBJ);
-    mat4_translate(&(model.matrix), (vector3f_t){0, 3, -3});
-    mat4_translate(&(model2.matrix), (vector3f_t){0, 0, 0});
+    cube = model_load("Cube", "../models/cube.obj", MODEL_OBJ);
+    level = model_load("Level", "../models/level.obj", MODEL_OBJ);
+    cube.position = (vector3f_t){0, 3, 3};
 }
 
 void set_material(void) {
-    /*flashlight = light_new(LIGHT_DIRECTIONAL);
-    flashlight->direction = (vector3f_t){-1.0f, -2.0f, -0.4f};
-    flashlight->ambient   = (vector3f_t){0.15f, 0.15f, 0.15f};
-    flashlight->diffuse   = (vector3f_t){0.4f, 0.4f, 0.4f};
-    flashlight->specular  = (vector3f_t){0.5f, 0.5f, 0.5f};
-    light_init(flashlight, progid);*/
-    flashlight = light_new(LIGHT_POINT);
-    flashlight->position = (vector3f_t){0.0f, 3.0f, 0.0f};
-    flashlight->ambient = (vector3f_t){0.15f, 0.15f, 0.15f};
-    flashlight->diffuse = (vector3f_t){0.8f, 0.8f, 0.8f};
-    flashlight->specular = (vector3f_t){1.0f, 1.0f, 1.0f};
-    flashlight->constant = 1.0f;
-    flashlight->linear = 0.09f;
-    flashlight->quadratic = 0.032f;
-    light_init(flashlight, progid);
+    light = light_new(LIGHT_POINT);
+    light->position = (vector3f_t){0.0f, 3.0f, 0.0f};
+    light->ambient = (vector3f_t){0.02f, 0.02f, 0.02f};
+    light->diffuse = (vector3f_t){0.8f, 0.8f, 0.8f};
+    light->specular = (vector3f_t){1.0f, 1.0f, 1.0f};
+    light->constant = 1.0f;
+    light->linear = 0.09f;
+    light->quadratic = 0.032f;
+    light_init(light, progid);
 }
 
 void draw_models() {
-    model.matrix = mat4_rotate_z(model.matrix, 0.01);
-    model.matrix = mat4_rotate_x(model.matrix, 0.02);
-    material_update(brick, progid);
-    model_draw(&model, &camera, progid);
-    material_update(level, progid);
-    model_draw(&model2, &camera, progid);
+    //cube.rotation.x += 0.6*delta_time;
+    //cube.rotation.z += 0.4*delta_time;
+    
+    material_update(stone, progid);
+    model_draw(&cube, &camera, progid);
+    //material_update(marble, progid);
+    model_draw(&level, &camera, progid);
 }
  
 void draw() {
@@ -192,8 +193,8 @@ void draw() {
 void check_mouse(double xrel, double yrel) {
     if (!(game_info.controls.flags & CONTROLS_MOUSE_CAPTURED))
         return;
-    camera.rotation.x -= xrel*MOUSE_SPEED*delta_time;
-    camera.rotation.y -= yrel*MOUSE_SPEED*delta_time;
+    camera.rotation.x -= MOUSE_SPEED*delta_time*xrel;
+    camera.rotation.y -= MOUSE_SPEED*delta_time*yrel;
 }
 
 void check_event(SDL_Event *event) {
