@@ -24,9 +24,7 @@ typedef struct {
     
     // point light
     vector3f_t position;
-    float constant;
-    float linear;
-    float quadratic;
+    float radius;
 } light_t;
 
 light_t *light_new(int type);

@@ -6,9 +6,9 @@
 #include <string.h>
 
 // NOTE: edit these macros in shader as well
-#define MAX_DIR_LIGHTS   8
-#define MAX_POINT_LIGHTS 8
-#define MAX_SPOTLIGHTS   8
+#define MAX_DIR_LIGHTS   1
+#define MAX_POINT_LIGHTS 2
+#define MAX_SPOTLIGHTS   2
 
 static light_t lights[MAX_LIGHTS];
 static int lights_index = 0;
@@ -16,7 +16,7 @@ static int lights_index = 0;
 int count_light_types(int type) {
     int i;
     int amt = 0;
-    for (i = 0; i < lights_index; i++) {
+    for (i = 0; i < lights_index-1; i++) {
         if (lights[i].type == type)
             amt++;
     }
@@ -31,6 +31,7 @@ light_t *light_new(int type) {
     light_t *light = &lights[lights_index++];
     memset(light, 0, sizeof(light_t));
     light->index = count_light_types(type);
+    log_msg(LOG_INFO, "%d\n", light->index);
     light->type = type;
     return light;
 }
@@ -40,7 +41,7 @@ void light_init(light_t *light, unsigned shaderid) {
     if (light == NULL)
         return;
         
-    char lightstr[32];
+    char lightstr[48];
     if (light->type == LIGHT_DIRECTIONAL) {
         log_msg(LOG_INFO, "Initializing directional light (id: %d)\n", light->index);
         sprintf(lightstr, "dirLights[%d].direction", light->index);
@@ -58,6 +59,7 @@ void light_init(light_t *light, unsigned shaderid) {
     else if (light->type == LIGHT_POINT) {
         log_msg(LOG_INFO, "Initializing point light (id: %d)\n", light->index);
         sprintf(lightstr, "pointLights[%d].position", light->index);
+        log_msg(LOG_INFO, "%s\n", lightstr);
         shader_set_vec3f(shaderid, lightstr, light->position);
 
         sprintf(lightstr, "pointLights[%d].ambient", light->index);
@@ -68,15 +70,10 @@ void light_init(light_t *light, unsigned shaderid) {
 
         sprintf(lightstr, "pointLights[%d].specular", light->index);
         shader_set_vec3f(shaderid, lightstr, light->specular);
+
+        sprintf(lightstr, "pointLights[%d].radius", light->index);
+        shader_set_float(shaderid, lightstr, light->radius);
         
-        sprintf(lightstr, "pointLights[%d].constant", light->index);
-        shader_set_float(shaderid, lightstr, light->constant);
-        
-        sprintf(lightstr, "pointLights[%d].linear", light->index);
-        shader_set_float(shaderid, lightstr, light->linear);
-        
-        sprintf(lightstr, "pointLights[%d].quadratic", light->index);
-        shader_set_float(shaderid, lightstr, light->quadratic);
     }
 }
 

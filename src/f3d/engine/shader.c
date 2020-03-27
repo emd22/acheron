@@ -1,5 +1,6 @@
 #include <f3d/engine/shader.h>
 #include <f3d/engine/log.h>
+#include <f3d/engine/engine.h>
 
 #include <f3d/engine/type/vec.h>
 
@@ -87,17 +88,32 @@ unsigned shader_load(const char *path, int type) {
 
 void shader_set_mat4(unsigned shaderid, const char *var, mat4_t *mat) {
     glUniformMatrix4fv(glGetUniformLocation(shaderid, var), 1, GL_FALSE, mat->val);
+    const char *errmsg = engine_get_opengl_error();
+    if (errmsg != NULL)
+        log_msg(LOG_ERROR, "OpenGL error: %s\n", errmsg);
 }
 
 void shader_set_float(unsigned shaderid, const char *var, float val) {
-    glUniform1f(glGetUniformLocation(shaderid, var), val);
+    int loc = glGetUniformLocation(shaderid, var);
+    glUniform1f(loc, val);
+    const char *errmsg = engine_get_opengl_error();
+    if (errmsg != NULL)
+        log_msg(LOG_ERROR, "(%s) OpenGL error: %s\n", var, errmsg);
+
+    //log_msg(LOG_WARN, "gg %d\n", loc);
 }
 
 void shader_set_vec3f(unsigned shaderid, const char *var, vector3f_t vec) {
     glUniform3f(glGetUniformLocation(shaderid, var), vec.x, vec.y, vec.z);
+    const char *errmsg = engine_get_opengl_error();
+    if (errmsg != NULL)
+        log_msg(LOG_ERROR, "OpenGL error: %s\n", errmsg);
 }
 
 void shader_set_int(unsigned shaderid, const char *var, int val) {
     glUniform1i(glGetUniformLocation(shaderid, var), val);
+    const char *errmsg = engine_get_opengl_error();
+    if (errmsg != NULL)
+        log_msg(LOG_ERROR, "OpenGL error: %s\n", errmsg);
 }
 

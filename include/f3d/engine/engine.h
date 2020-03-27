@@ -12,4 +12,6 @@
 #include <f3d/engine/math.h>
 #include <f3d/engine/light.h>
 
+const char *engine_get_opengl_error(void);
+
 #endif 

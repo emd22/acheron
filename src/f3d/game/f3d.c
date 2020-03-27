@@ -27,7 +27,7 @@ window_t window;
 material_t *brick, *stone;
 model_t wall, level, box;
 float count = 0;
-light_t *light;
+light_t *light, *light2;
 
 camera_t camera;
 
@@ -42,8 +42,8 @@ int init(void) {
         log_msg(LOG_FATAL, "Could not start SDL\n", 0);
         return 1;
     }
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     
     window = window_new("Ethan's 3D Engine", 1024, 800, 0);
     default_window = &window;
@@ -73,15 +73,15 @@ void init_gl() {
     progid = shaders_link(vert, frag);
     glUseProgram(progid);
     
+    load_models();
+
     camera = camera_new();
     camera.move_speed = 6.0f;
-    camera.position = (vector3f_t){0, 3, 0};
+    camera.position = (vector3f_t){0, 3, -5};
     
     // select camera to be default and calculate perspective matrix
     camera_select(&camera);
     log_msg(LOG_INFO, "Camera initialized\n", 0);
-    
-    load_models();
     
     //glEnable(GL_FRAMEBUFFER_SRGB);
     
@@ -89,7 +89,7 @@ void init_gl() {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     
     // disable mouse cursor
     window_set_mouse_mode(WINDOW_MOUSE_DISABLED);
@@ -158,15 +158,15 @@ void load_models() {
         texture_load("../images/stone.bmp", IMAGE_BMP),
         texture_load("../images/stone_spec.bmp", IMAGE_BMP),
         texture_load("../images/stone_normal.bmp", IMAGE_BMP),
-        0, 1, 2, 32.0f
+        0, 1, 2, 3.0f
     });
     
     brick = material_new((material_t){
         "Brick",
         texture_load("../images/brick.bmp", IMAGE_BMP),
         texture_load("../images/brick_spec.bmp", IMAGE_BMP),
-        texture_load("../images/brick_normal.bmp", IMAGE_BMP),
-        0, 1, 2, 32.0f
+        texture_load("../images/ceiling.bmp", IMAGE_BMP),
+        0, 1, 2, 1.0f
     });
     wall.mesh = mesh_load("../models/wall.obj", MODEL_OBJ, 0);
     
@@ -181,17 +181,24 @@ void load_models() {
     
     box.mesh = mesh_load("../models/cube.obj", MODEL_OBJ, 0);
     model_init("Box", &box, 0);
-    box.position.y = 1;
+    box.position.y = 3;
+    
     
     light = light_new(LIGHT_POINT);
-    light->position = (vector3f_t){0.0f, 3.0f, -1.0f};
+    light->position = (vector3f_t){0.0f, 6.0f, -1.0f};
     light->ambient = (vector3f_t){0.02f, 0.02f, 0.02f};
     light->diffuse = (vector3f_t){0.8f, 0.8f, 0.8f};
     light->specular = (vector3f_t){1.0f, 1.0f, 1.0f};
-    light->constant = 1.0f;
-    light->linear = 0.09f;
-    light->quadratic = 0.032f;
+    light->radius = 5.0f;
     light_init(light, progid);
+
+    light2 = light_new(LIGHT_POINT);
+    light2->position = (vector3f_t){0.0f, 2.0f, -5.0f};
+    light2->ambient = (vector3f_t){0.02f, 0.02f, 0.02f};
+    light2->diffuse = (vector3f_t){0.8f, 0.8f, 0.8f};
+    light2->specular = (vector3f_t){1.0f, 1.0f, 1.0f};
+    light2->radius = 5.0f;
+    light_init(light2, progid);
 }
 
  
