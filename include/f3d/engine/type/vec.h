@@ -6,8 +6,8 @@
 #define VECF_TYPE(n) (n+1)
 #define VEC_TYPE(n)  (n)
 
-#define VALUE_TO_VEC2F(value) (vector2f_t){value, value};
-#define VALUE_TO_VEC3F(value) (vector3f_t){value, value, value};
+#define VEC2F(value) (vector2f_t){value, value};
+#define VEC3F(value) (vector3f_t){value, value, value};
 
 #define VEC2F_VALUE(vec) (vector2f_t){vec.x, vec.y}
 #define VEC3F_VALUE(vec) (vector3f_t){vec.x, vec.y, vec.z}

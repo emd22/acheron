@@ -59,32 +59,14 @@ void main() {
     n = normalize((frag_tangent * normals_texture.x) + (frag_bitangent * normals_texture.y) + (n * normals_texture.z));
     
     vec3 result = vec3(0);
-    /*for (int i = 0; i < MAX_DIR_LIGHTS; i++) {
-        result += CalcDirectionalLight(dirLights[i], norm, fragEyeDirection);
-    }*/
+    for (int i = 0; i < MAX_DIR_LIGHTS; i++) {
+        result += CalcDirectionalLight(dirLights[i], n, frag_eye_direction);
+    }
     for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
-        result = result+clamp(CalcPointLight(pointLights[i], n, frag_eye_direction), 0.0, 1.0);
+        result += clamp(CalcPointLight(pointLights[i], n, frag_eye_direction), 0.0, 1.0);
     }
     output_colour = vec4(result, 1.0f);
 }
-
-vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir) {
-    vec3 light_dir = normalize(light.direction);
-    // diffuse
-    float diff = max(dot(normal, light_dir), 0.0f);
-    // specular
-    vec3 reflect_dir = reflect(-light_dir, normal);
-    float spec = pow(max(dot(view_dir, reflect_dir), 0.0f), material.shininess);
-    // final
-    vec3 ambient = light.ambient * vec3(texture(material.diffuse, frag_uv));
-    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, frag_uv));
-    vec3 specular = light.specular * spec * vec3(texture(material.specular, frag_uv));
-    
-    specular *= diff;
-    
-    return (ambient + diffuse + specular);
-}
-
 float blinnPhong(vec3 normal, vec3 frag_vertex, vec3 view_pos, vec3 light_dir, float shininess) {
     vec3 eye_dir = normalize(-frag_vertex);
     vec3 half_vector = normalize(light_dir + eye_dir);
@@ -92,6 +74,24 @@ float blinnPhong(vec3 normal, vec3 frag_vertex, vec3 view_pos, vec3 light_dir, f
     
     return pow(max(dot(n, half_vector), 0.0), shininess);
 }
+
+vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir) {
+    vec3 light_dir = normalize(light.direction);
+    // diffuse
+    //float diff = max(dot(normal, light_dir), 0.0f);
+    float ndotl = max(dot(normalize(normal), light_dir), 0.0);
+    // specular
+    float specularity = blinnPhong(normal, frag_vertex, view_pos, light_dir, material.shininess);
+    // final
+    vec3 ambient = light.ambient * vec3(texture(material.diffuse, frag_uv));
+    vec3 diffuse = vec3(ndotl) * vec3(texture(material.diffuse, frag_uv));
+    vec3 specular = light.specular * specularity * vec3(texture(material.specular, frag_uv));
+    
+    //specular *= diff;
+    
+    return (ambient + diffuse + specular);
+}
+
 
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 view_dir) {
     view_dir = normalize(view_dir);

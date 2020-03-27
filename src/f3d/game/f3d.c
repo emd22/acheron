@@ -165,7 +165,7 @@ void load_models() {
         "Brick",
         texture_load("../images/brick.bmp", IMAGE_BMP),
         texture_load("../images/brick_spec.bmp", IMAGE_BMP),
-        texture_load("../images/ceiling.bmp", IMAGE_BMP),
+        texture_load("../images/brick_normal.bmp", IMAGE_BMP),
         0, 1, 2, 1.0f
     });
     wall.mesh = mesh_load("../models/wall.obj", MODEL_OBJ, 0);
