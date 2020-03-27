@@ -62,5 +62,6 @@ void material_destroy(material_t *material) {
     texture_destroy(material->diffuse);
     texture_destroy(material->specular);
     texture_destroy(material->normal);
+    
     material->name[0] = '*';
 }

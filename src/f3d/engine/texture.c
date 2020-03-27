@@ -9,6 +9,11 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
+#define MAX_TEXTURES 512
+
+static texture_t *textures[MAX_TEXTURES];
+static int textures_index = 0;
+
 void get_file_extension(char *path, char *buf) {
     int length = strlen(path);
     char *newb = path+length;
@@ -25,6 +30,13 @@ void get_file_extension(char *path, char *buf) {
 
 texture_t *texture_load(const char *path, int type) {
     texture_t *texture = malloc(sizeof(texture_t));
+    if (textures_index > MAX_TEXTURES) {
+        log_msg(LOG_ERROR, "Maximum textures reached(%d > %d), resetting texture_index\n", textures_index, MAX_TEXTURES);
+        textures_index = 0;
+    }
+    int index = textures_index++;
+    texture->index = index;
+    textures[index] = texture;
     
     char ext[32];
     get_file_extension((char *)path, ext);
@@ -50,8 +62,15 @@ texture_t *texture_load(const char *path, int type) {
 }
 
 void texture_destroy(texture_t *texture) {
-    if (texture == NULL)
+    if (texture == NULL || texture->image.type == IMAGE_NONE)
         return;
     image_destroy(&texture->image);
     glDeleteTextures(1, &texture->id);
+}
+
+void textures_cleanup(void) {
+    int i;
+    for (i = 0; i < textures_index; i++) {
+        texture_destroy(textures[i]);
+    }
 }

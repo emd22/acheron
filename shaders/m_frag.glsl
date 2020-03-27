@@ -2,7 +2,7 @@
 
 // https://learnopengl.com/Lighting/Multiple-lights
 
-#define MAX_DIR_LIGHTS 2
+#define MAX_DIR_LIGHTS 1
 #define MAX_POINT_LIGHTS 2
 
 struct Material {
@@ -31,87 +31,87 @@ struct PointLight {
     vec3 specular;
 };
 
-in vec3 fragVertex;
+in vec3 frag_vertex;
 
-in vec3 fragEyeDirection;
+in vec3 frag_eye_direction;
 
-in vec2 fragUV;
-in vec3 fragNormal;
-in vec3 fragTangent;
-in vec3 fragBitangent;
+in vec2 frag_uv;
+in vec3 frag_normal;
+in vec3 frag_tangent;
+in vec3 frag_bitangent;
 
-out vec4 outputColour;
+out vec4 output_colour;
 
 uniform Material material;
-uniform vec3 viewPos;
+uniform vec3 view_pos;
 
 uniform DirectionalLight dirLights[MAX_DIR_LIGHTS];
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
 
-vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir);
-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 viewDir);
+vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir);
+vec3 CalcPointLight(PointLight light, vec3 normal, vec3 view_dir);
 
 void main() {
-    //vec3 norm = normalize(255.0f/128.0f * texture(material.normal, fragUV).rgb-1.0f);
-    vec3 norm = fragNormal;
+    vec3 norm = frag_normal;
     
-    vec3 normalsTexture;
-    normalsTexture.xy = 2.0 * (vec2(1.0) - texture2D(material.normal, fragUV).rg) - 1.0;
-    normalsTexture.z = sqrt(1.0 - dot(normalsTexture.xy, normalsTexture.xy));
+    vec3 normals_texture;
+    normals_texture.xy = 255.0f/128.0f * (vec2(1.0) - texture2D(material.normal, frag_uv).rg) - 1.0;
+    normals_texture.z = sqrt(1.0 - dot(normals_texture.xy, normals_texture.xy));
     vec3 n = normalize(norm);
-    n = normalize((fragTangent * normalsTexture.x) + (fragBitangent * normalsTexture.y) + (n * normalsTexture.z));
+    n = normalize((frag_tangent * normals_texture.x) + (frag_bitangent * normals_texture.y) + (n * normals_texture.z));
     
     vec3 result = vec3(0);
     /*for (int i = 0; i < MAX_DIR_LIGHTS; i++) {
         result += CalcDirectionalLight(dirLights[i], norm, fragEyeDirection);
     }*/
     for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
-        result += CalcPointLight(pointLights[i], n, fragEyeDirection);
+        result += CalcPointLight(pointLights[i], n, frag_eye_direction);
     }
-    outputColour = vec4(result, 1.0f);
+    output_colour = vec4(result, 1.0f);
 }
 
-vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 viewDir) {
-    vec3 lightDir = normalize(-light.direction);
+vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir) {
+    vec3 light_dir = normalize(-light.direction);
     // diffuse
-    float diff = max(dot(normal, lightDir), 0.0f);
+    float diff = max(dot(normal, light_dir), 0.0f);
     // specular
-    vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0f), material.shininess);
+    vec3 reflect_dir = reflect(-light_dir, normal);
+    float spec = pow(max(dot(view_dir, reflect_dir), 0.0f), material.shininess);
     // final
-    vec3 ambient = light.ambient * vec3(texture(material.diffuse, fragUV));
-    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, fragUV));
-    vec3 specular = light.specular * spec * vec3(texture(material.specular, fragUV));
+    vec3 ambient = light.ambient * vec3(texture(material.diffuse, frag_uv));
+    vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, frag_uv));
+    vec3 specular = light.specular * spec * vec3(texture(material.specular, frag_uv));
     
     specular *= diff;
     
     return (ambient + diffuse + specular);
 }
 
-float blinnPhong(vec3 normal, vec3 fragVertex, vec3 viewPos, vec3 lightDir, float shininess) {
-    vec3 eyeDir = normalize( - fragVertex);
-    vec3 halfVector = normalize(lightDir + eyeDir);
+float blinnPhong(vec3 normal, vec3 frag_vertex, vec3 view_pos, vec3 light_dir, float shininess) {
+    vec3 eye_dir = normalize(-frag_vertex);
+    vec3 half_vector = normalize(light_dir + eye_dir);
     vec3 n = normalize(normal);
     
-    return pow(max(dot(n, halfVector), 0.0), shininess);
+    return pow(max(dot(n, half_vector), 0.0), shininess);
 }
-vec3 CalcPointLight(PointLight light, vec3 normal, vec3 viewDir) {
-    viewDir = normalize(viewDir);
+
+vec3 CalcPointLight(PointLight light, vec3 normal, vec3 view_dir) {
+    view_dir = normalize(view_dir);
     float radius = 5.0;
-    vec3 lightPos = light.position - fragVertex;
+    vec3 light_pos = light.position - frag_vertex;
     //float dist = distance(light.position, fragVertex);
-    float dist = length(lightPos);
+    float dist = length(light_pos);
     //dist = dist*dist;
-    lightPos = normalize(lightPos);
-    vec3 lightDir = normalize(light.position - fragVertex);
+    light_pos = normalize(light_pos);
+    vec3 light_dir = normalize(light.position - frag_vertex);
     
-    float nDotL = max(dot(normalize(normal), lightDir), 0.0);
-    vec3 matDiffuse = (vec3(nDotL) * texture(material.diffuse, fragUV).rgb) * (1.0 - (dist / radius));
-    float specularity = blinnPhong(normal, fragVertex, viewPos, lightDir, 1.0);
+    float n_dot_l = max(dot(normalize(normal), light_dir), 0.0);
+    vec3 mat_ambient = 0.1*vec3(0.1, 0.1, 0.1);
+    vec3 mat_diffuse = (vec3(n_dot_l) * texture(material.diffuse, frag_uv).rgb) * (1.0 - (dist / radius));
+    float specularity = blinnPhong(normal, frag_vertex, view_pos, light_dir, 1.0);
     specularity *= (1.0 - (dist / radius));
     
-    vec3 matAmbient = 0.1*vec3(0.1, 0.1, 0.1);
-    vec3 colour = matAmbient + matDiffuse + vec3(specularity);
+    vec3 colour = mat_ambient + mat_diffuse + vec3(specularity);
     
     //vec3 colour = vec3(specularity);
                   //matSpecular * lightPower * pow(cosAlpha, 5) / (dist*dist);

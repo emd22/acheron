@@ -42,6 +42,7 @@ void light_init(light_t *light, unsigned shaderid) {
         
     char lightstr[32];
     if (light->type == LIGHT_DIRECTIONAL) {
+        log_msg(LOG_INFO, "Initializing directional light (id: %d)\n", light->index);
         sprintf(lightstr, "dirLights[%d].direction", light->index);
         shader_set_vec3f(shaderid, lightstr, light->direction);
 
@@ -55,6 +56,7 @@ void light_init(light_t *light, unsigned shaderid) {
         shader_set_vec3f(shaderid, lightstr, light->specular);
     }
     else if (light->type == LIGHT_POINT) {
+        log_msg(LOG_INFO, "Initializing point light (id: %d)\n", light->index);
         sprintf(lightstr, "pointLights[%d].position", light->index);
         shader_set_vec3f(shaderid, lightstr, light->position);
 

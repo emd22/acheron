@@ -1,43 +1,43 @@
 #version 330 core
 
-layout(location = 0) in vec3 vertPosition;
-layout(location = 1) in vec2 vertUV;
-layout(location = 2) in vec3 vertNormal;
-layout(location = 3) in vec3 vertTangent;
-layout(location = 4) in vec3 vertBitangent;
+layout(location = 0) in vec3 vert_position;
+layout(location = 1) in vec2 vert_uv;
+layout(location = 2) in vec3 vert_normal;
+layout(location = 3) in vec3 vert_tangent;
+layout(location = 4) in vec3 vert_bitangent;
 
-uniform mat4 M;
-uniform mat4 V;
-uniform mat4 P;
+uniform mat4 m;
+uniform mat4 v;
+uniform mat4 p;
 
-out vec3 fragEyeDirection;
-out vec2 fragUV;
-out vec3 fragNormal;
-out vec3 fragVertex;
-out vec3 fragTangent;
-out vec3 fragBitangent;
+out vec3 frag_eye_direction;
+out vec2 frag_uv;
+out vec3 frag_normal;
+out vec3 frag_vertex;
+out vec3 frag_tangent;
+out vec3 frag_bitangent;
 
 void main() {
-    mat4 MVP = P*V*M;
+    mat4 mvp = p*v*m;
     // vertex position
-    fragVertex = (M*vec4(vertPosition, 1.0)).xyz;
-    vec3 eyeDirection = vec3(0.0f, 0.0f, 0.0f)-fragVertex;
+    frag_vertex = (m*vec4(vert_position, 1.0)).xyz;
+    vec3 eye_direction = vec3(0.0f, 0.0f, 0.0f)-frag_vertex;
 
-    fragUV = vertUV;
+    frag_uv = vert_uv;
     
-    fragEyeDirection = (vec4(eyeDirection, 1.0f)).xyz;
-    fragNormal = (transpose(inverse(M)) * vec4(vertNormal, 0.0)).xyz;
+    frag_eye_direction = (vec4(eye_direction, 1.0f)).xyz;
+    frag_normal = (transpose(inverse(m)) * vec4(vert_normal, 0.0)).xyz;
     
-    vec3 c1 = cross(vertNormal, vec3(0.0, 0.0, 1.0));
-    vec3 c2 = cross(vertNormal, vec3(0.0, 1.0, 0.0));
+    vec3 c1 = cross(vert_normal, vec3(0.0, 0.0, 1.0));
+    vec3 c2 = cross(vert_normal, vec3(0.0, 1.0, 0.0));
     
     if (length(c1) > length(c2))
-        fragTangent = c1;
+        frag_tangent = c1;
     else
-        fragTangent = c2;
+        frag_tangent = c2;
     
-    fragTangent = normalize(fragTangent);
-    fragBitangent = normalize(cross(fragNormal, fragTangent));
+    frag_tangent = normalize(frag_tangent);
+    frag_bitangent = normalize(cross(frag_normal, frag_tangent));
 
-    gl_Position = MVP * vec4(vertPosition, 1.0);
+    gl_Position = mvp * vec4(vert_position, 1.0);
 }

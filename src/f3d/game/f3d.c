@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <math.h>
+#include <signal.h>
 
 #include <f3d/engine/engine.h>
 
@@ -10,22 +12,20 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
-#include <math.h>
 
 #define FRAMERATE_CAP 60
 
 #define MOUSE_SPEED 0.07
 
-void set_material();
 void load_models();
-void draw_models();
 void draw();
 void check_mouse(double xrel, double yrel);
 void check_event(SDL_Event *event);
+void end(int sig);
 
 window_t window;
-material_t *stone, *marble;
-model_t cube, level;
+material_t *brick, *stone;
+model_t wall, level, box;
 float count = 0;
 light_t *light;
 
@@ -53,9 +53,12 @@ int init(void) {
         log_msg(LOG_FATAL, "Could not initialize GLEW\n", 0);
         return 1;
     }
+    
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
+    // enable vsync
     SDL_GL_SetSwapInterval(0);
+    
     glGenVertexArrays(1, &arrayid);
     glBindVertexArray(arrayid);
     return 0;
@@ -73,14 +76,12 @@ void init_gl() {
     camera = camera_new();
     camera.move_speed = 6.0f;
     camera.position = (vector3f_t){0, 3, 0};
-    camera.rotation = (vector3f_t){0, 0, 0};
     
     // select camera to be default and calculate perspective matrix
     camera_select(&camera);
     log_msg(LOG_INFO, "Camera initialized\n", 0);
     
     load_models();
-    set_material();
     
     //glEnable(GL_FRAMEBUFFER_SRGB);
     
@@ -88,8 +89,9 @@ void init_gl() {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
     
+    // disable mouse cursor
     window_set_mouse_mode(WINDOW_MOUSE_DISABLED);
 }
 
@@ -102,17 +104,17 @@ void move() {
         camera_move(&camera, CAMERA_LEFT);
     if (keys_pressed[CONTROL_RIGHT])
         camera_move(&camera, CAMERA_RIGHT);
-    //flashlight->position = camera.position;
-    //light_update(flashlight, progid);
 }
 
 int main() {    
     init();
     init_gl();
+    signal(SIGINT, &end);
    
     SDL_Event event;
     time_init();
    
+    log_msg(LOG_INFO, "Buffer usage: %.01fKB\n", (double)buffer_total_used/1024.0);
     while (game_info.flags & GAME_IS_RUNNING) {
         time_tick();
         while (SDL_PollEvent(&event))
@@ -122,7 +124,7 @@ int main() {
         move();
         //camera.direction = (vector3f_t){0, 0, 0};
         camera_update(&camera, progid);
-        shader_set_vec3f(progid, "viewPos", camera.position);
+        shader_set_vec3f(progid, "view_pos", camera.position);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         draw();
         window_buffers_swap(&window);
@@ -131,26 +133,26 @@ int main() {
         //log_msg(LOG_INFO, "fps: %u\n", time_get_fps());
         SDL_Delay((1000/FRAMERATE_CAP-delta_time));
     }
-    glDeleteProgram(progid);
-    material_destroy(stone);
-    material_destroy(marble);
-    model_destroy(&cube);
-    model_destroy(&level);
-    window_destroy(&window);
     
-    SDL_Quit();
+    end(SIGINT);
     return 0;
 }
 
-void load_models() {
-    marble = material_new((material_t){
-        "Marble",
-        texture_load("../images/marble.bmp", IMAGE_BMP),
-        texture_load("../images/marble_spec.bmp", IMAGE_BMP),
-        NULL,
-        0, 1, 2, 32.0f
-    });
+void end(int sig) {
+    (void)sig;
+    glDeleteProgram(progid);
     
+    window_destroy(&window);
+    
+    meshes_cleanup();
+    textures_cleanup();
+    
+    log_msg(LOG_INFO, "Buffer usage at program end: %.01fKB\n", (double)buffer_total_used/1024.0);
+    
+    SDL_Quit();
+}
+
+void load_models() {
     stone = material_new((material_t){
         "Stone",
         texture_load("../images/stone.bmp", IMAGE_BMP),
@@ -158,15 +160,31 @@ void load_models() {
         texture_load("../images/stone_normal.bmp", IMAGE_BMP),
         0, 1, 2, 32.0f
     });
-
-    cube = model_load("Cube", "../models/cube.obj", MODEL_OBJ);
-    level = model_load("Level", "../models/level.obj", MODEL_OBJ);
-    cube.position = (vector3f_t){0, 3, 3};
-}
-
-void set_material(void) {
+    
+    brick = material_new((material_t){
+        "Brick",
+        texture_load("../images/brick.bmp", IMAGE_BMP),
+        texture_load("../images/brick_spec.bmp", IMAGE_BMP),
+        texture_load("../images/brick_normal.bmp", IMAGE_BMP),
+        0, 1, 2, 32.0f
+    });
+    wall.mesh = mesh_load("../models/wall.obj", MODEL_OBJ, 0);
+    
+    model_init("Wall", &wall, 0);
+    wall.position = (vector3f_t){0, 0, 3};
+    level.mesh = wall.mesh;
+    
+    model_init("Level", &level, 0);
+    model_update(&level);
+    level.position.z = -7;
+    level.rotation.x = 1.57;
+    
+    box.mesh = mesh_load("../models/cube.obj", MODEL_OBJ, 0);
+    model_init("Box", &box, 0);
+    box.position.y = 1;
+    
     light = light_new(LIGHT_POINT);
-    light->position = (vector3f_t){0.0f, 1.0f, 0.0f};
+    light->position = (vector3f_t){0.0f, 3.0f, -1.0f};
     light->ambient = (vector3f_t){0.02f, 0.02f, 0.02f};
     light->diffuse = (vector3f_t){0.8f, 0.8f, 0.8f};
     light->specular = (vector3f_t){1.0f, 1.0f, 1.0f};
@@ -176,18 +194,13 @@ void set_material(void) {
     light_init(light, progid);
 }
 
-void draw_models() {
-    //cube.rotation.x += 0.6*delta_time;
-    //cube.rotation.z += 0.4*delta_time;
-    
-    material_update(stone, progid);
-    model_draw(&cube, &camera, progid);
-    //material_update(marble, progid);
-    model_draw(&level, &camera, progid);
-}
  
 void draw() {
-    draw_models();
+    material_update(brick, progid);
+    model_draw(&wall, &camera, progid);
+    material_update(stone, progid);
+    model_draw(&level, &camera, progid);
+    model_draw(&box, &camera, progid);
 }
 
 void check_mouse(double xrel, double yrel) {

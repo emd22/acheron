@@ -5,6 +5,8 @@
 #include <f3d/engine/types.h>
 #include <f3d/engine/camera.h>
 
+#define MESH_NO_TANGENTS 0x01
+
 enum {
     MODEL_NONE,
     MODEL_OBJ,
@@ -13,6 +15,9 @@ enum {
 
 typedef struct {
     int type;
+    int index;
+    int flags;
+    
     obj_model_t *obj;
     buffer_t *vertices;
     buffer_t *uvs;
@@ -21,10 +26,14 @@ typedef struct {
     unsigned vertex_id;
     unsigned uv_id;
     unsigned normal_id;
+    
+    vector3f_t *tangents, *bitangents;
+    unsigned tangent_id, bitangent_id;   
 } mesh_t;
 
-mesh_t *mesh_load(const char *path, int type);
-void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, unsigned shaderid, unsigned tangent_id, unsigned bitangent_id);
+mesh_t *mesh_load(const char *path, int type, int flags);
+void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, unsigned shaderid);
+void meshes_cleanup(void);
 void mesh_destroy(mesh_t *mesh);
 
 #endif

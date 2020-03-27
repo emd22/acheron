@@ -6,11 +6,11 @@
 #define F3D_PI 3.1415926535
 
 inline double math_deg_to_rad(double degrees) {
-    return degrees/57.295779513;
+    return degrees*(F3D_PI/180);
 }
 
 inline double math_rad_to_deg(double rad) {
-    return rad*57.295779513;
+    return rad*(180/F3D_PI);
 }
 
 vector3f_t math_cross(vector3f_t vec0, vector3f_t vec1);

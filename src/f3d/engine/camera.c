@@ -24,7 +24,7 @@ camera_t camera_new(void) {
 }
 
 void camera_clamp_rotation(camera_t *camera) {
-    const float y_max = math_deg_to_rad(60);
+    const float y_max = math_deg_to_rad(80);
     const float y_min = -y_max;
     
     // 2*PI
