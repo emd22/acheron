@@ -87,9 +87,9 @@ void camera_update(camera_t *camera, unsigned shaderid) {
     camera_clamp_rotation(camera);
 
     camera->direction = (vector3f_t){
-        cos(camera->rotation.y)*sin(camera->rotation.x),
+        sin(camera->rotation.x),
         sin(camera->rotation.y),
-        cos(camera->rotation.y)*cos(camera->rotation.x)
+        cos(camera->rotation.x)
     };
     camera->right = (vector3f_t){
         sin(camera->rotation.x-3.14f/2.0f),

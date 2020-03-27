@@ -71,7 +71,7 @@ void init_gl() {
     glUseProgram(progid);
     
     camera = camera_new();
-    camera.move_speed = 7.0f;
+    camera.move_speed = 6.0f;
     camera.position = (vector3f_t){0, 3, 0};
     camera.rotation = (vector3f_t){0, 0, 0};
     
@@ -145,7 +145,7 @@ int main() {
 void load_models() {
     marble = material_new((material_t){
         "Marble",
-        texture_load("../images/stone.bmp", IMAGE_BMP),
+        texture_load("../images/marble.bmp", IMAGE_BMP),
         texture_load("../images/marble_spec.bmp", IMAGE_BMP),
         NULL,
         0, 1, 2, 32.0f
@@ -153,9 +153,9 @@ void load_models() {
     
     stone = material_new((material_t){
         "Stone",
-        texture_load("../images/marble.bmp", IMAGE_BMP),
+        texture_load("../images/stone.bmp", IMAGE_BMP),
         texture_load("../images/stone_spec.bmp", IMAGE_BMP),
-        texture_load("../images/normal.bmp", IMAGE_BMP),
+        texture_load("../images/stone_normal.bmp", IMAGE_BMP),
         0, 1, 2, 32.0f
     });
 
@@ -166,7 +166,7 @@ void load_models() {
 
 void set_material(void) {
     light = light_new(LIGHT_POINT);
-    light->position = (vector3f_t){0.0f, 3.0f, 0.0f};
+    light->position = (vector3f_t){0.0f, 1.0f, 0.0f};
     light->ambient = (vector3f_t){0.02f, 0.02f, 0.02f};
     light->diffuse = (vector3f_t){0.8f, 0.8f, 0.8f};
     light->specular = (vector3f_t){1.0f, 1.0f, 1.0f};
@@ -193,8 +193,8 @@ void draw() {
 void check_mouse(double xrel, double yrel) {
     if (!(game_info.controls.flags & CONTROLS_MOUSE_CAPTURED))
         return;
-    camera.rotation.x -= MOUSE_SPEED*delta_time*xrel;
-    camera.rotation.y -= MOUSE_SPEED*delta_time*yrel;
+    camera.rotation.x -= delta_time*(MOUSE_SPEED*xrel);
+    camera.rotation.y -= delta_time*(MOUSE_SPEED*yrel);
 }
 
 void check_event(SDL_Event *event) {
@@ -208,7 +208,7 @@ void check_event(SDL_Event *event) {
         controls_handle_keyup(event->key.keysym.sym);
     }
     else if (event->type == SDL_MOUSEBUTTONDOWN) {
-        camera.fov = 45.0f;
+        camera.fov = 25.0f;
         camera_select(&camera);
     }
     else if (event->type == SDL_MOUSEBUTTONUP) {
