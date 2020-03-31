@@ -16,7 +16,7 @@ material_t *material_new(material_t material) {
     return mat;
 }
 
-void material_update(material_t *mat, unsigned shaderid) {
+void material_update(material_t *mat, shader_t *shader) {
     // TODO: flat colours, etc.
     if (mat->diffuse == NULL) {
         log_msg(LOG_ERROR, "Diffuse texture for '%s' is NULL!\n", mat->name);
@@ -40,10 +40,10 @@ void material_update(material_t *mat, unsigned shaderid) {
         glBindTexture(GL_TEXTURE_2D, mat->diffuse->id);
     }
 
-    shader_set_int(shaderid, "material.diffuse", mat->diffuse_id);
-    shader_set_int(shaderid, "material.specular", mat->specular_id);
-    shader_set_int(shaderid, "material.normal", mat->normal_id);
-    shader_set_float(shaderid, "material.shininess", mat->shininess);
+    shader_set_int(shader, "material.diffuse", mat->diffuse_id);
+    shader_set_int(shader, "material.specular", mat->specular_id);
+    shader_set_int(shader, "material.normal", mat->normal_id);
+    shader_set_float(shader, "material.shininess", mat->shininess);
 }
 
 material_t *material_get(const char *name) {

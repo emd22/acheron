@@ -46,7 +46,7 @@ mesh_t *mesh_load(const char *path, int type, int flags) {
     glBindBuffer(GL_ARRAY_BUFFER, mesh->vertex_id);
     glBufferData(GL_ARRAY_BUFFER, mesh->vertices->index*sizeof(vector3f_t), mesh->vertices->data, GL_STATIC_DRAW);
 
-    // colour(uvs)
+    // uvs
     glGenBuffers(1, &mesh->uv_id);
     glBindBuffer(GL_ARRAY_BUFFER, mesh->uv_id);
     glBufferData(GL_ARRAY_BUFFER, mesh->uvs->index*sizeof(vector2f_t), mesh->uvs->data, GL_STATIC_DRAW);
@@ -61,14 +61,21 @@ mesh_t *mesh_load(const char *path, int type, int flags) {
     if (!(flags & MESH_NO_TANGENTS)) {
         calculate_tangents(mesh);
     }
+    if (!(flags & MESH_KEEP_DATA)) {
+        // we already have our data in VRAM and tangents are calculated, no need
+        // to keep this in system memory
+        buffer_destroy(mesh->vertices);
+        buffer_destroy(mesh->uvs);
+        buffer_destroy(mesh->normals);
+    }
     
     return mesh;
 }
 
-void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, unsigned shaderid) {
-    shader_set_mat4(shaderid, "m", matrix);
-    shader_set_mat4(shaderid, "v", &camera->mat_view);
-    shader_set_mat4(shaderid, "p", &camera->mat_projection);
+void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, shader_t *shader) {
+    shader_set_mat4(shader, "m", matrix);
+    shader_set_mat4(shader, "v", &camera->mat_view);
+    shader_set_mat4(shader, "p", &camera->mat_projection);
     
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, mesh->vertex_id);
@@ -178,7 +185,6 @@ void mesh_destroy(mesh_t *mesh) {
     if (mesh->type == MODEL_NONE)
         return;
     log_msg(LOG_INFO, "Deleting mesh(idx: %d)\n", mesh->index);
-        
         
     if (mesh->type == MODEL_OBJ) {
         obj_destroy(mesh->obj);

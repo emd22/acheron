@@ -20,6 +20,10 @@ void controls_handle(int key, int state) {
         keys_pressed[CONTROL_LEFT] = state;
     else if (key == SDLK_d)
         keys_pressed[CONTROL_RIGHT] = state;
+        
+    else if (key >= SDLK_0 && key <= SDLK_9)
+        keys_pressed[CONTROL_0+(key-SDLK_0)] = state;
+        
     else if (key == SDLK_ESCAPE && state) {
         game_info.controls.flags ^= CONTROLS_MOUSE_CAPTURED;
         SDL_SetRelativeMouseMode(game_info.controls.flags & CONTROLS_MOUSE_CAPTURED);

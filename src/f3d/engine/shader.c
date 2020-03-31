@@ -22,23 +22,34 @@ void check_status(unsigned id) {
 	}
 }
 
-unsigned shaders_link(unsigned shader0, unsigned shader1) {
-    log_msg(LOG_INFO, "Linking shaders\n", 0);
-    unsigned id = glCreateProgram(); // Program ID
-    // attach shaders for linking
-    glAttachShader(id, shader0);
-    glAttachShader(id, shader1);
+void shader_use(shader_t *shader) {
+    glUseProgram(shader->id);
+}
 
-    glLinkProgram(id);
+shader_t shaders_link(const char *name, unsigned shader0, unsigned shader1) {
+    shader_t program;
+    strcpy(program.name, name);
+    log_msg(LOG_INFO, "Linking '%s'\n", name);
+    program.id = glCreateProgram(); // Program ID
+    // attach shaders for linking
+    glAttachShader(program.id, shader0);
+    glAttachShader(program.id, shader1);
+
+    glLinkProgram(program.id);
     
     // detach shaders from program
-    glDetachShader(id, shader0);
-    glDetachShader(id, shader1);
+    glDetachShader(program.id, shader0);
+    glDetachShader(program.id, shader1);
     // delete child shaders
     glDeleteShader(shader0);
     glDeleteShader(shader1);
     
-    return id;
+    return program;
+}
+
+void shader_destroy(shader_t *shader) {
+    log_msg(LOG_INFO, "Deleting '%s'\n", shader->name);
+    glDeleteProgram(shader->id);
 }
 
 char *filename_from_path(char *str) {
@@ -82,36 +93,32 @@ unsigned shader_load(const char *path, int type) {
     free(data);
     
     check_status(id);
-    log_msg(LOG_INFO, "Done\n", 0);
     return id;
 }
 
-void shader_set_mat4(unsigned shaderid, const char *var, mat4_t *mat) {
-    glUniformMatrix4fv(glGetUniformLocation(shaderid, var), 1, GL_FALSE, mat->val);
+void shader_set_mat4(shader_t *shader, const char *var, mat4_t *mat) {
+    glUniformMatrix4fv(glGetUniformLocation(shader->id, var), 1, GL_FALSE, mat->val);
     const char *errmsg = engine_get_opengl_error();
     if (errmsg != NULL)
         log_msg(LOG_ERROR, "OpenGL error: %s\n", errmsg);
 }
 
-void shader_set_float(unsigned shaderid, const char *var, float val) {
-    int loc = glGetUniformLocation(shaderid, var);
-    glUniform1f(loc, val);
-    const char *errmsg = engine_get_opengl_error();
-    if (errmsg != NULL)
-        log_msg(LOG_ERROR, "(%s) OpenGL error: %s\n", var, errmsg);
-
-    //log_msg(LOG_WARN, "gg %d\n", loc);
-}
-
-void shader_set_vec3f(unsigned shaderid, const char *var, vector3f_t vec) {
-    glUniform3f(glGetUniformLocation(shaderid, var), vec.x, vec.y, vec.z);
+void shader_set_float(shader_t *shader, const char *var, float val) {
+    glUniform1f(glGetUniformLocation(shader->id, var), val);
     const char *errmsg = engine_get_opengl_error();
     if (errmsg != NULL)
         log_msg(LOG_ERROR, "OpenGL error: %s\n", errmsg);
 }
 
-void shader_set_int(unsigned shaderid, const char *var, int val) {
-    glUniform1i(glGetUniformLocation(shaderid, var), val);
+void shader_set_vec3f(shader_t *shader, const char *var, vector3f_t vec) {
+    glUniform3f(glGetUniformLocation(shader->id, var), vec.x, vec.y, vec.z);
+    const char *errmsg = engine_get_opengl_error();
+    if (errmsg != NULL)
+        log_msg(LOG_ERROR, "OpenGL error: %s\n", errmsg);
+}
+
+void shader_set_int(shader_t *shader, const char *var, int val) {
+    glUniform1i(glGetUniformLocation(shader->id, var), val);
     const char *errmsg = engine_get_opengl_error();
     if (errmsg != NULL)
         log_msg(LOG_ERROR, "OpenGL error: %s\n", errmsg);

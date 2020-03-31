@@ -9,12 +9,19 @@
 #define SHADER_VERTEX   GL_VERTEX_SHADER
 #define SHADER_FRAGMENT GL_FRAGMENT_SHADER
 
-unsigned shader_load(const char *path, int type);
-unsigned shaders_link(unsigned shader0, unsigned shader1);
+typedef struct {
+    char name[16];
+    unsigned id;
+} shader_t;
 
-void shader_set_int(unsigned shaderid, const char *var, int val);
-void shader_set_float(unsigned shaderid, const char *var, float val);
-void shader_set_mat4(unsigned shaderid, const char *var, mat4_t *mat);
-void shader_set_vec3f(unsigned shaderid, const char *var, vector3f_t vec);
+unsigned shader_load(const char *path, int type);
+shader_t shaders_link(const char *name, unsigned shader0, unsigned shader1);
+void shader_use(shader_t *shader);
+void shader_destroy(shader_t *shader);
+
+void shader_set_int(shader_t *shader, const char *var, int val);
+void shader_set_float(shader_t *shader, const char *var, float val);
+void shader_set_mat4(shader_t *shader, const char *var, mat4_t *mat);
+void shader_set_vec3f(shader_t *shader, const char *var, vector3f_t vec);
 
 #endif

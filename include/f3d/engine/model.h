@@ -16,7 +16,7 @@ typedef struct {
 
 void model_init(const char *name, model_t *model, int flags);
 void model_update(model_t *model);
-void model_draw(model_t *model, camera_t *camera, unsigned shaderid);
+void model_draw(model_t *model, camera_t *camera, shader_t *shader);
 void model_destroy(model_t *model);
 
 #endif

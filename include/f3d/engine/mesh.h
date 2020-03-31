@@ -4,14 +4,15 @@
 #include <f3d/engine/model/obj.h>
 #include <f3d/engine/types.h>
 #include <f3d/engine/camera.h>
+#include <f3d/engine/shader.h>
 
 #define MESH_NO_TANGENTS 0x01
+#define MESH_KEEP_DATA   0x02
 
 enum {
     MODEL_NONE,
     MODEL_OBJ,
 };
-
 
 typedef struct {
     int type;
@@ -32,7 +33,7 @@ typedef struct {
 } mesh_t;
 
 mesh_t *mesh_load(const char *path, int type, int flags);
-void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, unsigned shaderid);
+void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, shader_t *shader);
 void meshes_cleanup(void);
 void mesh_destroy(mesh_t *mesh);
 

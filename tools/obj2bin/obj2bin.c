@@ -1,12 +1,30 @@
-#include <f3d/engine/model/obj.h>
-#include <f3d/engine/log.h>
-
-#include <f3d/engine/type/buffer.h>
-#include <f3d/engine/type/vec.h>
+#include "../../include/f3d/engine/types.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <stdint.h>
+
+#define IDENT_HI 0x0F
+#define IDENT_LO 0x3D
+
+typedef struct {
+    // vec3f buffer
+    buffer_t vertices;
+    // vec2f buffer
+    buffer_t uvs;
+    // vec3f buffer
+    buffer_t normals;
+} obj_model_t;
+
+obj_model_t obj_load(const char *path);
+void obj_destroy(obj_model_t *model);
+
+
+int main(int argc, char *argv[]) {
+    return 0;
+}
 
 obj_model_t obj_load(const char *path) {
     // https://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/

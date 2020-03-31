@@ -29,6 +29,21 @@ float math_dot(vector3f_t vec0, vector3f_t vec1) {
     return (vec0.x*vec1.x+vec0.y*vec1.y+vec0.z*vec1.z);
 }
 
+void math_ortho(mat4_t *mat, float l, float r, float b, float t, float n, float f) {
+    const float rsl = r-l, ral = r+l;
+    const float tsb = t-b, tab = t+b;
+    const float fsn = f-n, fan = f+n;
+    mat4_set(
+        mat, 
+        (float []){
+            2.0f/rsl, 0.0f,      0.0f,     0.0f,
+            0.0f,     2.0f/tsb,  0.0f,     0.0f,
+            0.0f,     0.0f,     -2.0f/fsn, 0.0f,
+            -ral/rsl, -tab/tsb,  -fan/fsn, 1.0f
+        }
+    );
+}
+
 mat4_t math_lookat(vector3f_t from, vector3f_t to, vector3f_t upvec) {
     vector3f_t forward, right, up;
     forward = normalize(vec3f_sub_vec3f(to, from));

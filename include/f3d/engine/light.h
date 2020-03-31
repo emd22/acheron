@@ -2,6 +2,7 @@
 #define F3D_LIGHT_H
 
 #include <f3d/engine/types.h>
+#include <f3d/engine/shader.h>
 
 #define MAX_LIGHTS 16
 
@@ -28,7 +29,7 @@ typedef struct {
 } light_t;
 
 light_t *light_new(int type);
-void light_init(light_t *light, unsigned shaderid);
-void light_update(light_t *light, unsigned shaderid);
+void light_init(light_t *light, shader_t *shader);
+void light_update(light_t *light, shader_t *shader);
 
 #endif

@@ -38,7 +38,7 @@ in vec3 frag_normal;
 in vec3 frag_tangent;
 in vec3 frag_bitangent;
 
-out vec4 output_colour;
+layout(location = 0) out vec4 output_colour;
 
 uniform Material material;
 uniform vec3 view_pos;

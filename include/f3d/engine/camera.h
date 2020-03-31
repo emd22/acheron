@@ -8,6 +8,7 @@
 #define CAMERA_LEFT      2
 #define CAMERA_RIGHT     3
 
+
 typedef struct {
     vector3f_t position;
     vector3f_t rotation;
@@ -19,12 +20,12 @@ typedef struct {
     
     mat4_t mat_view, mat_projection;
 } camera_t;
+extern camera_t *selected_camera;
 
 camera_t camera_new(void);
-void camera_check(camera_t *_camera);
 void camera_select(camera_t *camera);
 void camera_clamp_rotation(camera_t *camera);
 void camera_move(camera_t *camera, int direction);
-void camera_update(camera_t *camera, unsigned shaderid);
+void camera_update(camera_t *camera);
 
 #endif

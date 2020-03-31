@@ -28,8 +28,9 @@ image_t image_load(const char *path, int type) {
 }
 
 void image_destroy(image_t *image) {
-    if (image->data != NULL)
+    if (image->data != NULL || image->type == IMAGE_NONE)
         free(image->data);
         
+    image->data = NULL;
     image->type = IMAGE_NONE;
 }

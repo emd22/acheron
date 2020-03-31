@@ -2,6 +2,7 @@
 #define F3D_MATERIAL_H
 
 #include <f3d/engine/texture.h>
+#include <f3d/engine/shader.h>
 
 typedef struct {
     char name[16];
@@ -17,7 +18,7 @@ typedef struct {
 } material_t;
 
 material_t *material_new(material_t material);
-void material_update(material_t *mat, unsigned shaderid);
+void material_update(material_t *mat, shader_t *shader);
 material_t *material_get(const char *name);
 void material_destroy(material_t *material);
 

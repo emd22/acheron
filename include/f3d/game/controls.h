@@ -13,6 +13,17 @@ enum {
     CONTROL_LEFT,
     CONTROL_RIGHT,
     
+    CONTROL_0,
+    CONTROL_1,
+    CONTROL_2,
+    CONTROL_3,
+    CONTROL_4,
+    CONTROL_5,
+    CONTROL_6,
+    CONTROL_7,
+    CONTROL_8,
+    CONTROL_9,
+    
     CONTROLS_SIZE
 };
 

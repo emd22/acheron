@@ -19,6 +19,9 @@ camera_t camera_new(void) {
     camera_t camera;
     memset(&camera, 0, sizeof(camera_t));
     camera.direction = (vector3f_t){0, 0, 0};
+    
+    // NOTE: FOV is stored in degrees, converted to radians when creating
+    // perspective matrix
     camera.fov = 75;
     return camera;
 }
@@ -72,35 +75,43 @@ void camera_move(camera_t *camera, int direction) {
 }
 
 void camera_select(camera_t *camera) {
+    const float aspect = (float)default_window->width/(float)default_window->height;
+    
     math_perspective(
-        &camera->mat_projection, 
-        math_deg_to_rad(camera->fov), 
-        (float)default_window->width/(float)default_window->height,
+        &camera->mat_projection,
+        math_deg_to_rad(camera->fov),
+        aspect,
         0.1f,
         100.0f
     );
+
     selected_camera = camera;
 }
   
-void camera_update(camera_t *camera, unsigned shaderid) {
-    (void)shaderid;
+void camera_update(camera_t *camera) {
+    // clamp rotation to avoid camera flipping on y axis or values overflowing
     camera_clamp_rotation(camera);
 
+    // direction camera is facing
     camera->direction = (vector3f_t){
         sin(camera->rotation.x),
         sin(camera->rotation.y),
         cos(camera->rotation.x)
     };
+    
     camera->right = (vector3f_t){
         sin(camera->rotation.x-3.14f/2.0f),
         0,
         cos(camera->rotation.x-3.14f/2.0f)
     };
-    camera->up = math_cross(camera->right, camera->direction);
+    
+    // the camera should always be facing upwards
+    const vector3f_t up = (vector3f_t){0, 1, 0};
+    //camera->up = math_cross(camera->right, camera->direction);
     
     vector3f_t lookto;
     lookto.x = camera->position.x+camera->direction.x;
     lookto.y = camera->position.y+camera->direction.y;
     lookto.z = camera->position.z+camera->direction.z;
-    camera->mat_view = math_lookat(camera->position, lookto, camera->up);
+    camera->mat_view = math_lookat(camera->position, lookto, up);
 }
