@@ -21,6 +21,7 @@ void load_models();
 void draw();
 void check_mouse(double xrel, double yrel);
 void check_event(SDL_Event *event);
+void render_scene(shader_t *shader);
 void end(int sig);
 
 window_t window;
@@ -35,7 +36,7 @@ unsigned shadow_fb;
 unsigned shadow_tex;
 
 unsigned arrayid;
-shader_t shader_main, shader_depth;
+shader_t shader_main;//, shader_depth;
 
 int init(void) {
     game_init();
@@ -67,8 +68,10 @@ int init(void) {
     return 0;
 }
 
+// http://www.it.hiof.no/~borres/j3d/explain/shadow/p-shadow.html
+
 void init_shadows() {
-    glGenFramebuffers(1, &shadow_fb);
+    /*glGenFramebuffers(1, &shadow_fb);
     glBindFramebuffer(GL_FRAMEBUFFER, shadow_fb);
     
     glGenTextures(1, &shadow_tex);
@@ -104,9 +107,15 @@ void init_shadows() {
             0.0, 0.0, 0.5, 0.0,
             0.5, 0.5, 0.5, 1.0
         }
-    );
-    shader_set_mat4(&shader_depth, "depth_mvp", &mvp);
-    shader_set_mat4(&shader_depth, "depth_bias", &bias_mat);
+    );*/
+    //shader_set_mat4(&shader_depth, "depth_mvp", &mvp);
+    //shader_set_mat4(&shader_depth, "depth_bias", &bias_mat);
+}
+
+void render_shadows() {
+    //glBindFramebuffer(GL_FRAMEBUFFER, shadow_fb);
+    //render_scene(&shader_depth);
+    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
  
 void init_gl() {
@@ -115,14 +124,8 @@ void init_gl() {
     
     shader_main = shaders_link(
         "Main",
-        shader_load("../shaders/m_vert.glsl", SHADER_VERTEX),
-        shader_load("../shaders/m_frag.glsl", SHADER_FRAGMENT)
-    );
-    
-    shader_depth = shaders_link(
-        "Depth",
-        shader_load("../shaders/depth_vert.glsl", SHADER_VERTEX),
-        shader_load("../shaders/depth_frag.glsl", SHADER_FRAGMENT)
+        shader_load("../shaders/pp/final_vert.glsl", SHADER_VERTEX),
+        shader_load("../shaders/pp/final_frag.glsl", SHADER_FRAGMENT)
     );
     
     shader_use(&shader_main);
@@ -188,7 +191,6 @@ int main() {
     SDL_Event event;
     time_init();
     
-    shader_use(&shader_depth);
     init_shadows();
     shader_use(&shader_main);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -223,7 +225,6 @@ int main() {
 void end(int sig) {
     (void)sig;
     shader_destroy(&shader_main);
-    shader_destroy(&shader_depth);
     
     window_destroy(&window);
     
@@ -296,13 +297,17 @@ void load_models() {
     light_init(light, &shader_main);
 }
 
+void render_scene(shader_t *shader) {
+    shader_use(shader);
+    material_update(brick, shader);
+    model_draw(&wall, selected_camera, shader);
+    material_update(stone, shader);
+    model_draw(&level, selected_camera, shader);
+    model_draw(&box, selected_camera, shader);
+}
  
 void draw() {
-    material_update(brick, &shader_main);
-    model_draw(&wall, selected_camera, &shader_main);
-    material_update(stone, &shader_main);
-    model_draw(&level, selected_camera, &shader_main);
-    model_draw(&box, selected_camera, &shader_main);
+    render_scene(&shader_main);
 }
 
 void check_mouse(double xrel, double yrel) {

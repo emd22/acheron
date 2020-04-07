@@ -1,6 +1,6 @@
 #version 420 core
 
-#include shadows_vert.glsl
+
 
 layout(location = 0) in vec3 vert_position;
 layout(location = 1) in vec2 vert_uv;

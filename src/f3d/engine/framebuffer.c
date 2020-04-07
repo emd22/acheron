@@ -2,7 +2,7 @@
 
 #include <GL/glew.h>
 #include <GL/gl.h>
-
+/*
 void framebuffer_init(framebuffer_t *fb) {
     const int width = 400;
     const int height = 400;
@@ -12,8 +12,8 @@ void framebuffer_init(framebuffer_t *fb) {
     glBindTexture(GL_TEXTURE_2D, fb->texture_id);
     
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glTexParameter(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameter(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
     glGenRenderbuffers(1, &fb->depth_id);
     glBindRenderbuffer(GL_RENDERBUFFER, gl->depth_id);
@@ -35,3 +35,4 @@ void framebuffer_bind(framebuffer_t *fb) {
 void framebuffer_destroy(framebuffer_t *fb) {
     glDeleteFramebuffers(1, &fb->fbo);
 }
+*/
