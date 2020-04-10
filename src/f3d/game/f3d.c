@@ -26,11 +26,12 @@ void end(int sig);
 
 window_t window;
 material_t *brick, *stone;
-model_t wall, level, box;
+//model_t wall, level, box;
+object_t *wall, *level, *box, *player;
 float count = 0;
 light_t *light, *light2;
 
-camera_t camera, camera2;
+camera_t camera;
 
 unsigned shadow_fb;
 unsigned shadow_tex;
@@ -134,10 +135,6 @@ void init_gl() {
     camera.move_speed = 6.0f;
     camera.position = (vector3f_t){2, 3, -5};
     
-    camera2 = camera_new();
-    camera2.move_speed = 6.0f;
-    camera2.position = (vector3f_t){-3, 3, -5};
-    
     load_models();
     
     // select camera to be default and calculate perspective matrix
@@ -175,10 +172,11 @@ int move() {
         moved = 1;
     }
     if (keys_pressed[CONTROL_1]) {
-        camera_select(&camera);
-    }
-    else if (keys_pressed[CONTROL_2]) {
-        camera_select(&camera2);
+        box->position.y = 20;
+        box->physics.velocity = 0;
+        box->physics.locked = false;
+        player->physics.position = camera.position;
+        object_update(box);
     }
     return moved;
 }
@@ -202,9 +200,14 @@ int main() {
             check_event(&event);        
             
         shader_use(&shader_main);
-        if (move()) {
-            box.position = camera2.position;
-            model_update(&box);
+        move();
+        
+        physics_update(&(box->physics));
+        box->position = box->physics.position;
+        object_update(box);
+        if (object_check_collision(box, level)) {
+            box->physics.locked = true;
+            box->physics.velocity = 0.0;
         }
         //camera.direction = (vector3f_t){0, 0, 0};
         camera_update(selected_camera);
@@ -214,7 +217,6 @@ int main() {
         window_buffers_swap(&window);
 
         time_end();
-        //log_msg(LOG_INFO, "fps: %u\n", time_get_fps());
         SDL_Delay((1000/FRAMERATE_CAP-delta_time));
     }
     
@@ -225,11 +227,11 @@ int main() {
 void end(int sig) {
     (void)sig;
     shader_destroy(&shader_main);
-    
     window_destroy(&window);
     
     meshes_cleanup();
     textures_cleanup();
+    objects_cleanup();
     
     log_msg(LOG_INFO, "Buffer usage at program end: %llu\n", buffer_total_used);
     
@@ -253,24 +255,33 @@ void load_models() {
         0, 1, 2, 1.0f
     });
     
-    wall.mesh = mesh_load("../models/wall.obj", MODEL_OBJ, 0);
-    model_init("Wall", &wall, 0);
-    wall.position = (vector3f_t){0, 0, 3};
+    wall = object_new();
+    object_init("Wall", wall, 0);
+    object_attach_mesh(wall, mesh_load("../models/wall.obj", MODEL_OBJ, 0));
+    wall->position = (vector3f_t){0, 0, 3};
     
-    level.mesh = wall.mesh;
-    model_init("Level", &level, 0);
-    model_update(&level);
-    level.position.z = -7;
-    level.rotation.x = 1.57;
+    level = object_new();
+    object_init("Level", level, 0);
+    object_attach_mesh(level, wall->mesh);
+    object_update(level);
+    level->position.z = -7;
+    level->rotation.x = 1.57f;
+    level->physics.dimensions = (vector3f_t){10, 1.2, 10};
     
-    box.mesh = mesh_load("../models/cube.obj", MODEL_OBJ, 0);
-    model_init("Box", &box, 0);
-    box.position = camera2.position;
+    box = object_new();
+    object_init("Box", box, 0);
+    object_attach_mesh(box, mesh_load("../models/cube.obj", MODEL_OBJ, 0));
+    box->position = (vector3f_t){0, 3, 0};
+    box->physics.dimensions = VEC3F(3);
     
-    model_update(&box);
-    model_update(&level);
-    model_update(&wall);
+    player = object_new();
+    object_init("Player", player, 0);
+    player->position = camera.position;
+    player->physics.dimensions = VEC3F(2);
     
+    object_update(box);
+    object_update(level);
+    object_update(wall);
     /*
     light = light_new(LIGHT_POINT);
     light->position = (vector3f_t){0.0f, 6.0f, -1.0f};
@@ -288,11 +299,12 @@ void load_models() {
     light2->radius = 5.0f;
     light_init(light2, &shader_main);
     */
+
     light = light_new(LIGHT_DIRECTIONAL);
-    light->direction = (vector3f_t){-2.0, 10.0, -10};
-    light->ambient = (vector3f_t){0.02f, 0.02f, 0.02f};
-    light->diffuse = (vector3f_t){0.15f, 0.15f, 0.15f};
-    light->specular = (vector3f_t){0.8f, 0.8f, 0.8f};
+    light->direction = (vector3f_t){-2.0,   10.0,  -10.0};
+    light->ambient   = (vector3f_t){ 0.02f, 0.02f,  0.02f};
+    light->diffuse   = (vector3f_t){ 0.15f, 0.15f,  0.15f};
+    light->specular  = (vector3f_t){ 0.8f,  0.8f,   0.8f};
     light->radius = 5.0f;
     light_init(light, &shader_main);
 }
@@ -300,10 +312,10 @@ void load_models() {
 void render_scene(shader_t *shader) {
     shader_use(shader);
     material_update(brick, shader);
-    model_draw(&wall, selected_camera, shader);
+    object_draw(wall, selected_camera, shader);
     material_update(stone, shader);
-    model_draw(&level, selected_camera, shader);
-    model_draw(&box, selected_camera, shader);
+    object_draw(level, selected_camera, shader);
+    object_draw(box,   selected_camera, shader);
 }
  
 void draw() {

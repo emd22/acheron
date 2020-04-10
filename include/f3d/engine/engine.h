@@ -11,6 +11,7 @@
 #include <f3d/engine/time.h>
 #include <f3d/engine/math.h>
 #include <f3d/engine/light.h>
+#include <f3d/engine/object.h>
 
 const char *engine_get_opengl_error(void);
 
