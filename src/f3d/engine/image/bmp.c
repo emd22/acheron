@@ -84,7 +84,7 @@ image_bmp_t bmp_load(const char *filename) {
     }
 
     /* OK, everything went fine - return the allocated bitmap... */
-    log_msg(LOG_INFO, "Done\n", 0);
+    //log_msg(LOG_INFO, "Done\n", 0);
     fclose(fp);
     return bmp;
 error:;

@@ -37,8 +37,11 @@ in vec2 frag_uv;
 in vec3 frag_normal;
 in vec3 frag_tangent;
 in vec3 frag_bitangent;
+in vec4 frag_shadow_coords;
 
 layout(location = 0) out vec4 output_colour;
+
+uniform sampler2D shadow_map;
 
 uniform Material material;
 uniform vec3 view_pos;
@@ -46,7 +49,7 @@ uniform vec3 view_pos;
 uniform DirectionalLight dirLights[MAX_DIR_LIGHTS];
 uniform PointLight pointLights[MAX_POINT_LIGHTS];
 
-vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir);
+vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir, float visibility);
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 view_dir);
 
 void main() {
@@ -58,14 +61,22 @@ void main() {
     vec3 n = normalize(norm);
     n = normalize((frag_tangent * normals_texture.x) + (frag_bitangent * normals_texture.y) + (n * normals_texture.z));
     
+    float bias = 0.005;
+    float visibility = 1.0f;
+    if (texture(shadow_map, frag_shadow_coords.xy).x < frag_shadow_coords.z-bias) {
+        visibility = 0.3;
+    }
+    
     vec3 result = vec3(0);
     for (int i = 0; i < MAX_DIR_LIGHTS; i++) {
-        result += CalcDirectionalLight(dirLights[i], n, frag_eye_direction);
+        result += CalcDirectionalLight(dirLights[i], n, frag_eye_direction, visibility);
     }
     for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
         result += clamp(CalcPointLight(pointLights[i], n, frag_eye_direction), 0.0, 1.0);
     }
-    output_colour = vec4(result, 1.0f);
+    //float visibility = texture(shadow_map, frag_shadow_coords.xy).r;
+    output_colour = visibility*vec4(result, 1.0f);
+    //output_colour = vec4(vec3(visibility), 1);
 }
 float blinnPhong(vec3 normal, vec3 frag_vertex, vec3 view_pos, vec3 light_dir, float shininess) {
     vec3 eye_dir = normalize(-frag_vertex);
@@ -75,7 +86,7 @@ float blinnPhong(vec3 normal, vec3 frag_vertex, vec3 view_pos, vec3 light_dir, f
     return pow(max(dot(n, half_vector), 0.0), shininess);
 }
 
-vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir) {
+vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir, float visibility) {
     vec3 light_dir = normalize(light.direction);
     // diffuse
     //float diff = max(dot(normal, light_dir), 0.0f);

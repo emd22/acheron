@@ -27,7 +27,7 @@ camera_t camera_new(void) {
 }
 
 void camera_clamp_rotation(camera_t *camera) {
-    const float y_max = math_deg_to_rad(80);
+    const float y_max = math_deg_to_rad(90);
     const float y_min = -y_max;
     
     // 2*PI
@@ -75,14 +75,14 @@ void camera_move(camera_t *camera, int direction) {
 }
 
 void camera_select(camera_t *camera) {
-    const float aspect = (float)default_window->width/(float)default_window->height;
+    const float aspect = 1.0f;
     
     math_perspective(
         &camera->mat_projection,
         math_deg_to_rad(camera->fov),
         aspect,
-        0.1f,
-        100.0f
+        0.01f,
+        1000.0f
     );
 
     selected_camera = camera;
@@ -94,24 +94,24 @@ void camera_update(camera_t *camera) {
 
     // direction camera is facing
     camera->direction = (vector3f_t){
-        sin(camera->rotation.x),
-        sin(camera->rotation.y),
-        cos(camera->rotation.x)
+        sinf(camera->rotation.x),
+        (camera->rotation.y),
+        cosf(camera->rotation.x)
     };
     
     camera->right = (vector3f_t){
-        sin(camera->rotation.x-3.14f/2.0f),
+        sinf(camera->rotation.x-3.14f/2.0f),
         0,
-        cos(camera->rotation.x-3.14f/2.0f)
+        cosf(camera->rotation.x-3.14f/2.0f)
     };
     
     // the camera should always be facing upwards
-    const vector3f_t up = (vector3f_t){0, 1, 0};
-    //camera->up = math_cross(camera->right, camera->direction);
+    //const vector3f_t up = (vector3f_t){0, 1, 0};
+    camera->up = math_cross(camera->right, camera->direction);
     
     vector3f_t lookto;
     lookto.x = camera->position.x+camera->direction.x;
     lookto.y = camera->position.y+camera->direction.y;
     lookto.z = camera->position.z+camera->direction.z;
-    camera->mat_view = math_lookat(camera->position, lookto, up);
+    camera->mat_view = math_lookat(camera->position, lookto, camera->up);
 }

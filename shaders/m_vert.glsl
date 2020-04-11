@@ -1,7 +1,5 @@
 #version 420 core
 
-#include shadows_vert.glsl
-
 layout(location = 0) in vec3 vert_position;
 layout(location = 1) in vec2 vert_uv;
 layout(location = 2) in vec3 vert_normal;
@@ -12,7 +10,12 @@ uniform mat4 m;
 uniform mat4 v;
 uniform mat4 p;
 
+uniform mat4 shadow_bias;
+
 out vec3 frag_eye_direction;
+
+out vec4 frag_shadow_coords;
+
 out vec2 frag_uv;
 out vec3 frag_normal;
 out vec3 frag_vertex;
@@ -40,6 +43,8 @@ void main() {
     
     frag_tangent = normalize(frag_tangent);
     frag_bitangent = normalize(cross(frag_normal, frag_tangent));
+    
+    frag_shadow_coords = (shadow_bias*m)*vec4(vert_position, 1.0);
 
     gl_Position = mvp * vec4(vert_position, 1.0);
 }

@@ -73,9 +73,11 @@ mesh_t *mesh_load(const char *path, int type, int flags) {
 }
 
 void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, shader_t *shader) {
-    shader_set_mat4(shader, "m", matrix);
-    shader_set_mat4(shader, "v", &camera->mat_view);
-    shader_set_mat4(shader, "p", &camera->mat_projection);
+    if (camera != NULL) {
+        shader_set_mat4(shader, "m", matrix);
+        shader_set_mat4(shader, "v", &camera->mat_view);
+        shader_set_mat4(shader, "p", &camera->mat_projection);    
+    }
     
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, mesh->vertex_id);

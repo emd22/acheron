@@ -1,2 +1,2 @@
 #!/bin/bash
-python3 tools/shader_pp.py
+#python3 tools/shader_pp.py

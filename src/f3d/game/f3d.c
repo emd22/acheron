@@ -21,7 +21,7 @@ void load_models();
 void draw();
 void check_mouse(double xrel, double yrel);
 void check_event(SDL_Event *event);
-void render_scene(shader_t *shader);
+void render_scene(shader_t *shader, camera_t *rcamera);
 void end(int sig);
 
 window_t window;
@@ -31,13 +31,15 @@ object_t *wall, *level, *box, *player;
 float count = 0;
 light_t *light, *light2;
 
-camera_t camera;
+mat4_t bias_mat;
+
+camera_t camera, shadow_cam;
 
 unsigned shadow_fb;
 unsigned shadow_tex;
 
 unsigned arrayid;
-shader_t shader_main;//, shader_depth;
+shader_t shader_main, shader_depth;
 
 int init(void) {
     game_init();
@@ -50,7 +52,7 @@ int init(void) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     
-    window = window_new("Ethan's 3D Engine", 1024, 800, 0);
+    window = window_new("Ethan's 3D Engine", 700, 700, 0);
     default_window = &window;
     
     glewExperimental = GL_TRUE;
@@ -72,61 +74,59 @@ int init(void) {
 // http://www.it.hiof.no/~borres/j3d/explain/shadow/p-shadow.html
 
 void init_shadows() {
-    /*glGenFramebuffers(1, &shadow_fb);
+    glGenFramebuffers(1, &shadow_fb);
     glBindFramebuffer(GL_FRAMEBUFFER, shadow_fb);
     
     glGenTextures(1, &shadow_tex);
     glBindTexture(GL_TEXTURE_2D, shadow_tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 800, 800, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 700, 700, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     
-    glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, shadow_tex, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadow_tex, 0);
     glDrawBuffer(GL_NONE);
     
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        log_msg(LOG_ERROR, "Framebuffer incomplete\n", 0);
-        return;
-    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     
-    mat4_t projection, view, model;
-    math_ortho(&projection, -10, 10, -10, 10, -10, 20);
-    view = math_lookat(light->direction, (vector3f_t){0, 0, 0}, (vector3f_t){0, 1, 0});
-    mat4_set(&model, MAT4_IDENTITY);
-    
-    mat4_t temp = mat4_mul(projection, view);
-    mat4_t mvp  = mat4_mul(temp, model);
-    
-    mat4_t bias_mat;
-    mat4_set(
-        &bias_mat, 
-        (float []){
-            0.5, 0.0, 0.0, 0.0,
-            0.0, 0.5, 0.0, 0.0,
-            0.0, 0.0, 0.5, 0.0,
-            0.5, 0.5, 0.5, 1.0
-        }
-    );*/
-    //shader_set_mat4(&shader_depth, "depth_mvp", &mvp);
-    //shader_set_mat4(&shader_depth, "depth_bias", &bias_mat);
+    math_ortho(&shadow_cam.mat_projection, -10, 10, -10, 10, -10, 20);
+    shadow_cam.mat_view = math_lookat(light->direction, (vector3f_t){0.0, 0, 0}, (vector3f_t){0, 1, 0});
 }
 
 void render_shadows() {
-    //glBindFramebuffer(GL_FRAMEBUFFER, shadow_fb);
-    //render_scene(&shader_depth);
-    //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, shadow_fb);
+    mat4_t model;
+    mat4_set(&model, MAT4_IDENTITY);
+    
+    shadow_cam.mat_view = math_lookat(light->direction, (vector3f_t){0.0, 0, 0}, (vector3f_t){0, 1, 0});
+    mat4_t temp   = mat4_mul(shadow_cam.mat_projection, shadow_cam.mat_view);
+    mat4_t mvp    = mat4_mul(bias_mat, temp);
+    shader_set_mat4(&shader_main, "shadow_bias", &mvp);
+    shader_use(&shader_depth);
+    shader_set_mat4(&shader_depth, "depth_mvp", &mvp);
+    
+    glClear(GL_DEPTH_BUFFER_BIT);
+    render_scene(&shader_main, &shadow_cam);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadow_tex, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    shader_use(&shader_main);
 }
  
 void init_gl() {
-    glClearColor(0.0, 0.0, 0.0, 0);
+    glClearColor(0.0, 0.1, 0.0, 1);
     glViewport(0, 0, window.width, window.height);
     
     shader_main = shaders_link(
         "Main",
-        shader_load("../shaders/pp/final_vert.glsl", SHADER_VERTEX),
-        shader_load("../shaders/pp/final_frag.glsl", SHADER_FRAGMENT)
+        shader_load("../shaders/m_vert.glsl", SHADER_VERTEX),
+        shader_load("../shaders/m_frag.glsl", SHADER_FRAGMENT)
+    );
+    
+    shader_depth = shaders_link(
+        "Depth",
+        shader_load("../shaders/depth_vert.glsl", SHADER_VERTEX),
+        shader_load("../shaders/depth_frag.glsl", SHADER_FRAGMENT)
     );
     
     shader_use(&shader_main);
@@ -141,7 +141,7 @@ void init_gl() {
     camera_select(&camera);
     log_msg(LOG_INFO, "Camera initialized\n", 0);
     
-    //glEnable(GL_FRAMEBUFFER_SRGB);
+    glEnable(GL_FRAMEBUFFER_SRGB);
     
     // fix overlapping polygons
     glEnable(GL_DEPTH_TEST);
@@ -171,13 +171,13 @@ int move() {
         camera_move(selected_camera, CAMERA_RIGHT);
         moved = 1;
     }
-    if (keys_pressed[CONTROL_1]) {
+    /*if (keys_pressed[CONTROL_1]) {
         box->position.y = 20;
         box->physics.velocity = 0;
         box->physics.locked = false;
         player->physics.position = camera.position;
         object_update(box);
-    }
+    }*/
     return moved;
 }
 
@@ -189,27 +189,41 @@ int main() {
     SDL_Event event;
     time_init();
     
+    shader_use(&shader_depth);
     init_shadows();
     shader_use(&shader_main);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
+    mat4_set(
+        &bias_mat, 
+        (float []){
+            0.5, 0.0, 0.0, 0.0,
+            0.0, 0.5, 0.0, 0.0,
+            0.0, 0.0, 0.5, 0.0,
+            0.5, 0.5, 0.5, 1.0
+        }
+    );
+    
+    float up = 0;
    
     log_msg(LOG_INFO, "Buffer usage: %.01fKB\n", (double)buffer_total_used/1024.0);
     while (game_info.flags & GAME_IS_RUNNING) {
+        up++;
         time_tick();
         while (SDL_PollEvent(&event))
             check_event(&event);        
             
         shader_use(&shader_main);
         move();
-        
-        physics_update(&(box->physics));
-        box->position = box->physics.position;
+        box->position.y = sin(up*0.02)+3;
         object_update(box);
-        if (object_check_collision(box, level)) {
-            box->physics.locked = true;
-            box->physics.velocity = 0.0;
-        }
-        //camera.direction = (vector3f_t){0, 0, 0};
+        //physics_update(&(box->physics));
+        //box->position = box->physics.position;
+        //object_update(box);
+        //if (object_check_collision(box, level)) {
+            //box->physics.locked = true;
+            //box->physics.velocity = -(box->physics.velocity*0.97);
+        //}
         camera_update(selected_camera);
         shader_set_vec3f(&shader_main, "view_pos", selected_camera->position);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -226,6 +240,7 @@ int main() {
 
 void end(int sig) {
     (void)sig;
+    shader_destroy(&shader_depth);
     shader_destroy(&shader_main);
     window_destroy(&window);
     
@@ -244,7 +259,7 @@ void load_models() {
         texture_load("../images/stone.bmp", IMAGE_BMP, 0),
         texture_load("../images/stone_spec.bmp", IMAGE_BMP, 0),
         texture_load("../images/stone_normal.bmp", IMAGE_BMP, 0),
-        0, 1, 2, 3.0f
+        0, 1, 2, 5.0f
     });
     
     brick = material_new((material_t){
@@ -266,60 +281,39 @@ void load_models() {
     object_update(level);
     level->position.z = -7;
     level->rotation.x = 1.57f;
-    level->physics.dimensions = (vector3f_t){10, 1.2, 10};
     
     box = object_new();
     object_init("Box", box, 0);
     object_attach_mesh(box, mesh_load("../models/cube.obj", MODEL_OBJ, 0));
     box->position = (vector3f_t){0, 3, 0};
-    box->physics.dimensions = VEC3F(3);
-    
-    player = object_new();
-    object_init("Player", player, 0);
-    player->position = camera.position;
-    player->physics.dimensions = VEC3F(2);
     
     object_update(box);
     object_update(level);
     object_update(wall);
-    /*
-    light = light_new(LIGHT_POINT);
-    light->position = (vector3f_t){0.0f, 6.0f, -1.0f};
-    light->ambient = (vector3f_t){0.02f, 0.02f, 0.02f};
-    light->diffuse = (vector3f_t){0.8f, 0.8f, 0.8f};
-    light->specular = (vector3f_t){1.0f, 1.0f, 1.0f};
-    light->radius = 5.0f;
-    light_init(light, &shader_main);
-
-    light2 = light_new(LIGHT_POINT);
-    light2->position = (vector3f_t){0.0f, 2.0f, -5.0f};
-    light2->ambient = (vector3f_t){0.02f, 0.02f, 0.02f};
-    light2->diffuse = (vector3f_t){0.8f, 0.8f, 0.8f};
-    light2->specular = (vector3f_t){1.0f, 1.0f, 1.0f};
-    light2->radius = 5.0f;
-    light_init(light2, &shader_main);
-    */
 
     light = light_new(LIGHT_DIRECTIONAL);
-    light->direction = (vector3f_t){-2.0,   10.0,  -10.0};
-    light->ambient   = (vector3f_t){ 0.02f, 0.02f,  0.02f};
-    light->diffuse   = (vector3f_t){ 0.15f, 0.15f,  0.15f};
-    light->specular  = (vector3f_t){ 0.8f,  0.8f,   0.8f};
-    light->radius = 5.0f;
+    light->direction = (vector3f_t){2.0,   10.0,   -10.0};
+    light->ambient   = (vector3f_t){0.02f, 0.02f,  0.02f};
+    light->diffuse   = (vector3f_t){0.15f, 0.15f,  0.15f};
+    light->specular  = (vector3f_t){0.8f,  0.8f,   0.8f};
     light_init(light, &shader_main);
 }
 
-void render_scene(shader_t *shader) {
+void render_scene(shader_t *shader, camera_t *cam) {
     shader_use(shader);
     material_update(brick, shader);
-    object_draw(wall, selected_camera, shader);
+    object_draw(wall, cam, shader);
     material_update(stone, shader);
-    object_draw(level, selected_camera, shader);
-    object_draw(box,   selected_camera, shader);
+    object_draw(level, cam, shader);
+    object_draw(box,   cam, shader);
 }
  
 void draw() {
-    render_scene(&shader_main);
+    render_shadows();
+    glActiveTexture(GL_TEXTURE6);
+    glBindTexture(GL_TEXTURE_2D, shadow_tex);
+    shader_set_int(&shader_main, "shadow_map", 6);
+    render_scene(&shader_main, selected_camera);
 }
 
 void check_mouse(double xrel, double yrel) {

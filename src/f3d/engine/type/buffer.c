@@ -57,6 +57,7 @@ void buffer_resize(buffer_t *buffer) {
 
     // debug message
     log_msg(LOG_INFO, "Resizing buffer from %luKB to %luKB\n", buffer->size/1024, buffer->size*2/1024);
+    buffer_total_used -= buffer->size*buffer->obj_sz;
     buffer->size *= 2;
     
     buffer->data = realloc(buffer->data, buffer->size*buffer->obj_sz);
@@ -66,7 +67,7 @@ void buffer_resize(buffer_t *buffer) {
         log_msg(LOG_ERROR, "Error resizing buffer (size:%lu, obj_sz: %lu)\n", buffer->size, buffer->obj_sz);
     }
     
-    buffer_total_used += buffer->size;
+    buffer_total_used += buffer->size*buffer->obj_sz;
 }
 
 void buffer_destroy(buffer_t *buffer) {

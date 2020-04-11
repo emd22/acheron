@@ -100,27 +100,27 @@ void shader_set_mat4(shader_t *shader, const char *var, mat4_t *mat) {
     glUniformMatrix4fv(glGetUniformLocation(shader->id, var), 1, GL_FALSE, mat->val);
     const char *errmsg = engine_get_opengl_error();
     if (errmsg != NULL)
-        log_msg(LOG_ERROR, "OpenGL error: %s\n", errmsg);
+        log_msg(LOG_ERROR, "OpenGL error: %s: %s\n", var, errmsg);
 }
 
 void shader_set_float(shader_t *shader, const char *var, float val) {
     glUniform1f(glGetUniformLocation(shader->id, var), val);
     const char *errmsg = engine_get_opengl_error();
     if (errmsg != NULL)
-        log_msg(LOG_ERROR, "OpenGL error: %s\n", errmsg);
+        log_msg(LOG_ERROR, "OpenGL error: %s: %s\n", var, errmsg);
 }
 
 void shader_set_vec3f(shader_t *shader, const char *var, vector3f_t vec) {
     glUniform3f(glGetUniformLocation(shader->id, var), vec.x, vec.y, vec.z);
     const char *errmsg = engine_get_opengl_error();
     if (errmsg != NULL)
-        log_msg(LOG_ERROR, "OpenGL error: %s\n", errmsg);
+        log_msg(LOG_ERROR, "OpenGL error: %s: %s\n", var, errmsg);
 }
 
 void shader_set_int(shader_t *shader, const char *var, int val) {
     glUniform1i(glGetUniformLocation(shader->id, var), val);
     const char *errmsg = engine_get_opengl_error();
     if (errmsg != NULL)
-        log_msg(LOG_ERROR, "OpenGL error: %s\n", errmsg);
+        log_msg(LOG_ERROR, "OpenGL error: %s: %s\n", var, errmsg);
 }
 

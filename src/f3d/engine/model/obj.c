@@ -64,7 +64,9 @@ obj_model_t obj_load(const char *path) {
                 &vertex_index[1], &uv_index[1], &normal_index[1],
                 &vertex_index[2], &uv_index[2], &normal_index[2]
             );
-            (void)matches;
+            if (matches != 9) {
+                log_msg(LOG_ERROR, "Model not supported\n", 0);
+            }
             int i;
             for (i = 0; i < 3; i++) {
                 buffer_push(&vertex_indices, &vertex_index[i]);
@@ -76,8 +78,9 @@ obj_model_t obj_load(const char *path) {
     log_msg(LOG_INFO, "Indexing...\n", 0);
     unsigned i;
     vector3f_t vertex;
+    log_msg(LOG_INFO, "vertices... %llu, %llu\n", vertex_indices.index, vertex_indices.size);
     for (i = 0; i < vertex_indices.index; i++) {
-        unsigned vertex_index = ((unsigned *)vertex_indices.data)[i];
+        int vertex_index = ((unsigned *)vertex_indices.data)[i];
         vertex = ((vector3f_t *)temp_vertices.data)[vertex_index-1];
         buffer_push(&model.vertices, &vertex);
     }

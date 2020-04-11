@@ -1,5 +1,7 @@
 #include <f3d/engine/physics/object.h>
 
+#include <math.h>
+
 #define OBJ_MAX_X(obj) (obj->position.x+obj->dimensions.x)
 #define OBJ_MAX_Y(obj) (obj->position.y+obj->dimensions.y)
 #define OBJ_MAX_Z(obj) (obj->position.z+obj->dimensions.z)
@@ -27,17 +29,12 @@ bool physics_check_collision_aabb(physics_object_t *obj0, physics_object_t *obj1
     return false;   
 }
 
+void physics_move(physics_object_t *obj, vector3f_t direction) {
+    (void)obj;
+    (void)direction;
+}
+
 void physics_update(physics_object_t *obj) {
     if (obj->locked || obj->weight == 0)
         return;
-        
-    float velocity = obj->velocity ? obj->velocity : 0.1;
-    
-    if (velocity < TERMINAL_VELOCITY)
-        velocity += GRAVITY*velocity*velocity;
-    if (velocity > TERMINAL_VELOCITY)
-        velocity = TERMINAL_VELOCITY;
-        
-    obj->velocity = velocity;
-    obj->position.y -= (obj->velocity);
 }
