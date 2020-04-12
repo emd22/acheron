@@ -46,6 +46,7 @@ void texture_set_data(texture_t *texture, int width, int height, int bpp, unsign
     texture->image.width = width;
     texture->image.height = height;
     texture->bpp = bpp;
+
     glBindTexture(GL_TEXTURE_2D, texture->id);
     glTexImage2D(GL_TEXTURE_2D, 0, texture->draw_type, width, height, 0, texture->data_type, GL_UNSIGNED_BYTE, data);
 }
@@ -78,8 +79,10 @@ texture_t *texture_load(texture_t *texture, const char *path, int type) {
     // an *_update function
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    glGenerateMipmap(GL_TEXTURE_2D);
     
     return texture;
 }

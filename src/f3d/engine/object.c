@@ -20,6 +20,7 @@ object_t *object_new() {
     // (0, 1, 0, 0)
     // (0, 0, 1, 0)
     // (0, 0, 0, 1)
+    object->scale = (vector3f_t){1, 1, 1};
     mat4_set(&object->matrix, MAT4_IDENTITY);
     object->mesh = NULL;
     return object;
@@ -41,6 +42,26 @@ void object_init(const char *name, object_t *object, int flags) {
     object->physics.friction = 1.0f;
 }
 
+void object_scale(object_t *object) {
+    //int i;
+    mat4_t *mat = &object->matrix;
+    // x
+    mat->val[0] *= object->scale.x;
+    mat->val[1] *= object->scale.x;
+    mat->val[2] *= object->scale.x;
+    mat->val[3] *= object->scale.x;
+    
+    mat->val[4] *= object->scale.y;
+    mat->val[5] *= object->scale.y;
+    mat->val[6] *= object->scale.y;
+    mat->val[7] *= object->scale.y;
+    
+    mat->val[8] *= object->scale.z;
+    mat->val[9] *= object->scale.z;
+    mat->val[10] *= object->scale.z;
+    mat->val[11] *= object->scale.z;
+}
+
 void object_attach_mesh(object_t *object, mesh_t *mesh) {
     object->mesh = mesh;
 }
@@ -55,6 +76,8 @@ void object_update(object_t *object) {
     object->matrix = mat4_rotate_x(object->matrix, object->rotation.x);
     object->matrix = mat4_rotate_y(object->matrix, object->rotation.y);
     object->matrix = mat4_rotate_z(object->matrix, object->rotation.z);
+    object_scale(object);
+    
 }
 
 void object_draw(object_t *object, camera_t *camera, shader_t *shader) {

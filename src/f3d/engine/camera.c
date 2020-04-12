@@ -23,6 +23,8 @@ camera_t camera_new(void) {
     // NOTE: FOV is stored in degrees, converted to radians when creating
     // perspective matrix
     camera.fov = 75;
+    camera.move_mul.x = 1.0f;
+    camera.move_mul.z = 1.0f;
     return camera;
 }
 
@@ -46,27 +48,28 @@ void camera_clamp_rotation(camera_t *camera) {
 }
 
 void camera_move(camera_t *camera, int direction) {
+    const float speed = camera->move_speed;
     switch (direction) {
         case CAMERA_FORWARD:
             camera->direction.y = 0;
             camera->direction = vec3f_mul_v(camera->direction, delta_time);
-            camera->direction = vec3f_mul_v(camera->direction, camera->move_speed);
+            camera->direction = vec3f_mul_v(camera->direction, speed*camera->move_mul.z);
             vec3f_add(&(camera->position), camera->position, (camera->direction));
             break;
         case CAMERA_BACKWARD:
             camera->direction.y = 0;
             camera->direction = vec3f_mul_v(camera->direction, delta_time);
-            camera->direction = vec3f_mul_v(camera->direction, camera->move_speed);
+            camera->direction = vec3f_mul_v(camera->direction, speed*camera->move_mul.z);
             vec3f_sub(&(camera->position), camera->position, (camera->direction));
             break;
         case CAMERA_RIGHT:
             camera->right = vec3f_mul_v(camera->right, delta_time);
-            camera->right = vec3f_mul_v(camera->right, camera->move_speed);
+            camera->right = vec3f_mul_v(camera->right, speed*camera->move_mul.x);
             vec3f_add(&(camera->position), camera->position, (camera->right));
             break;
         case CAMERA_LEFT:
             camera->right = vec3f_mul_v(camera->right, delta_time);
-            camera->right = vec3f_mul_v(camera->right, camera->move_speed);
+            camera->right = vec3f_mul_v(camera->right, speed*camera->move_mul.x);
             vec3f_sub(&(camera->position), camera->position, (camera->right));
             break;
         default:

@@ -120,8 +120,14 @@ void mat4_from_vec3_mul_outer(mat4_t *mat, vector3f_t a, vector3f_t b) {
 
 void mat4_scale(mat4_t *mat, mat4_t a, float k) {
     int i;
-	for (i = 0; i < 4; i++)
-		vec4f_scale((vector4f_t *)(mat->val+(i*4)), *((vector4f_t *)(a.val+(i*4))), k);
+	for (i = 0; i < 4; i++) {
+	    mat->val[i] = a.val[i]*k;
+	    mat->val[i+1] = a.val[i+1]*k;
+	    mat->val[i+2] = a.val[i+2]*k;
+	    mat->val[i+3] = a.val[i+3]*k;
+	}
+	mat->val[15] = 1;
+		//vec4f_scale((vector4f_t *)(mat->val+(i*4)), *((vector4f_t *)(a.val+(i*4))), k);
 }
 
 mat4_t mat4_rotate(mat4_t *mat, vector3f_t r, float angle) {

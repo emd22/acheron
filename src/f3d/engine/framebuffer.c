@@ -1,5 +1,6 @@
 #include <f3d/engine/framebuffer.h>
 #include <f3d/engine/log.h>
+#include <f3d/engine/window.h>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -29,10 +30,11 @@ framebuffer_t framebuffer_new(int width, int height, int bpp) {
 void framebuffer_bind(framebuffer_t *fb) {
     if (fb == NULL) {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glViewport(0, 0, default_window->width, default_window->height);
         return;
     }
     glBindFramebuffer(GL_FRAMEBUFFER, fb->fbo);
-    //glViewport(fb->originx, fb->originy, fb->width, fb->height);
+    glViewport(fb->originx, fb->originy, fb->width, fb->height);
 }
 
 void framebuffer_texture(framebuffer_t *fb, int attachment) {

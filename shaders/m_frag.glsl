@@ -64,7 +64,7 @@ void main() {
     float bias = 0.005;
     float visibility = 1.0f;
     if (texture(shadow_map, frag_shadow_coords.xy).x < frag_shadow_coords.z-bias) {
-        visibility = 0.3;
+        visibility = 0.06;
     }
     
     vec3 result = vec3(0);

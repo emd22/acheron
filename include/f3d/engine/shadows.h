@@ -8,7 +8,7 @@
 
 extern framebuffer_t shadow_fb;
 
-void shadows_init(int width, int height, light_t *light);
+void shadows_init(int width, int height, vector3f_t direction, vector3f_t center);
 void shadows_render(shader_t *shader_main, shader_t *shader_depth);
 
 #endif

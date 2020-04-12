@@ -11,19 +11,19 @@ static camera_t shadow_cam;
 static mat4_t shadow_mat_vp;
 static mat4_t shadow_mat_bias;
 
-void shadows_init(int width, int height, light_t *light) {
+void shadows_init(int width, int height, vector3f_t direction, vector3f_t center) {
     shadow_fb = framebuffer_new(width, height, 16);
     framebuffer_bind(&shadow_fb);
     texture_t *tex = shadow_fb.texture;
-    tex->draw_type = TEXTURE_TYPE_DEPTH16;
+    tex->draw_type = TEXTURE_TYPE_DEPTH;
     tex->data_type = TEXTURE_TYPE_DEPTH;
     // make a 16 bit texture with using depth parameters
     glBindTexture(GL_TEXTURE_2D, tex->id);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     
     // projection
     const float clip_near = -10;
@@ -31,8 +31,7 @@ void shadows_init(int width, int height, light_t *light) {
     math_ortho(&shadow_cam.mat_projection, -10, 10, -10, 10, clip_near, clip_far);
     
     const vector3f_t up = (vector3f_t){0, 1, 0};
-    const vector3f_t center = (vector3f_t){0, 0, 0};
-    shadow_cam.mat_view = math_lookat(light->direction, center, up);
+    shadow_cam.mat_view = math_lookat(direction, center, up);
     shadow_mat_vp = mat4_mul(shadow_cam.mat_projection, shadow_cam.mat_view);
     
     mat4_set(
@@ -53,7 +52,7 @@ void shadows_render(shader_t *shader_main, shader_t *shader_depth) {
 
     shader_set_mat4(shader_main, "shadow_bias", &shadow_mat_bias);
     shader_use(shader_depth);
-    shader_set_mat4(shader_depth, "depth_mvp", &shadow_mat_bias);
+    shader_set_mat4(shader_depth, "depth_mvp", &shadow_mat_vp);
     
     glClear(GL_DEPTH_BUFFER_BIT);
     shader_use(shader_main);

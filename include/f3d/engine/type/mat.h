@@ -12,10 +12,10 @@ typedef struct {
 
 void mat4_set(mat4_t *mat, float *data);
 void mat4_print(mat4_t *mat);
+void mat4_scale(mat4_t *mat, mat4_t a, float k);
 mat4_t mat4_rotate_x(mat4_t mat, float angle);
 mat4_t mat4_rotate_y(mat4_t mat, float angle);
 mat4_t mat4_rotate_z(mat4_t mat, float angle);
-mat4_t mat4_rotate(mat4_t *mat, vector3f_t r, float angle);
 void mat4_translate_in_place(mat4_t *mat, vector3f_t t);
 void mat4_translate(mat4_t *mat, vector3f_t v);
 void mat4_add(mat4_t *mat0, mat4_t mat1);

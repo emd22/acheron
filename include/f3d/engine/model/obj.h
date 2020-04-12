@@ -4,6 +4,7 @@
 #include <f3d/engine/types.h>
 
 typedef struct {
+    int inited;
     // vec3f buffer
     buffer_t vertices;
     // vec2f buffer

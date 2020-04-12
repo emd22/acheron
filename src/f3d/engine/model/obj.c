@@ -1,5 +1,6 @@
 #include <f3d/engine/model/obj.h>
 #include <f3d/engine/log.h>
+#include <f3d/engine/handles.h>
 
 #include <f3d/engine/type/buffer.h>
 #include <f3d/engine/type/vec.h>
@@ -12,6 +13,7 @@ obj_model_t obj_load(const char *path) {
     // https://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/
 
     obj_model_t model;
+    model.inited = 0;
     
     buffer_init(&model.vertices, sizeof(vector3f_t), 4096);
     buffer_init(&model.uvs,      sizeof(vector2f_t), 4096);
@@ -66,6 +68,8 @@ obj_model_t obj_load(const char *path) {
             );
             if (matches != 9) {
                 log_msg(LOG_ERROR, "Model not supported\n", 0);
+                // TODO: fail gracefully
+                exit(1);
             }
             int i;
             for (i = 0; i < 3; i++) {
@@ -106,10 +110,13 @@ obj_model_t obj_load(const char *path) {
     buffer_destroy(&temp_normals);    
     buffer_destroy(&normal_indices);
     fclose(fp);
+    model.inited = 1;
     return model;
 }
 
 void obj_destroy(obj_model_t *model) {
+    if (!model->inited)
+        return;
     buffer_destroy(&model->vertices);
     buffer_destroy(&model->uvs);
     buffer_destroy(&model->normals);
