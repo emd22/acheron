@@ -12,7 +12,10 @@
 #include <f3d/engine/math.h>
 #include <f3d/engine/light.h>
 #include <f3d/engine/object.h>
+#include <f3d/engine/shadows.h>
+#include <f3d/engine/handles.h>
 
 const char *engine_get_opengl_error(void);
+void engine_setup_signals(void);
 
 #endif 

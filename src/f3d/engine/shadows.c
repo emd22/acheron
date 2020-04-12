@@ -1,4 +1,5 @@
 #include <f3d/engine/shadows.h>
+#include <f3d/engine/handles.h>
 #include <f3d/engine/framebuffer.h>
 #include <f3d/engine/camera.h>
 #include <f3d/engine/math.h>
@@ -47,7 +48,7 @@ void shadows_init(int width, int height, light_t *light) {
     framebuffer_bind(NULL);
 }
 
-void shadows_render(shader_t *shader_main, shader_t *shader_depth, void (*render_scene)(shader_t *, camera_t *)) {
+void shadows_render(shader_t *shader_main, shader_t *shader_depth) {
     framebuffer_bind(&shadow_fb);
 
     shader_set_mat4(shader_main, "shadow_bias", &shadow_mat_bias);
@@ -56,7 +57,7 @@ void shadows_render(shader_t *shader_main, shader_t *shader_depth, void (*render
     
     glClear(GL_DEPTH_BUFFER_BIT);
     shader_use(shader_main);
-    render_scene(shader_main, &shadow_cam);
+    handle_call(HANDLE_RENDER_MESHES, &shadow_cam);
     //log_msg(LOG_INFO, "err\n", 0);
     framebuffer_texture(&shadow_fb, GL_DEPTH_ATTACHMENT);
     shader_use(shader_main);

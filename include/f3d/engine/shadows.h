@@ -9,6 +9,6 @@
 extern framebuffer_t shadow_fb;
 
 void shadows_init(int width, int height, light_t *light);
-void shadows_render(shader_t *shader_main, shader_t *shader_depth, void (*render_scene)(shader_t *, camera_t *));
+void shadows_render(shader_t *shader_main, shader_t *shader_depth);
 
 #endif

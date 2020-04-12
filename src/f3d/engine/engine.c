@@ -1,6 +1,9 @@
 #include <f3d/engine/engine.h>
 #include <f3d/engine/log.h>
 
+#include <signal.h>
+#include <stdlib.h>
+
 #include <GL/glew.h>
 #include <GL/gl.h>
 
@@ -26,4 +29,31 @@ const char *engine_get_opengl_error(void) {
             return "Unknown error";
     };
     return NULL;
+}
+
+void signal_handler(int sig) {
+    // CTRL+C Interrupt
+    if (sig == SIGINT) {
+        handle_call(HANDLE_END, NULL);
+        exit(0);
+    }
+    // Segmentation fault
+    else if (sig == SIGSEGV) {
+        log_msg(LOG_WARN, "Segmentation Fault occurred... attempting to exit gracefully\n", 0);
+        static int segv_count = 0;
+        segv_count++;
+        if (segv_count > 2) {
+            log_msg(LOG_WARN, "Forcefully exiting...\n", 0);
+            exit(1);
+        }
+        handle_call(HANDLE_END, NULL);
+    }
+    else {
+        log_msg(LOG_WARN, "Unknown signal caught: %d\n", sig);
+    }
+}
+
+void engine_setup_signals(void) {
+    signal(SIGINT, &signal_handler);
+    signal(SIGSEGV, &signal_handler);
 }

@@ -19,11 +19,11 @@
 #define MOUSE_SPEED 0.07
 
 void load_models();
-void draw();
+int on_draw(void *arg);
 void check_mouse(double xrel, double yrel);
 void check_event(SDL_Event *event);
-void render_scene(shader_t *shader, camera_t *rcamera);
-void end(int sig);
+int render_scene(void *arg);
+int on_end(void *arg);
 
 window_t window;
 material_t *brick, *stone;
@@ -108,6 +108,12 @@ void init_gl() {
     window_set_mouse_mode(WINDOW_MOUSE_DISABLED);    
 }
 
+void setup_handles() {
+    handle_set(HANDLE_END, &on_end);
+    handle_set(HANDLE_DRAW, &on_draw);
+    handle_set(HANDLE_RENDER_MESHES, &render_scene);
+}
+
 int move() {
     int moved = 0;
     if (keys_pressed[CONTROL_FORWARD]) {
@@ -136,10 +142,14 @@ int move() {
     return moved;
 }
 
-int main() {    
+int main() {
     init();
+    handles_init();
     init_gl();
-    signal(SIGINT, &end);
+    setup_handles();
+    handle_call(HANDLE_INIT, NULL);
+    
+    engine_setup_signals();
    
     SDL_Event event;
     time_init();
@@ -149,36 +159,37 @@ int main() {
     
     shadows_init(window.width, window.height, light);
     
-    float up = 0;
+    float rot = 0.0f;
    
     log_msg(LOG_INFO, "Buffer usage: %.01fKB\n", (double)buffer_total_used/1024.0);
     while (game_info.flags & GAME_IS_RUNNING) {
-        up++;
         time_tick();
         while (SDL_PollEvent(&event))
             check_event(&event);        
             
         shader_use(&shader_main);
         move();
-        box->position.y = sin(up*0.02)+3;
+
+        rot += 2*delta_time;
+        box->position.y = cos(rot)+3;
+        box->position.z = sin(rot)-1;
         object_update(box);
 
         camera_update(selected_camera);
         shader_set_vec3f(&shader_main, "view_pos", selected_camera->position);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        draw();
+        handle_call(HANDLE_DRAW, NULL);
         window_buffers_swap(&window);
 
         time_end();
         SDL_Delay((1000/FRAMERATE_CAP-delta_time));
     }
-    
-    end(SIGINT);
+
     return 0;
 }
 
-void end(int sig) {
-    (void)sig;
+int on_end(void *arg){
+    (void)arg;
     shader_destroy(&shader_depth);
     shader_destroy(&shader_main);
     window_destroy(&window);
@@ -190,6 +201,7 @@ void end(int sig) {
     log_msg(LOG_INFO, "Buffer usage at program end: %llu\n", buffer_total_used);
     
     SDL_Quit();
+    return 0;
 }
 
 void load_models() {
@@ -238,21 +250,27 @@ void load_models() {
     light_init(light, &shader_main);
 }
 
-void render_scene(shader_t *shader, camera_t *cam) {
-    shader_use(shader);
-    material_update(brick, shader);
-    object_draw(wall, cam, shader);
-    material_update(stone, shader);
-    object_draw(level, cam, shader);
-    object_draw(box,   cam, shader);
+int render_scene(void *arg) {
+    camera_t *cam = (camera_t *)arg;
+    shader_use(&shader_main);
+    material_update(brick, &shader_main);
+    object_draw(wall, cam, &shader_main);
+    material_update(stone, &shader_main);
+    object_draw(level, cam, &shader_main);
+    object_draw(box, cam, &shader_main);
+    return 0;
 }
  
-void draw() {
-    shadows_render(&shader_main, &shader_depth, &render_scene);
+int on_draw(void *arg) {
+    (void)arg;
+    
+    shadows_render(&shader_main, &shader_depth);
     glActiveTexture(GL_TEXTURE6);
     glBindTexture(GL_TEXTURE_2D, shadow_fb.texture->id);
     shader_set_int(&shader_main, "shadow_map", 6);
-    render_scene(&shader_main, selected_camera);
+    render_scene(selected_camera);
+    
+    return 0;
 }
 
 void check_mouse(double xrel, double yrel) {
