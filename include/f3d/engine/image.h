@@ -11,6 +11,7 @@ enum {
 typedef struct {
     int type;
     int width, height;
+    int bpp; // bits per pixel
     uint8_t *data;
     uint16_t flags;
     union {

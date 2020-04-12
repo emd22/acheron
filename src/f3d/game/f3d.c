@@ -8,6 +8,7 @@
 #include <f3d/engine/engine.h>
 
 #include <f3d/game/game.h>
+#include <f3d/engine/shadows.h>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -29,14 +30,9 @@ material_t *brick, *stone;
 //model_t wall, level, box;
 object_t *wall, *level, *box, *player;
 float count = 0;
-light_t *light, *light2;
-
-mat4_t bias_mat;
+light_t *light;
 
 camera_t camera, shadow_cam;
-
-unsigned shadow_fb;
-unsigned shadow_tex;
 
 unsigned arrayid;
 shader_t shader_main, shader_depth;
@@ -65,56 +61,15 @@ int init(void) {
 
     // enable vsync
     SDL_GL_SetSwapInterval(1);
+    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
     
     glGenVertexArrays(1, &arrayid);
     glBindVertexArray(arrayid);
     return 0;
 }
-
-// http://www.it.hiof.no/~borres/j3d/explain/shadow/p-shadow.html
-
-void init_shadows() {
-    glGenFramebuffers(1, &shadow_fb);
-    glBindFramebuffer(GL_FRAMEBUFFER, shadow_fb);
-    
-    glGenTextures(1, &shadow_tex);
-    glBindTexture(GL_TEXTURE_2D, shadow_tex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, 700, 700, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadow_tex, 0);
-    glDrawBuffer(GL_NONE);
-    
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    
-    math_ortho(&shadow_cam.mat_projection, -10, 10, -10, 10, -10, 20);
-    shadow_cam.mat_view = math_lookat(light->direction, (vector3f_t){0.0, 0, 0}, (vector3f_t){0, 1, 0});
-}
-
-void render_shadows() {
-    glBindFramebuffer(GL_FRAMEBUFFER, shadow_fb);
-    mat4_t model;
-    mat4_set(&model, MAT4_IDENTITY);
-    
-    shadow_cam.mat_view = math_lookat(light->direction, (vector3f_t){0.0, 0, 0}, (vector3f_t){0, 1, 0});
-    mat4_t temp   = mat4_mul(shadow_cam.mat_projection, shadow_cam.mat_view);
-    mat4_t mvp    = mat4_mul(bias_mat, temp);
-    shader_set_mat4(&shader_main, "shadow_bias", &mvp);
-    shader_use(&shader_depth);
-    shader_set_mat4(&shader_depth, "depth_mvp", &mvp);
-    
-    glClear(GL_DEPTH_BUFFER_BIT);
-    render_scene(&shader_main, &shadow_cam);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadow_tex, 0);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    shader_use(&shader_main);
-}
  
 void init_gl() {
-    glClearColor(0.0, 0.1, 0.0, 1);
+    glClearColor(0.0, 0.0, 0.0, 1);
     glViewport(0, 0, window.width, window.height);
     
     shader_main = shaders_link(
@@ -189,20 +144,10 @@ int main() {
     SDL_Event event;
     time_init();
     
-    shader_use(&shader_depth);
-    init_shadows();
     shader_use(&shader_main);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    shader_use(&shader_depth);
     
-    mat4_set(
-        &bias_mat, 
-        (float []){
-            0.5, 0.0, 0.0, 0.0,
-            0.0, 0.5, 0.0, 0.0,
-            0.0, 0.0, 0.5, 0.0,
-            0.5, 0.5, 0.5, 1.0
-        }
-    );
+    shadows_init(window.width, window.height, light);
     
     float up = 0;
    
@@ -217,13 +162,7 @@ int main() {
         move();
         box->position.y = sin(up*0.02)+3;
         object_update(box);
-        //physics_update(&(box->physics));
-        //box->position = box->physics.position;
-        //object_update(box);
-        //if (object_check_collision(box, level)) {
-            //box->physics.locked = true;
-            //box->physics.velocity = -(box->physics.velocity*0.97);
-        //}
+
         camera_update(selected_camera);
         shader_set_vec3f(&shader_main, "view_pos", selected_camera->position);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -256,17 +195,17 @@ void end(int sig) {
 void load_models() {
     stone = material_new((material_t){
         "Stone",
-        texture_load("../images/stone.bmp", IMAGE_BMP, 0),
-        texture_load("../images/stone_spec.bmp", IMAGE_BMP, 0),
-        texture_load("../images/stone_normal.bmp", IMAGE_BMP, 0),
+        texture_load(NULL, "../images/stone.bmp", IMAGE_BMP),
+        texture_load(NULL, "../images/stone_spec.bmp", IMAGE_BMP),
+        texture_load(NULL, "../images/stone_normal.bmp", IMAGE_BMP),
         0, 1, 2, 5.0f
     });
     
     brick = material_new((material_t){
         "Brick",
-        texture_load("../images/brick.bmp", IMAGE_BMP, 0),
-        texture_load("../images/brick_spec.bmp", IMAGE_BMP, 0),
-        texture_load("../images/brick_normal.bmp", IMAGE_BMP, 0),
+        texture_load(NULL, "../images/brick.bmp", IMAGE_BMP),
+        texture_load(NULL, "../images/brick_spec.bmp", IMAGE_BMP),
+        texture_load(NULL, "../images/brick_normal.bmp", IMAGE_BMP),
         0, 1, 2, 1.0f
     });
     
@@ -309,9 +248,9 @@ void render_scene(shader_t *shader, camera_t *cam) {
 }
  
 void draw() {
-    render_shadows();
+    shadows_render(&shader_main, &shader_depth, &render_scene);
     glActiveTexture(GL_TEXTURE6);
-    glBindTexture(GL_TEXTURE_2D, shadow_tex);
+    glBindTexture(GL_TEXTURE_2D, shadow_fb.texture->id);
     shader_set_int(&shader_main, "shadow_map", 6);
     render_scene(&shader_main, selected_camera);
 }
