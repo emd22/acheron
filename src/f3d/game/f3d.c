@@ -136,6 +136,19 @@ int move() {
         velocity.x = max_velocity;
     }
     
+    if (keys_pressed[CONTROL_1]) {
+        if (stone->use_normals != true) {
+            stone->use_normals = true;
+            material_update(stone, &shader_main);        
+        }
+    }
+    else if (keys_pressed[CONTROL_2]) {
+        if (stone->use_normals != false) {
+            stone->use_normals = false;
+            material_update(stone, &shader_main);        
+        }
+    }
+    
     const float friction = 0.05;
     if (velocity.x) {
         if (velocity.x > 0.0f) {
@@ -195,7 +208,7 @@ int main() {
     shader_use(&shader_main);
     shader_use(&shader_depth);
     
-    shadows_init(4000, 4000, light->direction, (vector3f_t){0, 0, 0});
+    shadows_init(2048, 2048, light->direction, (vector3f_t){0, 0, 0});
    
     log_msg(LOG_INFO, "Buffer usage: %.01fKB\n", (double)buffer_total_used/1024.0);
     while (game_info.flags & GAME_IS_RUNNING) {
@@ -241,20 +254,22 @@ void load_models() {
         texture_load(NULL, "../images/stone.bmp", IMAGE_BMP),
         texture_load(NULL, "../images/stone_spec.bmp", IMAGE_BMP),
         texture_load(NULL, "../images/stone_normal.bmp", IMAGE_BMP),
-        0, 1, 2, 5.0f
+        0, 1, 2,
+        true, 5.0f
     });
     
     brick = material_new((material_t){
         "Brick",
         texture_load(NULL, "../images/marble.bmp", IMAGE_BMP),
         texture_load(NULL, "../images/marble_spec.bmp", IMAGE_BMP),
-        texture_load(NULL, "../images/brick_normal.bmp", IMAGE_BMP),
-        0, 1, 2, 1.0f
+        NULL,
+        0, 1, 2,
+        false, 1.0f
     });
     
     wall = object_new();
     object_init("Wall", wall, 0);
-    object_attach_mesh(wall, mesh_load("../models/conference/conference.obj", MODEL_OBJ, 0));
+    object_attach_mesh(wall, mesh_load("../models/conference.obj", MODEL_OBJ, 0));
     wall->position = (vector3f_t){0, 0, 3};
     wall->scale = (vector3f_t){0.01, 0.01, 0.01};
     

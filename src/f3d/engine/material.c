@@ -4,7 +4,7 @@
 
 #include <string.h>
 
-#define MATERIALS_MAX 64
+#define MATERIALS_MAX 128
 
 static material_t materials[MATERIALS_MAX];
 static int materials_index = 0; 
@@ -39,7 +39,7 @@ void material_update(material_t *mat, shader_t *shader) {
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, mat->diffuse->id);
     }
-
+    shader_set_int(shader, "material.use_normalmap", mat->use_normals);
     shader_set_int(shader, "material.diffuse", mat->diffuse_id);
     shader_set_int(shader, "material.specular", mat->specular_id);
     shader_set_int(shader, "material.normal", mat->normal_id);

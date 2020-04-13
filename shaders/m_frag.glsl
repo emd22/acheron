@@ -9,6 +9,7 @@ struct Material {
     sampler2D diffuse;
     sampler2D specular;
     sampler2D normal;
+    bool use_normalmap;
     float shininess;
 };
 
@@ -55,12 +56,17 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 view_dir);
 void main() {
     vec3 norm = frag_normal;
     vec3 normals_texture;
-    
-    normals_texture.xy = 255.0f/128.0f * (vec2(1.0) - texture2D(material.normal, frag_uv).rg) - 1.0;
-    normals_texture.z = sqrt(1.0 - dot(normals_texture.xy, normals_texture.xy));
-    vec3 n = normalize(norm);
-    n = normalize((frag_tangent * normals_texture.x) + (frag_bitangent * normals_texture.y) + (n * normals_texture.z));
-    
+    vec3 n;
+    if (material.use_normalmap) {
+        // 255/128 is near 2.0, but fixes some issues with heights when using normalmaps
+        normals_texture.xy = 255.0f/128.0f * (vec2(1.0) - texture2D(material.normal, frag_uv).rg) - 1.0;
+        normals_texture.z = sqrt(1.0 - dot(normals_texture.xy, normals_texture.xy));
+        n = normalize(norm);
+        n = normalize((frag_tangent * normals_texture.x) + (frag_bitangent * normals_texture.y) + (n * normals_texture.z));    
+    }
+    else {
+        n = normalize(norm);
+    }
     float bias = 0.005;
     float visibility = 1.0f;
     if (texture(shadow_map, frag_shadow_coords.xy).x < frag_shadow_coords.z-bias) {

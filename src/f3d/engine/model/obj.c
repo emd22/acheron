@@ -1,4 +1,5 @@
 #include <f3d/engine/model/obj.h>
+#include <f3d/engine/model/mtl.h>
 #include <f3d/engine/log.h>
 #include <f3d/engine/handles.h>
 
@@ -59,7 +60,7 @@ obj_model_t obj_load(const char *path) {
             buffer_push(&temp_normals, &normal);
         }
         else if (!strcmp(line, "f")) {
-            unsigned vertex_index[3], uv_index[3], normal_index[3];
+            unsigned vertex_index[4], uv_index[4], normal_index[4];
             int matches = fscanf(
                 fp, "%u/%u/%u %u/%u/%u %u/%u/%u\n",
                 &vertex_index[0], &uv_index[0], &normal_index[0],
@@ -77,6 +78,16 @@ obj_model_t obj_load(const char *path) {
                 buffer_push(&uv_indices,     &uv_index[i]);
                 buffer_push(&normal_indices, &normal_index[i]);
             }
+        }
+        else if (!strcmp(line, "mtllib")) {
+            char mtlpath[64];
+            strcpy(mtlpath, "../models/");
+            
+            char temp[32];
+            fscanf(fp, "%s\n", temp);
+            strcat(mtlpath, temp);
+            
+            //mtl_load(mtlpath);
         }
     }
     log_msg(LOG_INFO, "Indexing...\n", 0);

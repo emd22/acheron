@@ -4,8 +4,10 @@
 #include <f3d/engine/texture.h>
 #include <f3d/engine/shader.h>
 
+#include <stdbool.h>
+
 typedef struct {
-    char name[16];
+    char name[32];
     texture_t *diffuse;
     texture_t *specular;
     texture_t *normal;
@@ -14,6 +16,7 @@ typedef struct {
     int specular_id;
     int normal_id;
 
+    bool use_normals;
     float shininess;
 } material_t;
 

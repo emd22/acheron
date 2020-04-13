@@ -18,7 +18,7 @@ typedef struct {
     int type;
     int index;
     int flags;
-    
+
     obj_model_t *obj;
     buffer_t *vertices;
     buffer_t *uvs;
