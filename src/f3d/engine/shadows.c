@@ -11,6 +11,12 @@ static camera_t shadow_cam;
 static mat4_t shadow_mat_vp;
 static mat4_t shadow_mat_bias;
 
+void generate_vp(vector3f_t direction, vector3f_t center) {
+    const vector3f_t up = (vector3f_t){0, 1, 0};
+    shadow_cam.mat_view = math_lookat(direction, center, up);
+    shadow_mat_vp = mat4_mul(shadow_cam.mat_projection, shadow_cam.mat_view);
+}
+
 void shadows_init(int width, int height, vector3f_t direction, vector3f_t center) {
     shadow_fb = framebuffer_new(width, height, 16);
     framebuffer_bind(&shadow_fb);
@@ -27,12 +33,9 @@ void shadows_init(int width, int height, vector3f_t direction, vector3f_t center
     
     // projection
     const float clip_near = -10;
-    const float clip_far  = 20;
+    const float clip_far  = 200;
     math_ortho(&shadow_cam.mat_projection, -10, 10, -10, 10, clip_near, clip_far);
-    
-    const vector3f_t up = (vector3f_t){0, 1, 0};
-    shadow_cam.mat_view = math_lookat(direction, center, up);
-    shadow_mat_vp = mat4_mul(shadow_cam.mat_projection, shadow_cam.mat_view);
+    generate_vp(direction, center);
     
     mat4_set(
         &shadow_mat_bias,
@@ -47,6 +50,10 @@ void shadows_init(int width, int height, vector3f_t direction, vector3f_t center
     framebuffer_bind(NULL);
 }
 
+void shadows_update(vector3f_t direction, vector3f_t center) {
+    generate_vp(direction, center);
+}
+
 void shadows_render(shader_t *shader_main, shader_t *shader_depth) {
     framebuffer_bind(&shadow_fb);
 
@@ -56,8 +63,9 @@ void shadows_render(shader_t *shader_main, shader_t *shader_depth) {
     
     glClear(GL_DEPTH_BUFFER_BIT);
     shader_use(shader_main);
+    //glCullFace(GL_FRONT);
     handle_call(HANDLE_RENDER_MESHES, &shadow_cam);
-    //log_msg(LOG_INFO, "err\n", 0);
+    //glCullFace(GL_BACK);
     framebuffer_texture(&shadow_fb, GL_DEPTH_ATTACHMENT);
     shader_use(shader_main);
     framebuffer_bind(NULL);

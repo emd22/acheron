@@ -3,6 +3,7 @@
 
 #include <signal.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -40,6 +41,7 @@ void signal_handler(int sig) {
     // Segmentation fault
     else if (sig == SIGSEGV) {
         log_msg(LOG_WARN, "Segmentation Fault occurred... attempting to exit gracefully\n", 0);
+        os_print_backtrace();
         static int segv_count = 0;
         segv_count++;
         if (segv_count > 2) {
@@ -56,4 +58,11 @@ void signal_handler(int sig) {
 void engine_setup_signals(void) {
     signal(SIGINT, &signal_handler);
     signal(SIGSEGV, &signal_handler);
+}
+
+void engine_render_wireframe(bool n) {
+    if (n)
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    else
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 }

@@ -1,11 +1,20 @@
 #ifndef CONTROLS_H
 #define CONTROLS_H
 
+#include <stdbool.h>
+
 #define CONTROLS_MOUSE_CAPTURED 0x01
 
 typedef struct {
     unsigned flags;
 } controls_info_t;
+
+typedef struct {
+    bool pressed;
+    
+    float cool_speed;
+    float cooldown;
+} control_key_t;
 
 enum {
     CONTROL_FORWARD,
@@ -27,9 +36,11 @@ enum {
     CONTROLS_SIZE
 };
 
-extern int keys_pressed[CONTROLS_SIZE];
+extern control_key_t keys[CONTROLS_SIZE];
 
 void controls_init(void);
+void controls_update(void);
+bool controls_check_toggle(int key);
 void controls_handle_keydown(int key);
 void controls_handle_keyup(int key);
 

@@ -14,8 +14,12 @@
 #include <f3d/engine/object.h>
 #include <f3d/engine/shadows.h>
 #include <f3d/engine/handles.h>
+#include <f3d/engine/os.h>
+
+#include <stdbool.h>
 
 const char *engine_get_opengl_error(void);
 void engine_setup_signals(void);
+void engine_render_wireframe(bool n);
 
 #endif 

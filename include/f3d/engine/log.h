@@ -10,7 +10,9 @@ enum {
     LOG_WARN,
     LOG_ERROR,
     LOG_FATAL,
+    LOG_DEBUG,
 };
+
 
 void _log_msg(const char *function, int errlvl, const char *str, ...);
 

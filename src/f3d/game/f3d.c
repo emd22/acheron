@@ -49,7 +49,7 @@ int init(void) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     
-    window = window_new("Ethan's 3D Engine", 700, 700, 0);
+    window = window_new("Ethan's 3D Engine", 1400, 900, 0);
     default_window = &window;
     
     glewExperimental = GL_TRUE;
@@ -103,7 +103,7 @@ void init_gl() {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
     
     // disable mouse cursor
     window_set_mouse_mode(WINDOW_MOUSE_DISABLED);    
@@ -120,35 +120,32 @@ int move() {
     
     const float max_velocity = 1.0f;
     
-    if (keys_pressed[CONTROL_FORWARD]) {
+    if (keys[CONTROL_FORWARD].pressed) {
         velocity.z = max_velocity;
         moved = 1;
     }
-    if (keys_pressed[CONTROL_BACKWARD]) {
+    if (keys[CONTROL_BACKWARD].pressed) {
         velocity.z = -max_velocity;
         moved = 1;
     }
-    if (keys_pressed[CONTROL_LEFT]) {
+    if (keys[CONTROL_LEFT].pressed) {
         velocity.x = -max_velocity;
         moved = 1;
     }
-    if (keys_pressed[CONTROL_RIGHT]) {
+    if (keys[CONTROL_RIGHT].pressed) {
         velocity.x = max_velocity;
     }
-    
-    if (keys_pressed[CONTROL_1]) {
-        if (stone->use_normals != true) {
-            stone->use_normals = true;
-            material_update(stone, &shader_main);        
-        }
+    if (controls_check_toggle(CONTROL_1)) {
+        stone->use_normals = !stone->use_normals;
+        material_update(stone, &shader_main);
+
     }
-    else if (keys_pressed[CONTROL_2]) {
-        if (stone->use_normals != false) {
-            stone->use_normals = false;
-            material_update(stone, &shader_main);        
-        }
+    if (controls_check_toggle(CONTROL_2)) {
+        static bool wireframe = false;
+        wireframe = !wireframe;
+        engine_render_wireframe(wireframe);
+
     }
-    
     const float friction = 0.05;
     if (velocity.x) {
         if (velocity.x > 0.0f) {
@@ -209,6 +206,7 @@ int main() {
     shader_use(&shader_depth);
     
     shadows_init(2048, 2048, light->direction, (vector3f_t){0, 0, 0});
+
    
     log_msg(LOG_INFO, "Buffer usage: %.01fKB\n", (double)buffer_total_used/1024.0);
     while (game_info.flags & GAME_IS_RUNNING) {
@@ -218,7 +216,10 @@ int main() {
             
         shader_use(&shader_main);
         move();
-
+        box->position.z = sin((double)frames_rendered*0.01)+3;
+        wall->rotation.y = (double)frames_rendered*0.01;
+        object_update(wall);
+        
         camera_update(selected_camera);
         shader_set_vec3f(&shader_main, "view_pos", selected_camera->position);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -228,7 +229,7 @@ int main() {
         time_end();
         SDL_Delay((1000/FRAMERATE_CAP-delta_time));
     }
-
+    handle_call(HANDLE_END, NULL);
     return 0;
 }
 
@@ -243,6 +244,7 @@ int on_end(void *arg){
     objects_cleanup();
     
     log_msg(LOG_INFO, "Buffer usage at program end: %llu\n", buffer_total_used);
+    //os_print_backtrace();
     
     SDL_Quit();
     exit(0);
@@ -260,22 +262,23 @@ void load_models() {
     
     brick = material_new((material_t){
         "Brick",
-        texture_load(NULL, "../images/marble.bmp", IMAGE_BMP),
-        texture_load(NULL, "../images/marble_spec.bmp", IMAGE_BMP),
-        NULL,
+        texture_load(NULL, "../images/brick.bmp", IMAGE_BMP),
+        texture_load(NULL, "../images/brick_spec.bmp", IMAGE_BMP),
+        texture_load(NULL, "../images/brick_normal.bmp", IMAGE_BMP),
         0, 1, 2,
-        false, 1.0f
+        true, 1.0f
     });
     
     wall = object_new();
     object_init("Wall", wall, 0);
-    object_attach_mesh(wall, mesh_load("../models/conference.obj", MODEL_OBJ, 0));
+    object_attach_mesh(wall, mesh_load("../models/untitled.obj", MODEL_OBJ, 0));
     wall->position = (vector3f_t){0, 0, 3};
-    wall->scale = (vector3f_t){0.01, 0.01, 0.01};
+    wall->scale = (vector3f_t){2, 2, 2};
+    wall->rotation.y = 3.14/2.0;
     
     level = object_new();
     object_init("Level", level, 0);
-    object_attach_mesh(level, wall->mesh);
+    object_attach_mesh(level, mesh_load("../models/wall.obj", MODEL_OBJ, 0));
     object_update(level);
     level->position.z = -7;
     level->rotation.x = 1.57f;
@@ -291,7 +294,7 @@ void load_models() {
     object_update(wall);
 
     light = light_new(LIGHT_DIRECTIONAL);
-    light->direction = (vector3f_t){0.0,   5.0,   -5.0};
+    light->direction = (vector3f_t){-0.2, 0.2, 0.4};
     light->ambient   = (vector3f_t){0.02f, 0.02f,  0.02f};
     light->diffuse   = (vector3f_t){0.15f, 0.15f,  0.15f};
     light->specular  = (vector3f_t){0.8f,  0.8f,   0.8f};
@@ -303,15 +306,17 @@ int render_scene(void *arg) {
     shader_use(&shader_main);
     material_update(brick, &shader_main);
     object_draw(wall, cam, &shader_main);
+    object_draw(level, cam, &shader_main);
     material_update(stone, &shader_main);
-    //object_draw(level, cam, &shader_main);
-    object_draw(box, cam, &shader_main);
+    //object_draw(box, cam, &shader_main);
     return 0;
 }
  
 int on_draw(void *arg) {
     (void)arg;
-    shadows_render(&shader_main, &shader_depth);
+    //if (!(frames_rendered % 3)) {
+    shadows_render(&shader_main, &shader_depth);    
+    //}
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, shadow_fb.texture->id);
     shader_set_int(&shader_main, "shadow_map", 4);

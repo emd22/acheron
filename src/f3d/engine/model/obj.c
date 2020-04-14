@@ -39,9 +39,10 @@ obj_model_t obj_load(const char *path) {
     }
     // TODO: up line buffer size, use non infinite loop
     char line[128];
+    unsigned line_number = 0;
     int res;
-    for (;;) {
-        res = fscanf(fp, "%s", line);
+    for (;; line_number++) {
+        res = fscanf(fp, "%s", line); 
         if (res == EOF)
             break;
         if (!strcmp(line, "v")) {
@@ -60,17 +61,32 @@ obj_model_t obj_load(const char *path) {
             buffer_push(&temp_normals, &normal);
         }
         else if (!strcmp(line, "f")) {
-            unsigned vertex_index[4], uv_index[4], normal_index[4];
-            int matches = fscanf(
-                fp, "%u/%u/%u %u/%u/%u %u/%u/%u\n",
+            int vertex_index[4] = { 0 },
+                uv_index[4] = { 0 },
+                normal_index[4] = { 0 };
+            char newl[128];
+            fgets(newl, 128, fp);
+            int matches = sscanf(
+                newl, "%d/%d/%d %d/%d/%d %d/%d/%d\n",
                 &vertex_index[0], &uv_index[0], &normal_index[0],
                 &vertex_index[1], &uv_index[1], &normal_index[1],
                 &vertex_index[2], &uv_index[2], &normal_index[2]
             );
             if (matches != 9) {
-                log_msg(LOG_ERROR, "Model not supported\n", 0);
-                // TODO: fail gracefully
-                exit(1);
+                uv_index[0] = 0;
+                uv_index[1] = 0;
+                uv_index[2] = 0;
+                matches = sscanf(
+                    newl, "%d//%d %d//%d %d//%d\n",
+                    &vertex_index[0], &normal_index[0],
+                    &vertex_index[1], &normal_index[1],
+                    &vertex_index[2], &normal_index[2]
+                );
+                if (matches != 6) {
+                    log_msg(LOG_ERROR, "Model not supported\n", 0);
+                    // TODO: fail gracefully
+                    exit(1);                
+                }
             }
             int i;
             for (i = 0; i < 3; i++) {
@@ -89,6 +105,10 @@ obj_model_t obj_load(const char *path) {
             
             //mtl_load(mtlpath);
         }
+        else {
+            char fut[2048];
+            fgets(fut, 2048, fp);
+        }
     }
     log_msg(LOG_INFO, "Indexing...\n", 0);
     unsigned i;
@@ -104,7 +124,8 @@ obj_model_t obj_load(const char *path) {
     
     vector2f_t uv;
     for (i = 0; i < uv_indices.index; i++) {
-        unsigned uv_index = ((unsigned *)uv_indices.data)[i];
+        int uv_index = ((int *)uv_indices.data)[i];
+
         uv = ((vector2f_t *)temp_uvs.data)[uv_index-1];
         buffer_push(&model.uvs, &uv);
     }

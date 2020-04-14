@@ -13,7 +13,11 @@ void _log_msg(const char *function, int errlvl, const char *str, ...) {
     #endif
     // https://en.wikipedia.org/wiki/ANSI_escape_code
     const char *levels[] = {
-        "\033[34mINFO\033[m", "\033[33mWARN\033[m", "\033[91mERROR\033[m", "\033[91mFATAL\033[m"
+        "\033[34mINFO\033[m",
+        "\033[33mWARN\033[m",
+        "\033[91mERROR\033[m",
+        "\033[91mFATAL\033[m",
+        "\033[32mDEBUG\033[m"
     };
     printf("[%s] %s: ", levels[errlvl], function);
     va_list args;

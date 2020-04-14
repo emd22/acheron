@@ -78,8 +78,8 @@ void camera_move(camera_t *camera, int direction) {
 }
 
 void camera_select(camera_t *camera) {
-    const float aspect = 1.0f;
-    
+    const float aspect = (float)default_window->width/(float)default_window->height;
+    log_msg(LOG_INFO, "Aspect ratio is %.02f\n", aspect);
     math_perspective(
         &camera->mat_projection,
         math_deg_to_rad(camera->fov),

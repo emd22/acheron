@@ -70,7 +70,7 @@ void main() {
     float bias = 0.005;
     float visibility = 1.0f;
     if (texture(shadow_map, frag_shadow_coords.xy).x < frag_shadow_coords.z-bias) {
-        visibility = 0.06;
+        visibility = 0.4;
     }
     
     vec3 result = vec3(0);
@@ -80,9 +80,7 @@ void main() {
     for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
         result += clamp(CalcPointLight(pointLights[i], n, frag_eye_direction), 0.0, 1.0);
     }
-    //float visibility = texture(shadow_map, frag_shadow_coords.xy).r;
     output_colour = visibility*vec4(result, 1.0f);
-    //output_colour = vec4(vec3(visibility), 1);
 }
 float blinnPhong(vec3 normal, vec3 frag_vertex, vec3 view_pos, vec3 light_dir, float shininess) {
     vec3 eye_dir = normalize(-frag_vertex);
