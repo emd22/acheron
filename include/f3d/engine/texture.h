@@ -18,12 +18,17 @@ typedef struct {
     int data_type;
     int draw_type;
     int index;
+    
+    int min_filter;
+    int mag_filter;
+    
     image_t image;
 } texture_t;
 
 texture_t *texture_new(void);
 void texture_init(texture_t *texture);
 texture_t *texture_load(texture_t *texture, const char *path, int type);
+texture_t *texture_load_data(texture_t *texture, const char *path, int type);
 void texture_set_data(texture_t *texture, int width, int height, int bpp, unsigned char *data);
 void texture_destroy(texture_t *tex);
 void textures_cleanup(void);

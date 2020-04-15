@@ -1,4 +1,4 @@
-#include <f3d/engine/os.h>
+#include <f3d/engine/debug.h>
 #include <f3d/engine/log.h>
 
 #include <stdlib.h>
@@ -23,7 +23,7 @@ char *get_location(char *str) {
     return str-1;
 }
 
-void os_print_backtrace(void) {
+void debug_print_backtrace(void) {
     #ifdef __linux__
     void *trace[BACKTRACE_SIZE];
     int trace_size;

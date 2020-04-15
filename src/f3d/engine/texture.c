@@ -34,6 +34,9 @@ texture_t *texture_new(void) {
     texture->draw_type = TEXTURE_TYPE_RGBA;
     texture->bpp = 24;
     
+    texture->min_filter = GL_LINEAR_MIPMAP_LINEAR;
+    texture->mag_filter = GL_LINEAR;
+    
     return texture;
 }
 
@@ -79,10 +82,28 @@ texture_t *texture_load(texture_t *texture, const char *path, int type) {
     // an *_update function
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texture->min_filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texture->mag_filter);
     
-    glGenerateMipmap(GL_TEXTURE_2D);
+    if (texture->min_filter == GL_LINEAR_MIPMAP_LINEAR) {   
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    
+    return texture;
+}
+
+texture_t *texture_load_data(texture_t *texture, const char *path, int type) {
+    if (texture == NULL) {
+        texture = texture_new();
+        texture_init(texture);
+    }
+    
+    texture->image = image_load(path, type);
+
+    if (texture->image.data == NULL) {
+        log_msg(LOG_ERROR, "Error loading image\n", 0);
+        return texture;
+    }
     
     return texture;
 }

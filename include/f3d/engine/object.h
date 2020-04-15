@@ -8,6 +8,8 @@ typedef struct {
     char name[16];
     int flags;
     physics_object_t physics;
+    
+    unsigned vao;
 
     mesh_t *mesh;
     vector3f_t position, rotation, scale;

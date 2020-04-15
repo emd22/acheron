@@ -41,7 +41,7 @@ void signal_handler(int sig) {
     // Segmentation fault
     else if (sig == SIGSEGV) {
         log_msg(LOG_WARN, "Segmentation Fault occurred... attempting to exit gracefully\n", 0);
-        os_print_backtrace();
+        debug_print_backtrace();
         static int segv_count = 0;
         segv_count++;
         if (segv_count > 2) {

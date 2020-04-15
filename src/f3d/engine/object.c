@@ -23,6 +23,7 @@ object_t *object_new() {
     object->scale = (vector3f_t){1, 1, 1};
     mat4_set(&object->matrix, MAT4_IDENTITY);
     object->mesh = NULL;
+    glGenVertexArrays(1, &object->vao);
     return object;
 }
 
@@ -63,6 +64,7 @@ void object_scale(object_t *object) {
 }
 
 void object_attach_mesh(object_t *object, mesh_t *mesh) {
+    glBindVertexArray(object->vao);
     object->mesh = mesh;
 }
 
@@ -89,9 +91,11 @@ bool object_check_collision(object_t *obj0, object_t *obj1) {
 }
 
 void object_destroy(object_t *object) {
-    mesh_destroy(object->mesh);
+    glDeleteVertexArrays(1, &object->vao);
 }
 
 void objects_cleanup() {
-    return;
+    int i;
+    for (i = 0; i < objects_index; i++)
+        object_destroy(&objects[i]);
 }

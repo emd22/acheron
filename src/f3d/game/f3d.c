@@ -30,13 +30,10 @@ window_t window;
 material_t *brick, *stone;
 object_t *wall, *level, *box;
 light_t *light;
-
 vector3f_t velocity;
-
 camera_t camera;
-
-unsigned arrayid;
-shader_t shader_main, shader_depth;
+shader_t shader_main, shader_depth, shader_skybox;
+cubemap_t cubemap;
 
 int init(void) {
     game_init();
@@ -64,8 +61,6 @@ int init(void) {
     SDL_GL_SetSwapInterval(1);
     SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
     
-    glGenVertexArrays(1, &arrayid);
-    glBindVertexArray(arrayid);
     return 0;
 }
  
@@ -83,6 +78,11 @@ void init_gl() {
         "Depth",
         shader_load("../shaders/depth_vert.glsl", SHADER_VERTEX),
         shader_load("../shaders/depth_frag.glsl", SHADER_FRAGMENT)
+    );
+    shader_skybox = shaders_link(
+        "Skybox",
+        shader_load("../shaders/skybox_vert.glsl", SHADER_VERTEX),
+        shader_load("../shaders/skybox_frag.glsl", SHADER_FRAGMENT)
     );
     
     shader_use(&shader_main);
@@ -102,6 +102,16 @@ void init_gl() {
     // fix overlapping polygons
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+    
+    texture_t *skybox_texture = texture_load_data(NULL, "../images/sky.bmp", IMAGE_BMP);
+    
+    texture_t *textures[] = {
+        skybox_texture, skybox_texture,
+        skybox_texture, texture_load_data(NULL, "../images/grass.bmp", IMAGE_BMP),
+        skybox_texture, skybox_texture
+    };
+    
+    cubemap_init(&cubemap, textures);
     
     //glEnable(GL_CULL_FACE);
     
@@ -206,7 +216,6 @@ int main() {
     shader_use(&shader_depth);
     
     shadows_init(2048, 2048, light->direction, (vector3f_t){0, 0, 0});
-
    
     log_msg(LOG_INFO, "Buffer usage: %.01fKB\n", (double)buffer_total_used/1024.0);
     while (game_info.flags & GAME_IS_RUNNING) {
@@ -235,6 +244,7 @@ int main() {
 
 int on_end(void *arg){
     (void)arg;
+    shader_destroy(&shader_skybox);
     shader_destroy(&shader_depth);
     shader_destroy(&shader_main);
     window_destroy(&window);
@@ -272,7 +282,7 @@ void load_models() {
     wall = object_new();
     object_init("Wall", wall, 0);
     object_attach_mesh(wall, mesh_load("../models/untitled.obj", MODEL_OBJ, 0));
-    wall->position = (vector3f_t){0, 0, 3};
+    wall->position = (vector3f_t){0, 2, 3};
     wall->scale = (vector3f_t){2, 2, 2};
     wall->rotation.y = 3.14/2.0;
     
@@ -314,6 +324,8 @@ int render_scene(void *arg) {
  
 int on_draw(void *arg) {
     (void)arg;
+    cubemap_render(&cubemap, &shader_skybox, &camera);
+    shader_use(&shader_main);
     //if (!(frames_rendered % 3)) {
     shadows_render(&shader_main, &shader_depth);    
     //}
@@ -321,6 +333,7 @@ int on_draw(void *arg) {
     glBindTexture(GL_TEXTURE_2D, shadow_fb.texture->id);
     shader_set_int(&shader_main, "shadow_map", 4);
     render_scene(selected_camera);
+    
     
     return 0;
 }
