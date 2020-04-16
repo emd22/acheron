@@ -1,5 +1,5 @@
 #include <f3d/engine/type/vec.h>
-#include <f3d/engine/log.h>
+#include <f3d/engine/core/log.h>
 
 #define C3D_FAILURE -1
 #define C3D_SUCCESS 0

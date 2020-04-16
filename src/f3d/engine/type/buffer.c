@@ -1,5 +1,5 @@
 #include <f3d/engine/type/buffer.h>
-#include <f3d/engine/log.h>
+#include <f3d/engine/core/log.h>
 
 #include <stdlib.h>
 #include <string.h>

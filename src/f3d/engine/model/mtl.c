@@ -1,7 +1,7 @@
 #include <f3d/engine/model/obj.h>
-#include <f3d/engine/log.h>
-#include <f3d/engine/handles.h>
-#include <f3d/engine/material.h>
+#include <f3d/engine/core/log.h>
+#include <f3d/engine/core/handles.h>
+#include <f3d/engine/object/material.h>
 
 #include <f3d/engine/type/buffer.h>
 #include <f3d/engine/type/vec.h>

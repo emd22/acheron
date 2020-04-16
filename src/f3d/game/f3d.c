@@ -9,13 +9,12 @@
 #include <f3d/engine/engine.h>
 
 #include <f3d/game/game.h>
-#include <f3d/engine/shadows.h>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
 
 
-#define FRAMERATE_CAP 60
+#define FRAMERATE_CAP 120
 
 #define MOUSE_SPEED 0.07
 
@@ -32,7 +31,7 @@ object_t *wall, *level, *box;
 light_t *light;
 vector3f_t velocity;
 camera_t camera;
-shader_t shader_main, shader_depth, shader_skybox;
+shader_t shader_main, shader_depth;
 cubemap_t cubemap;
 
 int init(void) {
@@ -79,11 +78,6 @@ void init_gl() {
         shader_load("../shaders/depth_vert.glsl", SHADER_VERTEX),
         shader_load("../shaders/depth_frag.glsl", SHADER_FRAGMENT)
     );
-    shader_skybox = shaders_link(
-        "Skybox",
-        shader_load("../shaders/skybox_vert.glsl", SHADER_VERTEX),
-        shader_load("../shaders/skybox_frag.glsl", SHADER_FRAGMENT)
-    );
     
     shader_use(&shader_main);
 
@@ -103,15 +97,18 @@ void init_gl() {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     
-    texture_t *skybox_texture = texture_load_data(NULL, "../images/sky.bmp", IMAGE_BMP);
-    
     texture_t *textures[] = {
-        skybox_texture, skybox_texture,
-        skybox_texture, texture_load_data(NULL, "../images/grass.bmp", IMAGE_BMP),
-        skybox_texture, skybox_texture
+        texture_load_data(NULL, "../images/skybox/right.bmp", IMAGE_BMP),
+        texture_load_data(NULL, "../images/skybox/left.bmp", IMAGE_BMP),
+        texture_load_data(NULL, "../images/skybox/down.bmp", IMAGE_BMP),
+        texture_load_data(NULL, "../images/skybox/up.bmp", IMAGE_BMP),
+        texture_load_data(NULL, "../images/skybox/front.bmp", IMAGE_BMP),
+        texture_load_data(NULL, "../images/skybox/back.bmp", IMAGE_BMP)
     };
-    
+    cubemaps_init();
     cubemap_init(&cubemap, textures);
+    
+    skybox_init(&cubemap);
     
     //glEnable(GL_CULL_FACE);
     
@@ -144,6 +141,7 @@ int move() {
     }
     if (keys[CONTROL_RIGHT].pressed) {
         velocity.x = max_velocity;
+        moved = 1;
     }
     if (controls_check_toggle(CONTROL_1)) {
         stone->use_normals = !stone->use_normals;
@@ -175,6 +173,7 @@ int move() {
     
     }
     if (velocity.z) {
+        mat4_print(&camera.mat_view);
         if (velocity.z > 0.0f) {
             camera_move(selected_camera, CAMERA_FORWARD);
             velocity.z -= friction;
@@ -190,6 +189,8 @@ int move() {
         camera.move_mul.z = fabs(velocity.z);
         moved = 1;
     }
+    // if we move two directions at the same time, half the speed
+    // so we don't move faster than normal.
     if ((camera.move_mul.x == max_velocity || camera.move_mul.x == -max_velocity) &&
         (camera.move_mul.z == max_velocity || camera.move_mul.z == -max_velocity))
     {
@@ -244,7 +245,6 @@ int main() {
 
 int on_end(void *arg){
     (void)arg;
-    shader_destroy(&shader_skybox);
     shader_destroy(&shader_depth);
     shader_destroy(&shader_main);
     window_destroy(&window);
@@ -324,11 +324,13 @@ int render_scene(void *arg) {
  
 int on_draw(void *arg) {
     (void)arg;
-    cubemap_render(&cubemap, &shader_skybox, &camera);
+    //cubemap_render(&cubemap, &camera);
+    skybox_render(&camera);
     shader_use(&shader_main);
-    //if (!(frames_rendered % 3)) {
-    shadows_render(&shader_main, &shader_depth);    
-    //}
+    // update every second frame
+    if (!(frames_rendered % 2)) {
+        shadows_render(&shader_main, &shader_depth);    
+    }
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, shadow_fb.texture->id);
     shader_set_int(&shader_main, "shadow_map", 4);

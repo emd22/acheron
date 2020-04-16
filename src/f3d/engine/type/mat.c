@@ -1,6 +1,6 @@
 #include <f3d/engine/type/mat.h>
 #include <f3d/engine/type/vec.h>
-#include <f3d/engine/log.h>
+#include <f3d/engine/core/log.h>
 
 #include <stdlib.h>
 #include <stdio.h>

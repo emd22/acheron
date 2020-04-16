@@ -1,7 +1,7 @@
 #include <f3d/engine/model/obj.h>
 #include <f3d/engine/model/mtl.h>
-#include <f3d/engine/log.h>
-#include <f3d/engine/handles.h>
+#include <f3d/engine/core/log.h>
+#include <f3d/engine/core/handles.h>
 
 #include <f3d/engine/type/buffer.h>
 #include <f3d/engine/type/vec.h>
@@ -110,10 +110,10 @@ obj_model_t obj_load(const char *path) {
             fgets(fut, 2048, fp);
         }
     }
-    log_msg(LOG_INFO, "Indexing...\n", 0);
+    //log_msg(LOG_INFO, "Indexing...\n", 0);
     unsigned i;
     vector3f_t vertex;
-    log_msg(LOG_INFO, "vertices... %llu, %llu\n", vertex_indices.index, vertex_indices.size);
+    //log_msg(LOG_INFO, "vertices... %llu, %llu\n", vertex_indices.index, vertex_indices.size);
     for (i = 0; i < vertex_indices.index; i++) {
         int vertex_index = ((unsigned *)vertex_indices.data)[i];
         vertex = ((vector3f_t *)temp_vertices.data)[vertex_index-1];
@@ -131,7 +131,7 @@ obj_model_t obj_load(const char *path) {
     }
     buffer_destroy(&temp_uvs);
     buffer_destroy(&uv_indices);
-    log_msg(LOG_INFO, "destroying buffers... %llu\n", buffer_total_used);
+    //log_msg(LOG_INFO, "destroying buffers... %llu\n", buffer_total_used);
     
     vector3f_t normal;
     for (i = 0; i < normal_indices.index; i++) {
