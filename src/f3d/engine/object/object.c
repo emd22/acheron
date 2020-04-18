@@ -115,26 +115,34 @@ void object_attach(render_object_t *object, int type, void *data) {
         log_msg(LOG_ERROR, "Attach type is not valid\n", 0);
     }
 }
+hash_t get_material_hash(render_object_t *object) {
+    if (object->material == NULL)
+        return 0;
+    return object->material->hash;
+}
 
 int compare_materials(const void *v1, const void *v2) {
     render_object_t *obj1 = (render_object_t *)v1;
     render_object_t *obj2 = (render_object_t *)v2;
-    return obj1->material->hash-obj2->material->hash;
+
+    return get_material_hash(obj1)-get_material_hash(obj2);
 }
 
 void objects_sort(void) {
     qsort(render_objects, render_objects_index, sizeof(render_object_t), &compare_materials);
 }
 
+
 void objects_draw(shader_t *shader, camera_t *camera) {
     int i;
-    hash_t mat_hash = 0;
+    hash_t mat_hash = 1;
     render_object_t *object;
     for (i = 0; i < render_objects_index; i++) {
         object = &render_objects[i];
-        if (mat_hash != object->material->hash) {
+
+        if (mat_hash != get_material_hash(object)) {
             material_update(object->material, shader);
-            mat_hash = object->material->hash;
+            mat_hash = get_material_hash(object);
         }
         if (object->flags & RENDER_OBJECT_FLAG_UPDATE) {
             object_update(object);

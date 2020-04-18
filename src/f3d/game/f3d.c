@@ -284,7 +284,7 @@ void load_models() {
 
     render_object_t *box = object_new("Box");
     object_attach(box, OBJECT_ATTACH_MESH, mesh_load("../models/cube.obj", MODEL_OBJ, 0));
-    object_attach(box, OBJECT_ATTACH_MATERIAL, stone);
+    object_attach(box, OBJECT_ATTACH_MATERIAL, NULL);
     object_move(box, 0, 2, 0);
     
     light = light_new(LIGHT_DIRECTIONAL);

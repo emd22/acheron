@@ -8,7 +8,7 @@
 struct Material {
     bool use_normalmap;
     bool use_specularmap;
-    bool use_material;
+    bool use_diffuse;
     sampler2D diffuse;
     sampler2D specular;
     sampler2D normal;
@@ -99,7 +99,7 @@ vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir, fl
     vec3 diffuse_tex = vec3(1, 1, 1);
     vec3 specular_tex = vec3(1);
     
-    if (material.use_material) {
+    if (material.use_diffuse) {
         diffuse_tex = vec3(texture(material.diffuse, frag_uv));
     }
     if (material.use_specularmap) {
@@ -119,7 +119,7 @@ vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir, fl
     
     //specular *= diff;
     
-    return (ambient + diffuse* visibility + specular*visibility);
+    return (ambient + diffuse*visibility + specular*visibility);
 }
 
 
