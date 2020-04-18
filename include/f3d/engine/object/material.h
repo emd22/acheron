@@ -16,12 +16,9 @@ typedef struct {
     texture_t *diffuse;
     texture_t *specular;
     texture_t *normal;
-    
-    int diffuse_id;
-    int specular_id;
-    int normal_id;
 
     bool use_normals;
+    bool use_specularmap;
     float shininess;
 } material_t;
 

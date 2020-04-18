@@ -17,10 +17,16 @@ material_t *material_new(material_t material) {
 }
 
 void material_update(material_t *mat, shader_t *shader) {
+    bool use_material = true;
+    material_t dummy;
     // TODO: flat colours, etc.
-    if (mat->diffuse == NULL) {
-        log_msg(LOG_ERROR, "Diffuse texture for '%s' is NULL!\n", mat->name);
-        return;
+    if (mat == NULL) {
+        dummy.shininess = 0.0f;
+        dummy.use_normals = false;
+        dummy.use_specularmap = false;
+        mat = &dummy;
+        use_material = false;
+        goto setup_material;
     }
     // assign diffuse to texture0 in fragment shader
     glActiveTexture(GL_TEXTURE0);
@@ -39,10 +45,14 @@ void material_update(material_t *mat, shader_t *shader) {
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, mat->diffuse->id);
     }
+    
+setup_material:;
     shader_set_int(shader, "material.use_normalmap", mat->use_normals);
-    shader_set_int(shader, "material.diffuse", mat->diffuse_id);
-    shader_set_int(shader, "material.specular", mat->specular_id);
-    shader_set_int(shader, "material.normal", mat->normal_id);
+    shader_set_int(shader, "material.use_specularmap", mat->use_specularmap);
+    shader_set_int(shader, "material.use_material", use_material);
+    shader_set_int(shader, "material.diffuse", 0);
+    shader_set_int(shader, "material.specular", 1);
+    shader_set_int(shader, "material.normal", 2);
     shader_set_float(shader, "material.shininess", mat->shininess);
 }
 

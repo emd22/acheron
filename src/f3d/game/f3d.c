@@ -110,7 +110,7 @@ void init_gl() {
     
     skybox_init(&cubemap);
     
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     // disable mouse cursor
     window_set_mouse_mode(WINDOW_MOUSE_DISABLED);    
 }
@@ -224,9 +224,6 @@ int main() {
             
         shader_use(&shader_main);
         move();
-        //box->position.z = sin((double)frames_rendered*0.01)+3;
-        //wall->rotation.y = (double)frames_rendered*0.01;
-        //object_update(wall);
         
         camera_update(selected_camera);
         shader_set_vec3f(&shader_main, "view_pos", selected_camera->position);
@@ -264,8 +261,7 @@ void load_models() {
         texture_load(NULL, "../images/stone.bmp", IMAGE_BMP),
         texture_load(NULL, "../images/stone_spec.bmp", IMAGE_BMP),
         texture_load(NULL, "../images/stone_normal.bmp", IMAGE_BMP),
-        0, 1, 2,
-        true, 5.0f
+        true, false, 32.0f
     });
     
     brick = material_new((material_t){
@@ -273,27 +269,28 @@ void load_models() {
         texture_load(NULL, "../images/brick.bmp", IMAGE_BMP),
         texture_load(NULL, "../images/brick_spec.bmp", IMAGE_BMP),
         texture_load(NULL, "../images/brick_normal.bmp", IMAGE_BMP),
-        0, 1, 2,
-        true, 1.0f
+        true, false, 32.0f
     });
 
-    render_object_t *box = object_new("Box");
-    object_attach(box, OBJECT_ATTACH_MESH, mesh_load("../models/cube.obj", MODEL_OBJ, 0));
-    object_attach(box, OBJECT_ATTACH_MATERIAL, brick);
-    object_move(box, 0, 2, 0);
-    
     render_object_t *level = object_new("Level");
     object_attach(level, OBJECT_ATTACH_MESH, mesh_load("../models/wall.obj", MODEL_OBJ, 0));
     object_attach(level, OBJECT_ATTACH_MATERIAL, stone);
     object_rotate(level, 1.57, 0.0f, 0.0f);
     object_move(level, 0, 0, -5);
-    
+
     render_object_t *wall = object_new("Wall");
     object_attach(wall, OBJECT_ATTACH_MESH, level->mesh);
     object_attach(wall, OBJECT_ATTACH_MATERIAL, brick);
+
+    render_object_t *box = object_new("Box");
+    object_attach(box, OBJECT_ATTACH_MESH, mesh_load("../models/cube.obj", MODEL_OBJ, 0));
+    object_attach(box, OBJECT_ATTACH_MATERIAL, stone);
+    object_move(box, 0, 2, 0);
+    
+    
     
     light = light_new(LIGHT_DIRECTIONAL);
-    light->direction = (vector3f_t){-0.2, 0.6, 0.4};
+    light->direction = (vector3f_t){-0.2, 0.8, -0.7};
     light->ambient   = (vector3f_t){0.02f, 0.02f,  0.02f};
     light->diffuse   = (vector3f_t){0.15f, 0.15f,  0.15f};
     light->specular  = (vector3f_t){0.8f,  0.8f,   0.8f};

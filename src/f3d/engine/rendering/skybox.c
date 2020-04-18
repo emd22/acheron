@@ -79,7 +79,7 @@ void skybox_init(cubemap_t *cubemap) {
 
 void skybox_render(camera_t *camera) {
     //glDepthMask(0);
-    //glDisable(GL_CULL_FACE);
+    glDisable(GL_CULL_FACE);
     glDepthFunc(GL_LEQUAL);
     shader_use(&shader_skybox);
     shader_set_mat4(&shader_skybox, "projection", &camera->mat_projection);
@@ -94,9 +94,10 @@ void skybox_render(camera_t *camera) {
     shader_set_int(&shader_skybox, "skybox", 0);
     
     glDrawArrays(GL_TRIANGLES, 0, 36);
-    //glEnable(GL_CULL_FACE);
-    glDepthMask(1);
-    //glDepthFunc(GL_LESS);
+    
+    glEnable(GL_CULL_FACE);
+    glDepthFunc(GL_LESS);
+    //glDepthMask(1);
 }
 
 void skybox_destroy() {

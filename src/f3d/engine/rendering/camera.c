@@ -22,7 +22,7 @@ camera_t camera_new(void) {
     
     // NOTE: FOV is stored in degrees, converted to radians when creating
     // perspective matrix
-    camera.fov = 95;
+    camera.fov = 75;
     camera.move_mul.x = 1.0f;
     camera.move_mul.z = 1.0f;
     return camera;

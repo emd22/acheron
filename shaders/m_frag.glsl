@@ -6,10 +6,12 @@
 #define MAX_POINT_LIGHTS 2
 
 struct Material {
+    bool use_normalmap;
+    bool use_specularmap;
+    bool use_material;
     sampler2D diffuse;
     sampler2D specular;
     sampler2D normal;
-    bool use_normalmap;
     float shininess;
 };
 
@@ -72,7 +74,7 @@ void main() {
     //bias = clamp(bias, 0, 0.01);
     float visibility = 1.0f;
     if (texture(shadow_map, frag_shadow_coords.xy).x < frag_shadow_coords.z-bias) {
-        visibility = 0.3;
+        visibility = 0.2;
     }
     
     vec3 result = vec3(0);
@@ -82,10 +84,11 @@ void main() {
     for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
         result += clamp(CalcPointLight(pointLights[i], n, frag_eye_direction), 0.0, 1.0);
     }
-    output_colour = visibility*vec4(result, 1.0f);
+    output_colour = vec4(result, 1.0f);
 }
+
 float blinnPhong(vec3 normal, vec3 frag_vertex, vec3 view_pos, vec3 light_dir, float shininess) {
-    vec3 eye_dir = normalize(-frag_vertex);
+    vec3 eye_dir = normalize(view_pos-frag_vertex);
     vec3 half_vector = normalize(light_dir + eye_dir);
     vec3 n = normalize(normal);
     
@@ -93,6 +96,16 @@ float blinnPhong(vec3 normal, vec3 frag_vertex, vec3 view_pos, vec3 light_dir, f
 }
 
 vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir, float visibility) {
+    vec3 diffuse_tex = vec3(1, 1, 1);
+    vec3 specular_tex = vec3(1);
+    
+    if (material.use_material) {
+        diffuse_tex = vec3(texture(material.diffuse, frag_uv));
+    }
+    if (material.use_specularmap) {
+        specular_tex = vec3(texture(material.specular, frag_uv));
+    } 
+    
     vec3 light_dir = normalize(light.direction);
     // diffuse
     //float diff = max(dot(normal, light_dir), 0.0f);
@@ -100,13 +113,13 @@ vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir, fl
     // specular
     float specularity = blinnPhong(normal, frag_vertex, view_pos, light_dir, material.shininess);
     // final
-    vec3 ambient = light.ambient * vec3(texture(material.diffuse, frag_uv));
-    vec3 diffuse = vec3(ndotl) * vec3(texture(material.diffuse, frag_uv));
-    vec3 specular = light.specular * specularity * vec3(texture(material.specular, frag_uv));
+    vec3 ambient = light.ambient * diffuse_tex;
+    vec3 diffuse = vec3(ndotl) * diffuse_tex;
+    vec3 specular = vec3(ndotl) * light.specular * specular_tex * specularity;
     
     //specular *= diff;
     
-    return (ambient + diffuse + specular);
+    return (ambient + diffuse* visibility + specular*visibility);
 }
 
 

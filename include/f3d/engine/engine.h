@@ -16,7 +16,6 @@
 #include <f3d/engine/rendering/shadows.h>
 #include <f3d/engine/rendering/cubemap.h>
 #include <f3d/engine/rendering/skybox.h>
-#include <f3d/engine/rendering/render.h>
 
 #include <f3d/engine/object/material.h>
 #include <f3d/engine/object/object.h>

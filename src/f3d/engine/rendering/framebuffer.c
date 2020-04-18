@@ -22,7 +22,7 @@ framebuffer_t framebuffer_new(int width, int height, int bpp, int attachment) {
     fb.originx = 0;
     fb.originy = 0;
     fb.bpp = bpp;
-
+    log_msg(LOG_DEBUG, "%d\n", attachment);
     framebuffer_texture(&fb, attachment);
     return fb;
 }
