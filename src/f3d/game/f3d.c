@@ -287,8 +287,6 @@ void load_models() {
     object_attach(box, OBJECT_ATTACH_MATERIAL, stone);
     object_move(box, 0, 2, 0);
     
-    
-    
     light = light_new(LIGHT_DIRECTIONAL);
     light->direction = (vector3f_t){-0.2, 0.8, -0.7};
     light->ambient   = (vector3f_t){0.02f, 0.02f,  0.02f};

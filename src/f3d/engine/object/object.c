@@ -5,6 +5,7 @@
 
 #include <string.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #define MAX_RENDER_OBJECTS 128
 
@@ -115,49 +116,14 @@ void object_attach(render_object_t *object, int type, void *data) {
     }
 }
 
+int compare_materials(const void *v1, const void *v2) {
+    render_object_t *obj1 = (render_object_t *)v1;
+    render_object_t *obj2 = (render_object_t *)v2;
+    return obj1->material->hash-obj2->material->hash;
+}
+
 void objects_sort(void) {
-    // material
-    render_object_t new_buf[MAX_RENDER_OBJECTS];
-    int new_buf_i = 0;
-    
-    hash_t mat_hashes[MATERIALS_MAX];
-    int mat_hashes_i = 0;
-    
-    render_object_t *object;
-    
-    bool skip = false;
-    int i, j;
-    // loop through all objects
-    for (i = 0; i < render_objects_index; i++) {
-        object = &render_objects[i];
-        if (object->material == NULL) {
-            log_msg(LOG_INFO, "No material!\n", 0);        
-            continue;
-        }
-        for (j = 0; j < mat_hashes_i; j++) {
-            if (object->material->hash != mat_hashes[j]) {
-                mat_hashes[mat_hashes_i++] = object->material->hash;
-                break;
-            }
-            else
-                skip = true;
-        }
-        if (skip == true) {
-            skip = false;
-            continue;
-        }
-        
-        for (j = 0; j < render_objects_index; j++) {
-            if (render_objects[j].material->hash == object->material->hash) {
-                new_buf[new_buf_i++] = render_objects[j];
-            }
-        }
-    }
-    
-    for (i = 0; i < new_buf_i; i++) {
-        render_objects[i] = new_buf[i];
-        log_msg(LOG_INFO, "%s\n", render_objects[i].name);
-    }
+    qsort(render_objects, render_objects_index, sizeof(render_object_t), &compare_materials);
 }
 
 void objects_draw(shader_t *shader, camera_t *camera) {
