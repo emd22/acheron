@@ -5,7 +5,7 @@
 
 void _log_msg(const char *function, int errlvl, const char *str, ...) {
     #ifndef DEBUG
-    if (errlvl == LOG_INFO || errlvl == LOG_WARN) {
+    if (errlvl == LOG_INFO || errlvl == LOG_DEBUG) {
         (void)function;
         (void)str;
         return;

@@ -68,9 +68,11 @@ void main() {
         n = normalize(norm);
     }
     float bias = 0.005;
+    //float bias = 0.005*tan(acos(dot(n, normalize(dirLights[0].direction)))); // cosTheta is dot( n,l ), clamped between 0 and 1
+    //bias = clamp(bias, 0, 0.01);
     float visibility = 1.0f;
     if (texture(shadow_map, frag_shadow_coords.xy).x < frag_shadow_coords.z-bias) {
-        visibility = 0.4;
+        visibility = 0.3;
     }
     
     vec3 result = vec3(0);

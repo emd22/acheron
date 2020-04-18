@@ -1,10 +1,9 @@
 #include <f3d/engine/object/material.h>
 #include <f3d/engine/rendering/shader.h>
 #include <f3d/engine/core/log.h>
+#include <f3d/engine/util.h>
 
 #include <string.h>
-
-#define MATERIALS_MAX 128
 
 static material_t materials[MATERIALS_MAX];
 static int materials_index = 0; 
@@ -12,6 +11,7 @@ static int materials_index = 0;
 material_t *material_new(material_t material) {
     material_t *mat = &materials[materials_index++];
     memcpy(mat, &material, sizeof(material_t));
+    mat->hash = util_hash_str(mat->name);
     log_msg(LOG_INFO, "Creating new material '%s'\n", mat->name);
     return mat;
 }

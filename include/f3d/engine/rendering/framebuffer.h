@@ -14,7 +14,7 @@ typedef struct {
     int originx, originy;
 } framebuffer_t;
 
-framebuffer_t framebuffer_new(int width, int height, int bpp);
+framebuffer_t framebuffer_new(int width, int height, int bpp, int attachment);
 void framebuffer_bind(framebuffer_t *fb);
 void framebuffer_texture(framebuffer_t *fb, int attachment);
 void framebuffer_destroy(framebuffer_t *fb);

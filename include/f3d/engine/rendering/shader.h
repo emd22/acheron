@@ -9,8 +9,10 @@
 #define SHADER_VERTEX   GL_VERTEX_SHADER
 #define SHADER_FRAGMENT GL_FRAGMENT_SHADER
 
+#define MAX_UNIFORMS 512
+
 typedef struct {
-    char name[16];
+    char name[32];
     unsigned id;
 } shader_t;
 

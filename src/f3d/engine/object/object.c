@@ -1,4 +1,4 @@
-#include <f3d/engine/object/object.h>
+/*#include <f3d/engine/object/object.h>
 #include <f3d/engine/model/mesh.h>
 #include <f3d/engine/types.h>
 
@@ -43,26 +43,6 @@ void object_init(const char *name, object_t *object, int flags) {
     object->physics.friction = 1.0f;
 }
 
-void object_scale(object_t *object) {
-    //int i;
-    mat4_t *mat = &object->matrix;
-    // x
-    mat->val[0] *= object->scale.x;
-    mat->val[1] *= object->scale.x;
-    mat->val[2] *= object->scale.x;
-    mat->val[3] *= object->scale.x;
-    
-    mat->val[4] *= object->scale.y;
-    mat->val[5] *= object->scale.y;
-    mat->val[6] *= object->scale.y;
-    mat->val[7] *= object->scale.y;
-    
-    mat->val[8] *= object->scale.z;
-    mat->val[9] *= object->scale.z;
-    mat->val[10] *= object->scale.z;
-    mat->val[11] *= object->scale.z;
-}
-
 void object_attach_mesh(object_t *object, mesh_t *mesh) {
     //glBindVertexArray(object->vao);
     object->mesh = mesh;
@@ -99,4 +79,8 @@ void objects_cleanup() {
     int i;
     for (i = 0; i < objects_index; i++)
         object_destroy(&objects[i]);
+}
+*/
+void t() {
+
 }

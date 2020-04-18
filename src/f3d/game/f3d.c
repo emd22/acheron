@@ -14,7 +14,7 @@
 #include <GL/gl.h>
 
 
-#define FRAMERATE_CAP 120
+#define FRAMERATE_CAP 60
 
 #define MOUSE_SPEED 0.07
 
@@ -27,7 +27,7 @@ int on_end(void *arg);
 
 window_t window;
 material_t *brick, *stone;
-object_t *wall, *level, *box;
+//object_t *wall, *level, *box;
 light_t *light;
 vector3f_t velocity;
 camera_t camera;
@@ -111,7 +111,6 @@ void init_gl() {
     skybox_init(&cubemap);
     
     //glEnable(GL_CULL_FACE);
-    
     // disable mouse cursor
     window_set_mouse_mode(WINDOW_MOUSE_DISABLED);    
 }
@@ -154,7 +153,7 @@ int move() {
         engine_render_wireframe(wireframe);
 
     }
-    const float friction = 0.05;
+    const float friction = 0.03;
     if (velocity.x) {
         if (velocity.x > 0.0f) {
             camera_move(selected_camera, CAMERA_RIGHT);
@@ -173,7 +172,6 @@ int move() {
     
     }
     if (velocity.z) {
-        mat4_print(&camera.mat_view);
         if (velocity.z > 0.0f) {
             camera_move(selected_camera, CAMERA_FORWARD);
             velocity.z -= friction;
@@ -226,9 +224,9 @@ int main() {
             
         shader_use(&shader_main);
         move();
-        box->position.z = sin((double)frames_rendered*0.01)+3;
-        wall->rotation.y = (double)frames_rendered*0.01;
-        object_update(wall);
+        //box->position.z = sin((double)frames_rendered*0.01)+3;
+        //wall->rotation.y = (double)frames_rendered*0.01;
+        //object_update(wall);
         
         camera_update(selected_camera);
         shader_set_vec3f(&shader_main, "view_pos", selected_camera->position);
@@ -237,7 +235,7 @@ int main() {
         window_buffers_swap(&window);
 
         time_end();
-        SDL_Delay((1000/FRAMERATE_CAP-delta_time));
+        //SDL_Delay((1000/FRAMERATE_CAP-delta_time));
     }
     handle_call(HANDLE_END, NULL);
     return 0;
@@ -251,7 +249,7 @@ int on_end(void *arg){
     
     meshes_cleanup();
     textures_cleanup();
-    objects_cleanup();
+    //objects_cleanup();
     
     log_msg(LOG_INFO, "Buffer usage at program end: %llu\n", buffer_total_used);
     //os_print_backtrace();
@@ -262,7 +260,7 @@ int on_end(void *arg){
 
 void load_models() {
     stone = material_new((material_t){
-        "Stone",
+        "Stone", 0,
         texture_load(NULL, "../images/stone.bmp", IMAGE_BMP),
         texture_load(NULL, "../images/stone_spec.bmp", IMAGE_BMP),
         texture_load(NULL, "../images/stone_normal.bmp", IMAGE_BMP),
@@ -271,54 +269,43 @@ void load_models() {
     });
     
     brick = material_new((material_t){
-        "Brick",
+        "Brick", 0,
         texture_load(NULL, "../images/brick.bmp", IMAGE_BMP),
         texture_load(NULL, "../images/brick_spec.bmp", IMAGE_BMP),
         texture_load(NULL, "../images/brick_normal.bmp", IMAGE_BMP),
         0, 1, 2,
         true, 1.0f
     });
-    
-    wall = object_new();
-    object_init("Wall", wall, 0);
-    object_attach_mesh(wall, mesh_load("../models/untitled.obj", MODEL_OBJ, 0));
-    wall->position = (vector3f_t){0, 2, 3};
-    wall->scale = (vector3f_t){2, 2, 2};
-    wall->rotation.y = 3.14/2.0;
-    
-    level = object_new();
-    object_init("Level", level, 0);
-    object_attach_mesh(level, mesh_load("../models/wall.obj", MODEL_OBJ, 0));
-    object_update(level);
-    level->position.z = -7;
-    level->rotation.x = 1.57f;
-    level->scale = (vector3f_t){2, 2, 1};
-    
-    box = object_new();
-    object_init("Box", box, 0);
-    object_attach_mesh(box, mesh_load("../models/cube.obj", MODEL_OBJ, 0));
-    box->position = (vector3f_t){0, 3, 0};
-    
-    object_update(box);
-    object_update(level);
-    object_update(wall);
 
+    render_object_t *box = object_new("Box");
+    object_attach(box, OBJECT_ATTACH_MESH, mesh_load("../models/cube.obj", MODEL_OBJ, 0));
+    object_attach(box, OBJECT_ATTACH_MATERIAL, brick);
+    object_move(box, 0, 2, 0);
+    
+    render_object_t *level = object_new("Level");
+    object_attach(level, OBJECT_ATTACH_MESH, mesh_load("../models/wall.obj", MODEL_OBJ, 0));
+    object_attach(level, OBJECT_ATTACH_MATERIAL, stone);
+    object_rotate(level, 1.57, 0.0f, 0.0f);
+    object_move(level, 0, 0, -5);
+    
+    render_object_t *wall = object_new("Wall");
+    object_attach(wall, OBJECT_ATTACH_MESH, level->mesh);
+    object_attach(wall, OBJECT_ATTACH_MATERIAL, brick);
+    
     light = light_new(LIGHT_DIRECTIONAL);
-    light->direction = (vector3f_t){-0.2, 0.2, 0.4};
+    light->direction = (vector3f_t){-0.2, 0.6, 0.4};
     light->ambient   = (vector3f_t){0.02f, 0.02f,  0.02f};
     light->diffuse   = (vector3f_t){0.15f, 0.15f,  0.15f};
     light->specular  = (vector3f_t){0.8f,  0.8f,   0.8f};
     light_init(light, &shader_main);
+    
+    objects_sort();
 }
 
 int render_scene(void *arg) {
     camera_t *cam = (camera_t *)arg;
     shader_use(&shader_main);
-    material_update(brick, &shader_main);
-    object_draw(wall, cam, &shader_main);
-    object_draw(level, cam, &shader_main);
-    material_update(stone, &shader_main);
-    //object_draw(box, cam, &shader_main);
+    objects_draw(&shader_main, cam);
     return 0;
 }
  
@@ -336,6 +323,7 @@ int on_draw(void *arg) {
     shader_set_int(&shader_main, "shadow_map", 4);
     render_scene(selected_camera);
     
+    shader_use(&shader_main);
     
     return 0;
 }

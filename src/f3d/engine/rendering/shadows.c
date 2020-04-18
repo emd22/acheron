@@ -18,7 +18,7 @@ void generate_vp(vector3f_t direction, vector3f_t center) {
 }
 
 void shadows_init(int width, int height, vector3f_t direction, vector3f_t center) {
-    shadow_fb = framebuffer_new(width, height, 16);
+    shadow_fb = framebuffer_new(width, height, 16, GL_DEPTH_ATTACHMENT);
     framebuffer_bind(&shadow_fb);
     texture_t *tex = shadow_fb.texture;
     tex->draw_type = TEXTURE_TYPE_DEPTH;

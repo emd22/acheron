@@ -5,7 +5,7 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
-framebuffer_t framebuffer_new(int width, int height, int bpp) {
+framebuffer_t framebuffer_new(int width, int height, int bpp, int attachment) {
     framebuffer_t fb;
 
     glGenFramebuffers(1, &fb.fbo);
@@ -23,7 +23,7 @@ framebuffer_t framebuffer_new(int width, int height, int bpp) {
     fb.originy = 0;
     fb.bpp = bpp;
 
-    framebuffer_texture(&fb, GL_DEPTH_ATTACHMENT);
+    framebuffer_texture(&fb, attachment);
     return fb;
 }
 

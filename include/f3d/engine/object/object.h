@@ -4,6 +4,7 @@
 #include <f3d/engine/physics/object.h>
 #include <f3d/engine/model/mesh.h>
 
+/*
 typedef struct {
     char name[16];
     int flags;
@@ -25,5 +26,5 @@ void object_update(object_t *object);
 bool object_check_collision(object_t *obj0, object_t *obj1);
 void object_destroy(object_t *object);
 void objects_cleanup();
-
+*/
 #endif
