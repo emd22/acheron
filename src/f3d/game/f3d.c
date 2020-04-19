@@ -256,7 +256,7 @@ int on_end(void *arg){
 }
 
 void load_models() {
-    screenfb = framebuffer_new(100, 100, GL_COLOR_ATTACHMENT0);
+    screenfb = framebuffer_new(window.width, window.height, GL_COLOR_ATTACHMENT0);
     framebuffer_bind(&screenfb);
     framebuffer_generate_texture(&screenfb, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
     
@@ -296,7 +296,7 @@ void load_models() {
 
     render_object_t *wall = object_new("Wall");
     object_attach(wall, OBJECT_ATTACH_MESH, level->mesh);
-    object_attach(wall, OBJECT_ATTACH_MATERIAL, plain);
+    object_attach(wall, OBJECT_ATTACH_MATERIAL, stone);
 
     render_object_t *box = object_new("Box");
     object_attach(box, OBJECT_ATTACH_MESH, mesh_load("../models/cube.obj", MODEL_OBJ, 0));
@@ -311,37 +311,53 @@ void load_models() {
     light_init(light, &shader_main);
     
     objects_sort();
+    default_framebuffer = NULL;
+    
+    glGenRenderbuffers(1, &screenfb.depth_buffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, screenfb.depth_buffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, screenfb.width, screenfb.height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, screenfb.depth_buffer);
 }
 
 int render_scene(void *arg) {
     camera_t *cam = (camera_t *)arg;
+    skybox_render(&camera);
     shader_use(&shader_main);
     objects_draw(&shader_main, cam);
     return 0;
+}
+
+void render_framebuffer(void) {
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, screenfb.fbo);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    render_scene(selected_camera);
+    unsigned attachments[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+    glDrawBuffers(2, attachments);
+    
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, screenfb.fbo);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBlitFramebuffer(0, 0, screenfb.width, screenfb.height, window.width-window.width/3, 0, window.width, window.height/3, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
  
 int on_draw(void *arg) {
     (void)arg;
     //cubemap_render(&cubemap, &camera);
-    skybox_render(&camera);
     shader_use(&shader_main);
     // update every second frame
     if (!(frames_rendered % 2)) {
         shadows_render(&shader_main, &shader_depth);
-        
-        framebuffer_bind(&screenfb);
-        glClear(GL_COLOR_BUFFER_BIT);
-        render_scene(selected_camera);
-        unsigned attachments[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
-        glDrawBuffers(2, attachments);
-        framebuffer_bind(NULL);
     }
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, shadow_fb.texture->id);
     shader_set_int(&shader_main, "shadow_map", 4);
+
     render_scene(selected_camera);
     
     shader_use(&shader_main);
+    render_framebuffer();
     
     return 0;
 }

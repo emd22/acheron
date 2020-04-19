@@ -5,14 +5,18 @@
 
 #include <f3d/engine/image/texture.h>
 
+
 typedef struct {
     unsigned fbo;
-    //long texture_id;
+    unsigned depth_buffer;
+    
     texture_t *texture;
     int width, height;
     int bpp;
     int originx, originy;
 } framebuffer_t;
+
+extern framebuffer_t *default_framebuffer;
 
 framebuffer_t framebuffer_new(int width, int height, int attachment);
 void framebuffer_generate_texture(framebuffer_t *fb, int draw_type, int data_type, int type_size);

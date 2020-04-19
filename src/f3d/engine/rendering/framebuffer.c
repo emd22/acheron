@@ -7,6 +7,8 @@
 
 #include <stdio.h>
 
+framebuffer_t *default_framebuffer = NULL;
+
 framebuffer_t framebuffer_new(int width, int height, int attachment) {
     framebuffer_t fb;
 
@@ -44,8 +46,15 @@ void framebuffer_generate_texture(framebuffer_t *fb, int draw_type, int data_typ
 
 void framebuffer_bind(framebuffer_t *fb) {
     if (fb == NULL) {
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glViewport(0, 0, default_window->width, default_window->height);
+        int fbo = 0;
+        int width = default_window->width, height = default_window->height;
+        if (default_framebuffer != NULL) {
+            width = default_framebuffer->width;
+            height = default_framebuffer->height;
+            fbo = default_framebuffer->fbo;
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        glViewport(0, 0, width, height);
         return;
     }
     glBindFramebuffer(GL_FRAMEBUFFER, fb->fbo);
@@ -60,8 +69,6 @@ void framebuffer_texture(framebuffer_t *fb, int attachment) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, fb->texture->id, 0);
-
-    glDrawBuffer(GL_NONE);
 }
 
 void framebuffer_destroy(framebuffer_t *fb) {
