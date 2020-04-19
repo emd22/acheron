@@ -5,7 +5,9 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
-framebuffer_t framebuffer_new(int width, int height, int bpp, int attachment) {
+#include <stdio.h>
+
+framebuffer_t framebuffer_new(int width, int height, int attachment) {
     framebuffer_t fb;
 
     glGenFramebuffers(1, &fb.fbo);
@@ -21,10 +23,23 @@ framebuffer_t framebuffer_new(int width, int height, int bpp, int attachment) {
     fb.height = height;
     fb.originx = 0;
     fb.originy = 0;
-    fb.bpp = bpp;
-    log_msg(LOG_DEBUG, "%d\n", attachment);
+    
     framebuffer_texture(&fb, attachment);
+    
     return fb;
+}
+
+void framebuffer_generate_texture(framebuffer_t *fb, int draw_type, int data_type, int type_size) {
+    texture_t *tex = fb->texture;
+    tex->draw_type = draw_type;
+    tex->data_type = data_type;
+    
+    texture_set_data(tex, fb->width, fb->height, type_size, NULL);
+    
+    texture_set_parameter(tex, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    texture_set_parameter(tex, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    texture_set_parameter(tex, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    texture_set_parameter(tex, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
 
 void framebuffer_bind(framebuffer_t *fb) {

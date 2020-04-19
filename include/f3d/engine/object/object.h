@@ -48,6 +48,8 @@ void object_move(render_object_t *object, float x, float y, float z);
 void object_move_v(render_object_t *object, vector3f_t val);
 void object_rotate(render_object_t *object, float x, float y, float z);
 void object_rotate_v(render_object_t *object, vector3f_t val);
+void object_scale(render_object_t *object, float x, float y, float z);
+void object_scale_v(render_object_t *object, vector3f_t val);
 
 render_object_t *render_object_get(const char *name);
 void objects_sort(void);

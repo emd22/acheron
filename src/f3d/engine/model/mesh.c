@@ -108,13 +108,6 @@ void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, shader_t *shader)
     glBindVertexArray(mesh->vao);
     
     glDrawArrays(GL_TRIANGLES, 0, mesh->vertices->size*3);
-    
-
-    
-    if (!(mesh->flags & MESH_NO_TANGENTS)) {
-        glDisableVertexAttribArray(3);
-        glDisableVertexAttribArray(4);
-    }
 }
 
 void calculate_tangents(mesh_t *mesh) {

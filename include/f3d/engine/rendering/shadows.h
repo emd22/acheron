@@ -7,6 +7,7 @@
 #include <f3d/engine/rendering/framebuffer.h>
 
 extern framebuffer_t shadow_fb;
+extern camera_t shadow_cam;
 
 void shadows_init(int width, int height, vector3f_t direction, vector3f_t center);
 void shadows_update(vector3f_t direction, vector3f_t center);

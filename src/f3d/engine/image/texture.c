@@ -1,5 +1,6 @@
 #include <f3d/engine/image/texture.h>
 #include <f3d/engine/image/image.h>
+#include <f3d/engine/core/handles.h>
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/types.h>
 
@@ -13,6 +14,7 @@
 
 static texture_t textures[MAX_TEXTURES];
 static int textures_index = 0;
+static texture_t *bound_texture = NULL;
 
 texture_t *texture_new(void) {
     int index = textures_index++;
@@ -30,28 +32,37 @@ texture_t *texture_new(void) {
     // redundant
     texture->index = index;
 
-    texture->data_type = TEXTURE_TYPE_RGB;
-    texture->draw_type = TEXTURE_TYPE_RGBA;
-    texture->bpp = 24;
-    
-    texture->min_filter = GL_LINEAR_MIPMAP_LINEAR;
-    texture->mag_filter = GL_LINEAR;
+    texture->bind_type = GL_TEXTURE_2D;
+    texture->draw_type = GL_RGB;
+    texture->data_type = GL_RGB;
+    handle_call(HANDLE_ON_TEXTURE_LOAD, texture);
     
     return texture;
+}
+
+void texture_bind(texture_t *texture) {
+    if (bound_texture != NULL && bound_texture->id == texture->id)
+        return;
+    bound_texture = texture;
+    glBindTexture(texture->bind_type, texture->id);
 }
 
 void texture_init(texture_t *texture) {
     glGenTextures(1, &texture->id);
 }
 
-void texture_set_data(texture_t *texture, int width, int height, int bpp, unsigned char *data) {
-    texture->bpp = bpp;
+void texture_set_parameter(texture_t *texture, int parameter, int value) {
+    texture_bind(texture);
+    glTexParameteri(texture->bind_type, parameter, value);
+}
+
+void texture_set_data(texture_t *texture, int width, int height, int type_size, unsigned char *data) {
     texture->image.width = width;
     texture->image.height = height;
-    texture->bpp = bpp;
 
-    glBindTexture(GL_TEXTURE_2D, texture->id);
-    glTexImage2D(GL_TEXTURE_2D, 0, texture->draw_type, width, height, 0, texture->data_type, GL_UNSIGNED_BYTE, data);
+    texture_bind(texture);
+
+    glTexImage2D(texture->bind_type, 0, texture->draw_type, width, height, 0, texture->data_type, type_size, data);
 }
 
 texture_t *texture_load(texture_t *texture, const char *path, int type) {
@@ -70,24 +81,20 @@ texture_t *texture_load(texture_t *texture, const char *path, int type) {
     texture_set_data(
         texture,
         texture->image.width, texture->image.height,
-        texture->image.bpp,
-        texture->image.data 
+        GL_UNSIGNED_BYTE,
+        texture->image.data
     );
     
     // image data is already loaded into OpenGL, we no
     // longer need it in memory
     image_destroy(&texture->image);
     
-    // TODO: change these settings, preferably from the struct and
-    // an *_update function
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, texture->min_filter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, texture->mag_filter);
+    texture_set_parameter(texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    texture_set_parameter(texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    texture_set_parameter(texture, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    texture_set_parameter(texture, GL_TEXTURE_WRAP_T, GL_REPEAT);
     
-    if (texture->min_filter == GL_LINEAR_MIPMAP_LINEAR) {   
-        glGenerateMipmap(GL_TEXTURE_2D);
-    }
+    glGenerateMipmap(GL_TEXTURE_2D);
     
     return texture;
 }

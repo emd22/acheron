@@ -1,5 +1,6 @@
 #include <f3d/engine/object/material.h>
 #include <f3d/engine/rendering/shader.h>
+#include <f3d/engine/core/handles.h>
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/util.h>
 
@@ -13,17 +14,17 @@ material_t *material_new(material_t material) {
     memcpy(mat, &material, sizeof(material_t));
     mat->hash = util_hash_str(mat->name);
     log_msg(LOG_INFO, "Creating new material '%s'\n", mat->name);
+    
+    handle_call(HANDLE_ON_MATERIAL_LOAD, mat);
     return mat;
 }
 
 void material_update(material_t *mat, shader_t *shader) {
-    bool use_material = false;
     material_t dummy;
     // TODO: flat colours, etc.
     if (mat == NULL) {
         dummy.shininess = 32.0f;
-        dummy.use_normals = false;
-        dummy.use_specularmap = false;
+        dummy.flags = (MATERIAL_NO_NORMALMAP | MATERIAL_NO_SPECULARMAP | MATERIAL_NO_DIFFUSE);
         mat = &dummy;
         goto setup_material;
     }
@@ -31,26 +32,33 @@ void material_update(material_t *mat, shader_t *shader) {
         // assign diffuse to texture0 in fragment shader
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, mat->diffuse->id);
-        use_material = true;
     }
+    else
+        mat->flags |= MATERIAL_NO_DIFFUSE;
+        
     // assign specular
     if (mat->specular != NULL) {
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, mat->specular->id);
     }
+    else
+        mat->flags |= MATERIAL_NO_SPECULARMAP;
+    
     // assign normal
     if (mat->normal != NULL) {
         glActiveTexture(GL_TEXTURE2);
         glBindTexture(GL_TEXTURE_2D, mat->normal->id);
     }
-    (void)use_material;
+    else
+        mat->flags |= MATERIAL_NO_NORMALMAP;
+    
 setup_material:;
-    shader_set_int(shader, "material.use_normalmap", mat->use_normals);
-    shader_set_int(shader, "material.use_specularmap", mat->use_specularmap);
-    shader_set_int(shader, "material.use_diffuse", use_material);
-    shader_set_int(shader, "material.diffuse", 0);
+    shader_set_int(shader, "material.use_normalmap",   !(mat->flags & MATERIAL_NO_NORMALMAP));
+    shader_set_int(shader, "material.use_specularmap", !(mat->flags & MATERIAL_NO_SPECULARMAP));
+    shader_set_int(shader, "material.use_diffuse",     !(mat->flags & MATERIAL_NO_DIFFUSE));
+    shader_set_int(shader, "material.diffuse",  0);
     shader_set_int(shader, "material.specular", 1);
-    shader_set_int(shader, "material.normal", 2);
+    shader_set_int(shader, "material.normal",   2);
     shader_set_float(shader, "material.shininess", mat->shininess);
 }
 

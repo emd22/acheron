@@ -54,7 +54,7 @@ render_object_t *render_object_get(const char *name) {
     return NULL;
 }
 
-void object_scale(render_object_t *object) {
+void scale_object(render_object_t *object) {
     //int i;
     mat4_t *mat = &object->matrix;
     // x
@@ -83,6 +83,10 @@ void object_rotate_v(render_object_t *object, vector3f_t val) {
     object->rotation = val;
     object->flags |= RENDER_OBJECT_FLAG_UPDATE;
 }
+void object_scale_v(render_object_t *object, vector3f_t val) {
+    object->scale = val;
+    object->flags |= RENDER_OBJECT_FLAG_UPDATE;
+}
 
 void object_move(render_object_t *object, float x, float y, float z) {
     object_move_v(object, (vector3f_t){x, y, z});
@@ -90,6 +94,10 @@ void object_move(render_object_t *object, float x, float y, float z) {
 
 void object_rotate(render_object_t *object, float x, float y, float z) {
     object_rotate_v(object, (vector3f_t){x, y, z});
+}
+
+void object_scale(render_object_t *object, float x, float y, float z) {
+    object_scale_v(object, (vector3f_t){x, y, z});
 }
 
 void object_update(render_object_t *object) {
@@ -101,7 +109,7 @@ void object_update(render_object_t *object) {
     object->matrix = mat4_rotate_y(object->matrix, object->rotation.y);
     object->matrix = mat4_rotate_z(object->matrix, object->rotation.z);
     
-    object_scale(object);
+    scale_object(object);
 }
 
 void object_attach(render_object_t *object, int type, void *data) {
@@ -131,7 +139,6 @@ int compare_materials(const void *v1, const void *v2) {
 void objects_sort(void) {
     qsort(render_objects, render_objects_index, sizeof(render_object_t), &compare_materials);
 }
-
 
 void objects_draw(shader_t *shader, camera_t *camera) {
     int i;

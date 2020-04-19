@@ -33,6 +33,7 @@ vector3f_t velocity;
 camera_t camera;
 shader_t shader_main, shader_depth;
 cubemap_t cubemap;
+framebuffer_t screenfb;
 
 int init(void) {
     game_init();
@@ -72,7 +73,6 @@ void init_gl() {
         shader_load("../shaders/m_vert.glsl", SHADER_VERTEX),
         shader_load("../shaders/m_frag.glsl", SHADER_FRAGMENT)
     );
-    
     shader_depth = shaders_link(
         "Depth",
         shader_load("../shaders/depth_vert.glsl", SHADER_VERTEX),
@@ -84,7 +84,7 @@ void init_gl() {
     camera = camera_new();
     camera.move_speed = 6.0f;
     camera.position = (vector3f_t){2, 3, -5};
-    
+
     load_models();
     
     // select camera to be default and calculate perspective matrix
@@ -115,6 +115,7 @@ void init_gl() {
     window_set_mouse_mode(WINDOW_MOUSE_DISABLED);    
 }
 
+
 void setup_handles() {
     handle_set(HANDLE_END, &on_end);
     handle_set(HANDLE_DRAW, &on_draw);
@@ -143,9 +144,8 @@ int move() {
         moved = 1;
     }
     if (controls_check_toggle(CONTROL_1)) {
-        stone->use_normals = !stone->use_normals;
+        stone->flags ^= MATERIAL_NO_NORMALMAP;
         material_update(stone, &shader_main);
-
     }
     if (controls_check_toggle(CONTROL_2)) {
         static bool wireframe = false;
@@ -256,35 +256,51 @@ int on_end(void *arg){
 }
 
 void load_models() {
+    screenfb = framebuffer_new(100, 100, GL_COLOR_ATTACHMENT0);
+    framebuffer_bind(&screenfb);
+    framebuffer_generate_texture(&screenfb, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
+    
     stone = material_new((material_t){
         "Stone", 0,
         texture_load(NULL, "../images/stone.bmp", IMAGE_BMP),
         texture_load(NULL, "../images/stone_spec.bmp", IMAGE_BMP),
         texture_load(NULL, "../images/stone_normal.bmp", IMAGE_BMP),
-        true, false, 32.0f
+        32.0f, 0
     });
-    
     brick = material_new((material_t){
         "Brick", 0,
         texture_load(NULL, "../images/brick.bmp", IMAGE_BMP),
         texture_load(NULL, "../images/brick_spec.bmp", IMAGE_BMP),
         texture_load(NULL, "../images/brick_normal.bmp", IMAGE_BMP),
-        true, false, 32.0f
+        32.0f, 0
     });
+    
+    material_t *plain = material_new((material_t){
+        "Plain", 0,
+        screenfb.texture,
+        NULL,
+        NULL,
+        32.0f, 0
+    });
+    
+    texture_set_parameter(plain->diffuse, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    texture_set_parameter(plain->diffuse, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    texture_set_parameter(plain->diffuse, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    texture_set_parameter(plain->diffuse, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     render_object_t *level = object_new("Level");
     object_attach(level, OBJECT_ATTACH_MESH, mesh_load("../models/wall.obj", MODEL_OBJ, 0));
-    object_attach(level, OBJECT_ATTACH_MATERIAL, stone);
+    object_attach(level, OBJECT_ATTACH_MATERIAL, brick);
     object_rotate(level, 1.57, 0.0f, 0.0f);
     object_move(level, 0, 0, -5);
 
     render_object_t *wall = object_new("Wall");
     object_attach(wall, OBJECT_ATTACH_MESH, level->mesh);
-    object_attach(wall, OBJECT_ATTACH_MATERIAL, brick);
+    object_attach(wall, OBJECT_ATTACH_MATERIAL, plain);
 
     render_object_t *box = object_new("Box");
     object_attach(box, OBJECT_ATTACH_MESH, mesh_load("../models/cube.obj", MODEL_OBJ, 0));
-    object_attach(box, OBJECT_ATTACH_MATERIAL, NULL);
+    object_attach(box, OBJECT_ATTACH_MATERIAL, stone);
     object_move(box, 0, 2, 0);
     
     light = light_new(LIGHT_DIRECTIONAL);
@@ -311,7 +327,14 @@ int on_draw(void *arg) {
     shader_use(&shader_main);
     // update every second frame
     if (!(frames_rendered % 2)) {
-        shadows_render(&shader_main, &shader_depth);    
+        shadows_render(&shader_main, &shader_depth);
+        
+        framebuffer_bind(&screenfb);
+        glClear(GL_COLOR_BUFFER_BIT);
+        render_scene(selected_camera);
+        unsigned attachments[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
+        glDrawBuffers(2, attachments);
+        framebuffer_bind(NULL);
     }
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, shadow_fb.texture->id);

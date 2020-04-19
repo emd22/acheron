@@ -8,7 +8,7 @@
 #include <f3d/engine/types.h>
 
 framebuffer_t shadow_fb;
-static camera_t shadow_cam;
+camera_t shadow_cam;
 static mat4_t shadow_mat_vp;
 static mat4_t shadow_mat_bias;
 
@@ -25,18 +25,10 @@ void generate_vp(vector3f_t direction, vector3f_t center) {
 }
 
 void shadows_init(int width, int height, vector3f_t direction, vector3f_t center) {
-    shadow_fb = framebuffer_new(width, height, 16, GL_DEPTH_ATTACHMENT);
+    shadow_fb = framebuffer_new(width, height, GL_DEPTH_ATTACHMENT);
     framebuffer_bind(&shadow_fb);
-    texture_t *tex = shadow_fb.texture;
-    tex->draw_type = TEXTURE_TYPE_DEPTH16;
-    tex->data_type = TEXTURE_TYPE_DEPTH;
     // make a 16 bit texture with using depth parameters
-    glBindTexture(GL_TEXTURE_2D, tex->id);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    framebuffer_generate_texture(&shadow_fb, GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_FLOAT);
     
     // projection
     generate_vp(direction, center);

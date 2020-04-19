@@ -1,4 +1,5 @@
 #include <f3d/engine/rendering/shader.h>
+#include <f3d/engine/core/handles.h>
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/engine.h>
 
@@ -43,6 +44,8 @@ shader_t shaders_link(const char *name, unsigned shader0, unsigned shader1) {
     // delete child shaders
     glDeleteShader(shader0);
     glDeleteShader(shader1);
+    
+    handle_call(HANDLE_ON_SHADER_LOAD, (char *)name);
     
     return program;
 }

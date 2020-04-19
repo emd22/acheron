@@ -9,6 +9,10 @@
 
 #include <stdbool.h>
 
+#define MATERIAL_NO_DIFFUSE     0x01
+#define MATERIAL_NO_SPECULARMAP 0x02
+#define MATERIAL_NO_NORMALMAP   0x04
+
 typedef struct {
     char name[32];
     hash_t hash;
@@ -16,10 +20,9 @@ typedef struct {
     texture_t *diffuse;
     texture_t *specular;
     texture_t *normal;
-
-    bool use_normals;
-    bool use_specularmap;
+    
     float shininess;
+    int flags;
 } material_t;
 
 material_t *material_new(material_t material);
