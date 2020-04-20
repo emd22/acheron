@@ -9,9 +9,16 @@
 
 #include <stdbool.h>
 
-#define MATERIAL_NO_DIFFUSE     0x01
-#define MATERIAL_NO_SPECULARMAP 0x02
-#define MATERIAL_NO_NORMALMAP   0x04
+#define MATERIAL_UPDATE         0x01
+#define MATERIAL_NO_DIFFUSE     0x02
+#define MATERIAL_NO_SPECULARMAP 0x04
+#define MATERIAL_NO_NORMALMAP   0x10
+
+enum {
+    MATERIAL_DIFFUSE,
+    MATERIAL_SPECULARMAP,
+    MATERIAL_NORMALMAP,
+};
 
 typedef struct {
     char name[32];

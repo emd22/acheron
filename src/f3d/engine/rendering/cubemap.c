@@ -6,20 +6,18 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
-shader_t shader_cubemap;
+shader_t *shader_cubemap;
 
 void cubemaps_init() {
-    shader_cubemap = shaders_link(
-        "Cubemap",
-        shader_load("../shaders/cubemap_vert.glsl", SHADER_VERTEX),
-        shader_load("../shaders/cubemap_frag.glsl", SHADER_FRAGMENT)
-    );
-
+    shader_cubemap = shader_new("Cubemap");
+    shader_attach(shader_cubemap, SHADER_VERTEX, "../shaders/cubemap_vert.glsl");
+    shader_attach(shader_cubemap, SHADER_FRAGMENT, "../shaders/cubemap_frag.glsl");
+    shader_link(shader_cubemap);
 }
 
 void cubemap_init(cubemap_t *cubemap, texture_t **textures) {
     const float cubemap_vertices[] = {
-        // positions          // texture Coords
+        // positions // texture Coords
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
          0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
          0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
@@ -101,7 +99,7 @@ void cubemap_render(cubemap_t *cubemap, camera_t *camera) {
     //glDepthMask(0);
     //glDisable(GL_CULL_FACE);
     //glDepthFunc(GL_LEQUAL);
-    //shader_use(&shader_cubemap);
+    //shader_use(shader_cubemap);
     //glBindVertexArray(cubemap->vao);
     
     
@@ -114,9 +112,9 @@ void cubemap_render(cubemap_t *cubemap, camera_t *camera) {
     //glVertexAttribPointer(1, 2, GL_FLOAT, 0, 5*sizeof(float), (void *)(3*sizeof(float)));
     //glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->map->id);
     
-    //shader_set_mat4(&shader_cubemap, "projection", &camera->mat_projection);
-    //shader_set_mat4(&shader_cubemap, "view", &camera->mat_view);
-    //shader_set_mat4(&shader_cubemap, "model", &model_mat);
+    //shader_set_mat4(shader_cubemap, "projection", &camera->mat_projection);
+    //shader_set_mat4(shader_cubemap, "view", &camera->mat_view);
+    //shader_set_mat4(shader_cubemap, "model", &model_mat);
     
     //glDrawArrays(GL_TRIANGLES, 0, 36);
     //glDisableVertexAttribArray(0);

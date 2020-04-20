@@ -34,6 +34,7 @@ typedef struct {
     unsigned tangent_id, bitangent_id;   
 } mesh_t;
 
+void meshes_init(void);
 mesh_t *mesh_load(const char *path, int type, int flags);
 void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, shader_t *shader);
 void meshes_cleanup(void);

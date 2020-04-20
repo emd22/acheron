@@ -8,16 +8,16 @@ struct {
     unsigned vbo;
 } skybox;
 
-shader_t shader_skybox;
+shader_t *shader_skybox;
 //unsigned skybox_vao;
 
 void skybox_init(cubemap_t *cubemap) {
     skybox.cubemap = cubemap;
-    shader_skybox = shaders_link(
-        "Skybox",
-        shader_load("../shaders/skybox_vert.glsl", SHADER_VERTEX),
-        shader_load("../shaders/skybox_frag.glsl", SHADER_FRAGMENT)
-    );
+    shader_skybox = shader_new("Skybox");
+    shader_attach(shader_skybox, SHADER_VERTEX, "../shaders/skybox_vert.glsl");
+    shader_attach(shader_skybox, SHADER_FRAGMENT, "../shaders/skybox_frag.glsl");
+    shader_link(shader_skybox);
+
     const float skybox_vertices[] = {
         // positions          
         -1.0f,  1.0f, -1.0f,
@@ -63,7 +63,7 @@ void skybox_init(cubemap_t *cubemap) {
          1.0f, -1.0f,  1.0f
     };
     
-    shader_use(&shader_skybox);
+    shader_use(shader_skybox);
     glGenVertexArrays(1, &skybox.vao);
     glGenBuffers(1, &skybox.vbo);
     glBindVertexArray(skybox.vao);
@@ -81,9 +81,9 @@ void skybox_render(camera_t *camera) {
     //glDepthMask(0);
     glDisable(GL_CULL_FACE);
     glDepthFunc(GL_LEQUAL);
-    shader_use(&shader_skybox);
-    shader_set_mat4(&shader_skybox, "projection", &camera->mat_projection);
-    shader_set_mat4(&shader_skybox, "view", &camera->mat_view);
+    shader_use(shader_skybox);
+    shader_set_mat4(shader_skybox, "projection", &camera->mat_projection);
+    shader_set_mat4(shader_skybox, "view", &camera->mat_view);
     
     //cubemap_render(skybox.cubemap, camera);
     glBindVertexArray(skybox.vao);
@@ -91,7 +91,7 @@ void skybox_render(camera_t *camera) {
     
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.cubemap->map->id);
-    shader_set_int(&shader_skybox, "skybox", 0);
+    shader_set_int(shader_skybox, "skybox", 0);
     
     glDrawArrays(GL_TRIANGLES, 0, 36);
     

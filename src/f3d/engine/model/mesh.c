@@ -12,16 +12,19 @@
 
 #define MAX_MESHES 128
 
-static mesh_t *meshes[MAX_MESHES];
+static mesh_t *meshes;
 static int meshes_index = 0;
 
 void calculate_tangents(mesh_t *mesh);
 
+void meshes_init(void) {
+    meshes = malloc(sizeof(mesh_t)*MAX_MESHES);
+}
+
 mesh_t *mesh_load(const char *path, int type, int flags) {
-    mesh_t *mesh = malloc(sizeof(mesh_t));
-    mesh->type = type;
     int index = meshes_index++;
-    meshes[index] = mesh;
+    mesh_t *mesh = &meshes[index];
+    mesh->type = type;
     mesh->index = index;
     
     if (type == MODEL_OBJ) {
@@ -175,9 +178,9 @@ void calculate_tangents(mesh_t *mesh) {
 void meshes_cleanup(void) {
     int i;
     for (i = 0; i < meshes_index; i++) {
-        mesh_destroy(meshes[i]);
-        free(meshes[i]);
+        mesh_destroy(&meshes[i]);
     }
+    free(meshes);
 }
 
 void mesh_destroy(mesh_t *mesh) {

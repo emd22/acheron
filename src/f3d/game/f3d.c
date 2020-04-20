@@ -31,7 +31,7 @@ material_t *brick, *stone;
 light_t *light;
 vector3f_t velocity;
 camera_t camera;
-shader_t shader_main, shader_depth;
+shader_t *shader_main, *shader_depth;
 cubemap_t cubemap;
 framebuffer_t screenfb;
 
@@ -68,18 +68,19 @@ void init_gl() {
     glClearColor(0.0, 0.0, 0.0, 1);
     glViewport(0, 0, window.width, window.height);
     
-    shader_main = shaders_link(
-        "Main",
-        shader_load("../shaders/m_vert.glsl", SHADER_VERTEX),
-        shader_load("../shaders/m_frag.glsl", SHADER_FRAGMENT)
-    );
-    shader_depth = shaders_link(
-        "Depth",
-        shader_load("../shaders/depth_vert.glsl", SHADER_VERTEX),
-        shader_load("../shaders/depth_frag.glsl", SHADER_FRAGMENT)
-    );
+    meshes_init();
     
-    shader_use(&shader_main);
+    shader_main = shader_new("Main");
+    shader_attach(shader_main, SHADER_VERTEX, "../shaders/m_vert.glsl");
+    shader_attach(shader_main, SHADER_FRAGMENT, "../shaders/m_frag.glsl");
+    shader_link(shader_main);
+    
+    shader_depth = shader_new("Depth");
+    shader_attach(shader_depth, SHADER_VERTEX, "../shaders/depth_vert.glsl");
+    shader_attach(shader_depth, SHADER_FRAGMENT, "../shaders/depth_frag.glsl");
+    shader_link(shader_depth);  
+
+    shader_use(shader_main);
 
     camera = camera_new();
     camera.move_speed = 6.0f;
@@ -145,7 +146,7 @@ int move() {
     }
     if (controls_check_toggle(CONTROL_1)) {
         stone->flags ^= MATERIAL_NO_NORMALMAP;
-        material_update(stone, &shader_main);
+        material_update(stone, shader_main);
     }
     if (controls_check_toggle(CONTROL_2)) {
         static bool wireframe = false;
@@ -211,8 +212,8 @@ int main() {
     SDL_Event event;
     time_init();
     
-    shader_use(&shader_main);
-    shader_use(&shader_depth);
+    shader_use(shader_main);
+    shader_use(shader_depth);
     
     shadows_init(2048, 2048, light->direction, (vector3f_t){0, 0, 0});
    
@@ -222,11 +223,11 @@ int main() {
         while (SDL_PollEvent(&event))
             check_event(&event);
             
-        shader_use(&shader_main);
+        shader_use(shader_main);
         move();
         
         camera_update(selected_camera);
-        shader_set_vec3f(&shader_main, "view_pos", selected_camera->position);
+        shader_set_vec3f(shader_main, "view_pos", selected_camera->position);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         handle_call(HANDLE_DRAW, NULL);
         window_buffers_swap(&window);
@@ -240,8 +241,8 @@ int main() {
 
 int on_end(void *arg){
     (void)arg;
-    shader_destroy(&shader_depth);
-    shader_destroy(&shader_main);
+    shader_destroy(shader_depth);
+    shader_destroy(shader_main);
     window_destroy(&window);
     
     meshes_cleanup();
@@ -308,7 +309,7 @@ void load_models() {
     light->ambient   = (vector3f_t){0.02f, 0.02f,  0.02f};
     light->diffuse   = (vector3f_t){0.15f, 0.15f,  0.15f};
     light->specular  = (vector3f_t){0.8f,  0.8f,   0.8f};
-    light_init(light, &shader_main);
+    light_init(light, shader_main);
     
     objects_sort();
     default_framebuffer = NULL;
@@ -322,8 +323,8 @@ void load_models() {
 int render_scene(void *arg) {
     camera_t *cam = (camera_t *)arg;
     skybox_render(&camera);
-    shader_use(&shader_main);
-    objects_draw(&shader_main, cam);
+    shader_use(shader_main);
+    objects_draw(shader_main, cam);
     return 0;
 }
 
@@ -345,18 +346,18 @@ void render_framebuffer(void) {
 int on_draw(void *arg) {
     (void)arg;
     //cubemap_render(&cubemap, &camera);
-    shader_use(&shader_main);
+    shader_use(shader_main);
     // update every second frame
     if (!(frames_rendered % 2)) {
-        shadows_render(&shader_main, &shader_depth);
+        shadows_render(shader_main, shader_depth);
     }
     glActiveTexture(GL_TEXTURE4);
     glBindTexture(GL_TEXTURE_2D, shadow_fb.texture->id);
-    shader_set_int(&shader_main, "shadow_map", 4);
+    shader_set_int(shader_main, "shadow_map", 4);
 
     render_scene(selected_camera);
     
-    shader_use(&shader_main);
+    shader_use(shader_main);
     render_framebuffer();
     
     return 0;

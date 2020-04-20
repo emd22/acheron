@@ -19,6 +19,10 @@ material_t *material_new(material_t material) {
     return mat;
 }
 
+void material_attach() {
+
+}
+
 void material_update(material_t *mat, shader_t *shader) {
     material_t dummy;
     // TODO: flat colours, etc.

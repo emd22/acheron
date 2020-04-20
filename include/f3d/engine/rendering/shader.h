@@ -2,6 +2,7 @@
 #define F3D_SHADER_H
 
 #include <f3d/engine/types.h>
+#include <f3d/engine/util.h>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -10,16 +11,22 @@
 #define SHADER_FRAGMENT GL_FRAGMENT_SHADER
 
 #define MAX_UNIFORMS 512
+#define MAX_SHADERS 16
 
 typedef struct {
     char name[32];
-    unsigned id;
+    hash_t hash;
+    
+    long vertex, fragment;
+    long program;
 } shader_t;
 
-unsigned shader_load(const char *path, int type);
-shader_t shaders_link(const char *name, unsigned shader0, unsigned shader1);
-void shader_use(shader_t *shader);
+shader_t *shader_new(const char *name);
+void shader_attach(shader_t *shader, int type, const char *path);
+void shader_link(shader_t *shader);
+shader_t *shader_get(const char *name);
 void shader_destroy(shader_t *shader);
+void shader_use(shader_t *shader);
 
 void shader_set_int(shader_t *shader, const char *var, int val);
 void shader_set_float(shader_t *shader, const char *var, float val);
