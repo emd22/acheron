@@ -9,7 +9,7 @@
 
 framebuffer_t *default_framebuffer = NULL;
 
-framebuffer_t framebuffer_new(int width, int height, int attachment) {
+framebuffer_t framebuffer_new(int width, int height, int attachment, bool depth_buffer) {
     framebuffer_t fb;
 
     glGenFramebuffers(1, &fb.fbo);
@@ -27,6 +27,15 @@ framebuffer_t framebuffer_new(int width, int height, int attachment) {
     fb.originy = 0;
     
     framebuffer_texture(&fb, attachment);
+    
+    if (depth_buffer) {
+        glGenRenderbuffers(1, &fb.depth_buffer);
+        glBindRenderbuffer(GL_RENDERBUFFER, fb.depth_buffer);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width, height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, fb.depth_buffer);
+    }
+    else
+        fb.depth_buffer = 0;
     
     return fb;
 }

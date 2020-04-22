@@ -35,7 +35,8 @@ typedef struct {
 } mesh_t;
 
 void meshes_init(void);
-mesh_t *mesh_load(const char *path, int type, int flags);
+mesh_t *mesh_new(void);
+mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags);
 void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, shader_t *shader);
 void meshes_cleanup(void);
 void mesh_destroy(mesh_t *mesh);

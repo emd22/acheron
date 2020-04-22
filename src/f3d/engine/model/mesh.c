@@ -21,12 +21,18 @@ void meshes_init(void) {
     meshes = malloc(sizeof(mesh_t)*MAX_MESHES);
 }
 
-mesh_t *mesh_load(const char *path, int type, int flags) {
+mesh_t *mesh_new(void) {
     int index = meshes_index++;
     mesh_t *mesh = &meshes[index];
-    mesh->type = type;
+    mesh->type = MODEL_NONE;
     mesh->index = index;
-    
+    return mesh;    
+}
+
+mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags) {
+    if (mesh == NULL)
+        mesh = mesh_new();
+        
     if (type == MODEL_OBJ) {
         mesh->obj = malloc(sizeof(obj_model_t));
         obj_model_t obj = obj_load(path);
@@ -102,7 +108,7 @@ mesh_t *mesh_load(const char *path, int type, int flags) {
 }
 
 void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, shader_t *shader) {
-    if (camera != NULL) {
+    if (camera != NULL && matrix != NULL && shader != NULL) {
         shader_set_mat4(shader, "m", matrix);
         shader_set_mat4(shader, "v", &camera->mat_view);
         shader_set_mat4(shader, "p", &camera->mat_projection);    

@@ -25,7 +25,7 @@ void generate_vp(vector3f_t direction, vector3f_t center) {
 }
 
 void shadows_init(int width, int height, vector3f_t direction, vector3f_t center) {
-    shadow_fb = framebuffer_new(width, height, GL_DEPTH_ATTACHMENT);
+    shadow_fb = framebuffer_new(width, height, GL_DEPTH_ATTACHMENT, false);
     framebuffer_bind(&shadow_fb);
     // make a 16 bit texture with using depth parameters
     framebuffer_generate_texture(&shadow_fb, GL_DEPTH_COMPONENT16, GL_DEPTH_COMPONENT, GL_FLOAT);
@@ -51,19 +51,21 @@ void shadows_update(vector3f_t direction, vector3f_t center) {
 }
 
 void shadows_render(shader_t *shader_main, shader_t *shader_depth) {
-    render_set_target(RENDER_TARGET_FRAMEBUFFER, &shadow_fb);
+    //render_set_target(RENDER_TARGET_FRAMEBUFFER, &shadow_fb);
+    framebuffer_bind(&shadow_fb);
     shader_set_mat4(shader_main, "shadow_bias", &shadow_mat_bias);
     shader_use(shader_depth);
     shader_set_mat4(shader_depth, "depth_mvp", &shadow_mat_vp);
     
-    glClear(GL_DEPTH_BUFFER_BIT);
+    //glClear(GL_DEPTH_BUFFER_BIT);
     shader_use(shader_main);
     //glCullFace(GL_FRONT);
     handle_call(HANDLE_RENDER_MESHES, &shadow_cam);
     //glCullFace(GL_BACK);
     framebuffer_texture(&shadow_fb, GL_DEPTH_ATTACHMENT);
     shader_use(shader_main);
-    render_set_target(RENDER_TARGET_FRAMEBUFFER, NULL);
+    framebuffer_bind(NULL);
+    //render_set_target(RENDER_TARGET_FRAMEBUFFER, NULL);
 }
 
 void shadows_destroy() {

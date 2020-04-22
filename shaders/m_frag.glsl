@@ -1,4 +1,4 @@
-#version 420 core
+﻿#version 420 core
 
 // https://learnopengl.com/Lighting/Multiple-lights
 
@@ -74,7 +74,7 @@ void main() {
     //bias = clamp(bias, 0, 0.01);
     float visibility = 1.0f;
     if (texture(shadow_map, frag_shadow_coords.xy).x < frag_shadow_coords.z-bias) {
-        visibility = 0.2;
+    visibility = 0.2;
     }
     
     vec3 result = vec3(0);

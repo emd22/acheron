@@ -7,6 +7,7 @@
 #include <signal.h>
 
 #include <f3d/engine/engine.h>
+#include <f3d/engine/rendering/render.h>
 
 #include <f3d/game/game.h>
 
@@ -22,18 +23,14 @@ void load_models();
 int on_draw(void *arg);
 void check_mouse(double xrel, double yrel);
 void check_event(SDL_Event *event);
-int render_scene(void *arg);
 int on_end(void *arg);
 
 window_t window;
 material_t *brick, *stone;
-//object_t *wall, *level, *box;
 light_t *light;
-vector3f_t velocity;
 camera_t camera;
-shader_t *shader_main, *shader_depth;
-cubemap_t cubemap;
-framebuffer_t screenfb;
+
+scene_t *scene;
 
 int init(void) {
     game_init();
@@ -46,7 +43,7 @@ int init(void) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     
-    window = window_new("Ethan's 3D Engine", 1400, 900, 0);
+    window = window_new("Ethan's 3D Engine", 700, 700, 0);
     default_window = &window;
     
     glewExperimental = GL_TRUE;
@@ -69,17 +66,8 @@ void init_gl() {
     glViewport(0, 0, window.width, window.height);
     
     meshes_init();
+    render_init();
     
-    shader_main = shader_new("Main");
-    shader_attach(shader_main, SHADER_VERTEX, "../shaders/m_vert.glsl");
-    shader_attach(shader_main, SHADER_FRAGMENT, "../shaders/m_frag.glsl");
-    shader_link(shader_main);
-    
-    shader_depth = shader_new("Depth");
-    shader_attach(shader_depth, SHADER_VERTEX, "../shaders/depth_vert.glsl");
-    shader_attach(shader_depth, SHADER_FRAGMENT, "../shaders/depth_frag.glsl");
-    shader_link(shader_depth);  
-
     shader_use(shader_main);
 
     camera = camera_new();
@@ -98,19 +86,6 @@ void init_gl() {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     
-    texture_t *textures[] = {
-        texture_load_data(NULL, "../images/skybox/right.bmp", IMAGE_BMP),
-        texture_load_data(NULL, "../images/skybox/left.bmp", IMAGE_BMP),
-        texture_load_data(NULL, "../images/skybox/down.bmp", IMAGE_BMP),
-        texture_load_data(NULL, "../images/skybox/up.bmp", IMAGE_BMP),
-        texture_load_data(NULL, "../images/skybox/front.bmp", IMAGE_BMP),
-        texture_load_data(NULL, "../images/skybox/back.bmp", IMAGE_BMP)
-    };
-    cubemaps_init();
-    cubemap_init(&cubemap, textures);
-    
-    skybox_init(&cubemap);
-    
     glEnable(GL_CULL_FACE);
     // disable mouse cursor
     window_set_mouse_mode(WINDOW_MOUSE_DISABLED);    
@@ -120,12 +95,12 @@ void init_gl() {
 void setup_handles() {
     handle_set(HANDLE_END, &on_end);
     handle_set(HANDLE_DRAW, &on_draw);
-    handle_set(HANDLE_RENDER_MESHES, &render_scene);
 }
 
 int move() {
     int moved = 0;
     
+    static vector3f_t velocity;
     const float max_velocity = 1.0f;
     
     if (keys[CONTROL_FORWARD].pressed) {
@@ -201,11 +176,17 @@ int move() {
 
 int main() {
     init();
-    velocity = (vector3f_t){0, 0, 0};
     handles_init();
     setup_handles();
     init_gl();
     handle_call(HANDLE_INIT, NULL);
+    shadows_init(2048, 2048, light->direction, (vector3f_t){0, 0, 0});
+    
+    scene = scene_new("Scene");
+    scene_new_view(scene, &camera, 100, 100, GL_COLOR_ATTACHMENT0);
+    render_view_t *view2;
+    view2 = scene_new_view(scene, &shadow_cam, 100, 100, GL_COLOR_ATTACHMENT0);
+    view2->dest_position.x = 100;
     
     engine_setup_signals();
    
@@ -214,8 +195,6 @@ int main() {
     
     shader_use(shader_main);
     shader_use(shader_depth);
-    
-    shadows_init(2048, 2048, light->direction, (vector3f_t){0, 0, 0});
    
     log_msg(LOG_INFO, "Buffer usage: %.01fKB\n", (double)buffer_total_used/1024.0);
     while (game_info.flags & GAME_IS_RUNNING) {
@@ -229,6 +208,7 @@ int main() {
         camera_update(selected_camera);
         shader_set_vec3f(shader_main, "view_pos", selected_camera->position);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //render_all();
         handle_call(HANDLE_DRAW, NULL);
         window_buffers_swap(&window);
 
@@ -241,8 +221,8 @@ int main() {
 
 int on_end(void *arg){
     (void)arg;
-    shader_destroy(shader_depth);
-    shader_destroy(shader_main);
+    //shader_destroy(shader_depth);
+    //shader_destroy(shader_main);
     window_destroy(&window);
     
     meshes_cleanup();
@@ -257,10 +237,6 @@ int on_end(void *arg){
 }
 
 void load_models() {
-    screenfb = framebuffer_new(window.width, window.height, GL_COLOR_ATTACHMENT0);
-    framebuffer_bind(&screenfb);
-    framebuffer_generate_texture(&screenfb, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
-    
     stone = material_new((material_t){
         "Stone", 0,
         texture_load(NULL, "../images/stone.bmp", IMAGE_BMP),
@@ -275,22 +251,9 @@ void load_models() {
         texture_load(NULL, "../images/brick_normal.bmp", IMAGE_BMP),
         32.0f, 0
     });
-    
-    material_t *plain = material_new((material_t){
-        "Plain", 0,
-        screenfb.texture,
-        NULL,
-        NULL,
-        32.0f, 0
-    });
-    
-    texture_set_parameter(plain->diffuse, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    texture_set_parameter(plain->diffuse, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    texture_set_parameter(plain->diffuse, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    texture_set_parameter(plain->diffuse, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
     render_object_t *level = object_new("Level");
-    object_attach(level, OBJECT_ATTACH_MESH, mesh_load("../models/wall.obj", MODEL_OBJ, 0));
+    object_attach(level, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/wall.obj", MODEL_OBJ, 0));
     object_attach(level, OBJECT_ATTACH_MATERIAL, brick);
     object_rotate(level, 1.57, 0.0f, 0.0f);
     object_move(level, 0, 0, -5);
@@ -300,7 +263,7 @@ void load_models() {
     object_attach(wall, OBJECT_ATTACH_MATERIAL, stone);
 
     render_object_t *box = object_new("Box");
-    object_attach(box, OBJECT_ATTACH_MESH, mesh_load("../models/cube.obj", MODEL_OBJ, 0));
+    object_attach(box, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/cube.obj", MODEL_OBJ, 0));
     object_attach(box, OBJECT_ATTACH_MATERIAL, stone);
     object_move(box, 0, 2, 0);
     
@@ -313,52 +276,12 @@ void load_models() {
     
     objects_sort();
     default_framebuffer = NULL;
-    
-    glGenRenderbuffers(1, &screenfb.depth_buffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, screenfb.depth_buffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, screenfb.width, screenfb.height);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, screenfb.depth_buffer);
-}
-
-int render_scene(void *arg) {
-    camera_t *cam = (camera_t *)arg;
-    skybox_render(&camera);
-    shader_use(shader_main);
-    objects_draw(shader_main, cam);
-    return 0;
-}
-
-void render_framebuffer(void) {
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, screenfb.fbo);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    render_scene(selected_camera);
-    unsigned attachments[] = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1};
-    glDrawBuffers(2, attachments);
-    
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, screenfb.fbo);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-    glBlitFramebuffer(0, 0, screenfb.width, screenfb.height, window.width-window.width/3, 0, window.width, window.height/3, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
  
 int on_draw(void *arg) {
     (void)arg;
-    //cubemap_render(&cubemap, &camera);
-    shader_use(shader_main);
-    // update every second frame
-    if (!(frames_rendered % 2)) {
-        shadows_render(shader_main, shader_depth);
-    }
-    glActiveTexture(GL_TEXTURE4);
-    glBindTexture(GL_TEXTURE_2D, shadow_fb.texture->id);
-    shader_set_int(shader_main, "shadow_map", 4);
-
-    render_scene(selected_camera);
     
-    shader_use(shader_main);
-    render_framebuffer();
+    render_all();
     
     return 0;
 }
@@ -380,14 +303,6 @@ void check_event(SDL_Event *event) {
     else if (event->type == SDL_KEYUP) {
         controls_handle_keyup(event->key.keysym.sym);
     }
-    /*else if (event->type == SDL_MOUSEBUTTONDOWN) {
-        camera.fov = 25.0f;
-        camera_select(&camera);
-    }
-    else if (event->type == SDL_MOUSEBUTTONUP) {
-        camera.fov = 75.0f;
-        camera_select(&camera);
-    }*/
     else if (event->type == SDL_MOUSEMOTION) {
         check_mouse(event->motion.xrel, event->motion.yrel);
     }

@@ -95,7 +95,6 @@ long load_shader(const char *path, int type) {
     glShaderSource(shader_id, 1, (const char **)&data, NULL);
     glCompileShader(shader_id);
     free(data);
-    
     check_status(shader_id, type);
     return shader_id;
 }

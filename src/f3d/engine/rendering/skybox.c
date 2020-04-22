@@ -2,98 +2,40 @@
 #include <f3d/engine/rendering/cubemap.h>
 #include <f3d/engine/core/log.h>
 
-struct {
-    cubemap_t *cubemap;
-    unsigned vao;
-    unsigned vbo;
-} skybox;
-
-shader_t *shader_skybox;
+shader_t *shader_skybox = NULL;
 //unsigned skybox_vao;
 
-void skybox_init(cubemap_t *cubemap) {
-    skybox.cubemap = cubemap;
-    shader_skybox = shader_new("Skybox");
-    shader_attach(shader_skybox, SHADER_VERTEX, "../shaders/skybox_vert.glsl");
-    shader_attach(shader_skybox, SHADER_FRAGMENT, "../shaders/skybox_frag.glsl");
-    shader_link(shader_skybox);
-
-    const float skybox_vertices[] = {
-        // positions          
-        -1.0f,  1.0f, -1.0f,
-        -1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
-
-        -1.0f, -1.0f,  1.0f,
-        -1.0f, -1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f, -1.0f,
-        -1.0f,  1.0f,  1.0f,
-        -1.0f, -1.0f,  1.0f,
-
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-
-        -1.0f, -1.0f,  1.0f,
-        -1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f, -1.0f,  1.0f,
-        -1.0f, -1.0f,  1.0f,
-
-        -1.0f,  1.0f, -1.0f,
-         1.0f,  1.0f, -1.0f,
-         1.0f,  1.0f,  1.0f,
-         1.0f,  1.0f,  1.0f,
-        -1.0f,  1.0f,  1.0f,
-        -1.0f,  1.0f, -1.0f,
-
-        -1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f,  1.0f,
-         1.0f, -1.0f, -1.0f,
-         1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f,  1.0f,
-         1.0f, -1.0f,  1.0f
-    };
-    
+skybox_t skybox_new(texture_t **textures) {
+    if (shader_skybox == NULL) {
+        shader_skybox = shader_new("Skybox");
+        shader_attach(shader_skybox, SHADER_VERTEX, "../shaders/skybox_vert.glsl");
+        shader_attach(shader_skybox, SHADER_FRAGMENT, "../shaders/skybox_frag.glsl");
+        shader_link(shader_skybox);
+    }
     shader_use(shader_skybox);
-    glGenVertexArrays(1, &skybox.vao);
-    glGenBuffers(1, &skybox.vbo);
-    glBindVertexArray(skybox.vao);
-    
-    glBindBuffer(GL_ARRAY_BUFFER, skybox.vbo);
-    glBufferData(GL_ARRAY_BUFFER, 36*(sizeof(float)*3), skybox_vertices, GL_STATIC_DRAW);
-
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, skybox.vbo);
-    glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, NULL);
-
+    skybox_t skybox;
+    cubemap_init(&skybox.cubemap, textures);
+    skybox.mesh = mesh_load(NULL, "../models/basiccube.obj", MODEL_OBJ, MESH_NO_TANGENTS);   
+    return skybox;
 }
 
-void skybox_render(camera_t *camera) {
+void skybox_render(skybox_t *skybox, camera_t *camera) {
+    if (shader_skybox == NULL) {
+        log_msg(LOG_ERROR, "shader null\n", 0);
+    }
     //glDepthMask(0);
     glDisable(GL_CULL_FACE);
     glDepthFunc(GL_LEQUAL);
     shader_use(shader_skybox);
+    
     shader_set_mat4(shader_skybox, "projection", &camera->mat_projection);
     shader_set_mat4(shader_skybox, "view", &camera->mat_view);
     
-    //cubemap_render(skybox.cubemap, camera);
-    glBindVertexArray(skybox.vao);
-    glBindBuffer(GL_ARRAY_BUFFER, skybox.vbo);
-    
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, skybox.cubemap->map->id);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubemap.map->id);
     shader_set_int(shader_skybox, "skybox", 0);
     
-    glDrawArrays(GL_TRIANGLES, 0, 36);
+    mesh_draw(skybox->mesh, NULL, NULL, NULL);
     
     glEnable(GL_CULL_FACE);
     glDepthFunc(GL_LESS);

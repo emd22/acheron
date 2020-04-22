@@ -3,8 +3,14 @@
 
 #include <f3d/engine/rendering/camera.h>
 #include <f3d/engine/rendering/cubemap.h>
+#include <f3d/engine/model/mesh.h>
 
-void skybox_init(cubemap_t *cubemap);
-void skybox_render(camera_t *camera);
+typedef struct {
+    cubemap_t cubemap;
+    mesh_t *mesh;
+} skybox_t;
+
+skybox_t skybox_new(texture_t **textures);
+void skybox_render(skybox_t *skybox, camera_t *camera);
 
 #endif

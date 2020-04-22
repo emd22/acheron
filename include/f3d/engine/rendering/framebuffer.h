@@ -3,8 +3,8 @@
 
 #define FRAMEBUFFER_NO_TEXTURE -1
 
+#include <stdbool.h>
 #include <f3d/engine/image/texture.h>
-
 
 typedef struct {
     unsigned fbo;
@@ -18,7 +18,7 @@ typedef struct {
 
 extern framebuffer_t *default_framebuffer;
 
-framebuffer_t framebuffer_new(int width, int height, int attachment);
+framebuffer_t framebuffer_new(int width, int height, int attachment, bool depth_buffer);
 void framebuffer_generate_texture(framebuffer_t *fb, int draw_type, int data_type, int type_size);
 void framebuffer_bind(framebuffer_t *fb);
 void framebuffer_texture(framebuffer_t *fb, int attachment);
