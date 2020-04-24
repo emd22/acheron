@@ -1,7 +1,5 @@
 ﻿#version 420 core
 
-// https://learnopengl.com/Lighting/Multiple-lights
-
 #define MAX_DIR_LIGHTS 1
 #define MAX_POINT_LIGHTS 2
 
@@ -74,7 +72,7 @@ void main() {
     //bias = clamp(bias, 0, 0.01);
     float visibility = 1.0f;
     if (texture(shadow_map, frag_shadow_coords.xy).x < frag_shadow_coords.z-bias) {
-    visibility = 0.2;
+        visibility = 0.2;
     }
     
     vec3 result = vec3(0);
@@ -96,7 +94,7 @@ float blinnPhong(vec3 normal, vec3 frag_vertex, vec3 view_pos, vec3 light_dir, f
 }
 
 vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir, float visibility) {
-    vec3 diffuse_tex = vec3(1, 1, 1);
+    vec3 diffuse_tex = vec3(1);
     vec3 specular_tex = vec3(1);
     
     if (material.use_diffuse) {
@@ -104,7 +102,9 @@ vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir, fl
     }
     if (material.use_specularmap) {
         specular_tex = vec3(texture(material.specular, frag_uv));
-    } 
+    }
+    diffuse_tex *= light.diffuse;
+    specular_tex *= light.specular;
     
     vec3 light_dir = normalize(light.direction);
     // diffuse
@@ -113,9 +113,9 @@ vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir, fl
     // specular
     float specularity = blinnPhong(normal, frag_vertex, view_pos, light_dir, material.shininess);
     // final
-    vec3 ambient = light.ambient * diffuse_tex;
+    vec3 ambient = light.ambient * light.ambient * diffuse_tex;
     vec3 diffuse = vec3(ndotl) * diffuse_tex;
-    vec3 specular = vec3(ndotl) * light.specular * specular_tex * specularity;
+    vec3 specular = vec3(ndotl) * specular_tex * specularity;
     
     //specular *= diff;
     
@@ -126,6 +126,19 @@ vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir, fl
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 view_dir) {
     view_dir = normalize(view_dir);
     float radius = light.radius;
+    
+    vec3 diffuse_tex = vec3(1);
+    vec3 specular_tex = vec3(1);
+    
+    if (material.use_diffuse) {
+        diffuse_tex = vec3(texture(material.diffuse, frag_uv));
+    }
+    if (material.use_specularmap) {
+        specular_tex = vec3(texture(material.specular, frag_uv));
+    }
+    
+    diffuse_tex *= light.diffuse;
+    specular_tex *= light.specular;
     
     vec3 light_pos = light.position - frag_vertex;
     //float dist = distance(light.position, fragVertex);
@@ -139,9 +152,9 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 view_dir) {
     float ndotl = max(dot(normalize(normal), light_dir), 0.0);
     float attenuation = (1.0 - (dist/radius));
 
-    vec3 mat_ambient  = light.ambient * texture(material.diffuse, frag_uv).rgb;
-    vec3 mat_diffuse  = (vec3(ndotl)  * texture(material.diffuse, frag_uv).rgb);
-    vec3 mat_specular = light.specular * specularity * texture(material.specular, frag_uv).rgb;
+    vec3 mat_ambient  = light.ambient * diffuse_tex;
+    vec3 mat_diffuse  = vec3(ndotl)  * diffuse_tex;
+    vec3 mat_specular = light.specular * specular_tex * specularity;
     
     mat_ambient  *= attenuation;
     mat_diffuse  *= attenuation;

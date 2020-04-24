@@ -5,11 +5,6 @@
 #include <stdio.h>
 #include <string.h>
 
-// NOTE: edit these macros in shader as well
-#define MAX_DIR_LIGHTS   1
-#define MAX_POINT_LIGHTS 2
-#define MAX_SPOTLIGHTS   2
-
 static light_t lights[MAX_LIGHTS];
 static int lights_index = 0;
 
@@ -21,6 +16,16 @@ int count_light_types(int type) {
             amt++;
     }
     return amt;
+}
+
+light_t *light_get(light_t **lights, light_t *next, int type, int max) {
+    int i;
+    for (i = 0; i < max; i++) {
+        if (lights[i] != next && lights[i]->type == type) {
+            return lights[i];
+        }
+    }
+    return NULL;
 }
 
 light_t *light_new(int type) {

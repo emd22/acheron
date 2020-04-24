@@ -29,6 +29,7 @@ typedef struct {
 } light_t;
 
 light_t *light_new(int type);
+light_t *light_get(light_t **lights, light_t *next, int type, int max);
 void light_init(light_t *light, shader_t *shader);
 void light_update(light_t *light, shader_t *shader);
 

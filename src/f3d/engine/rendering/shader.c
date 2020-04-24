@@ -24,6 +24,8 @@ const char *get_shader_type_name(int type) {
         return  "Fragment";
     else if (type == SHADER_VERTEX)
         return "Vertex";
+    else if (type == SHADER_GEOMETRY)
+        return "Geometry";
     return "Unknown";
 }
 
@@ -52,6 +54,9 @@ void shader_link(shader_t *shader) {
     if (shader->fragment != SHADER_NONE)
         glAttachShader(shader->program, shader->fragment);
 
+    if (shader->geometry != SHADER_NONE)
+        glAttachShader(shader->program, shader->geometry);
+
     glLinkProgram(shader->program);
     
     // detach shaders from program
@@ -63,6 +68,11 @@ void shader_link(shader_t *shader) {
     if (shader->fragment != SHADER_NONE) {
         glDetachShader(shader->program, shader->fragment);
         glDeleteShader(shader->fragment);
+    }
+    
+    if (shader->geometry != SHADER_NONE) {
+        glDetachShader(shader->program, shader->geometry);
+        glDeleteShader(shader->geometry);
     }
     
     handle_call(HANDLE_ON_SHADER_LOAD, shader);
@@ -113,9 +123,12 @@ shader_t *shader_new(const char *name) {
     int index = shaders_index++;
     shader_t *shader = &shaders[index];
     shader->hash = util_hash_str(name);
+    
     shader->vertex = SHADER_NONE;
     shader->fragment = SHADER_NONE;
+    shader->geometry = SHADER_NONE;
     shader->program = SHADER_NONE;
+    
     strcpy(shader->name, name);
     return shader;
 }
@@ -126,6 +139,9 @@ void shader_attach(shader_t *shader, int type, const char *path) {
     }
     else if (type == SHADER_FRAGMENT) {
         shader->fragment = load_shader(path, type);
+    }
+    else if (type == SHADER_GEOMETRY) {
+        shader->geometry = load_shader(path, type);
     }
     else {
         log_msg(LOG_ERROR, "Unsupported shader type\n", 0);

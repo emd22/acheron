@@ -10,6 +10,7 @@
 #include <f3d/engine/rendering/render.h>
 
 #include <f3d/game/game.h>
+#include <f3d/game/player.h>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -44,32 +45,12 @@ int init(void) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     
     window = window_new("Ethan's 3D Engine", 700, 700, 0);
+    SDL_SetWindowFullscreen(window.win, SDL_WINDOW_FULLSCREEN_DESKTOP); 
+    SDL_GetWindowSize(window.win, &window.width, &window.height);
     default_window = &window;
     
-    glewExperimental = GL_TRUE;
-    if (glewInit() != GLEW_OK) {
-        log_msg(LOG_FATAL, "Could not initialize GLEW\n", 0);
-        return 1;
-    }
-    
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-    // enable vsync
-    SDL_GL_SetSwapInterval(1);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
-    
-    return 0;
-}
- 
-void init_gl() {
-    glClearColor(0.0, 0.0, 0.0, 1);
-    glViewport(0, 0, window.width, window.height);
-    
-    meshes_init();
     render_init();
     
-    shader_use(shader_main);
-
     camera = camera_new();
     camera.move_speed = 6.0f;
     camera.position = (vector3f_t){2, 3, -5};
@@ -80,15 +61,10 @@ void init_gl() {
     camera_select(&camera);
     log_msg(LOG_INFO, "Camera initialized\n", 0);
     
-    glEnable(GL_FRAMEBUFFER_SRGB);
-    
-    // fix overlapping polygons
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-    
-    glEnable(GL_CULL_FACE);
     // disable mouse cursor
-    window_set_mouse_mode(WINDOW_MOUSE_DISABLED);    
+    window_set_mouse_mode(WINDOW_MOUSE_DISABLED);
+    
+    return 0;
 }
 
 
@@ -97,104 +73,36 @@ void setup_handles() {
     handle_set(HANDLE_DRAW, &on_draw);
 }
 
-int move() {
-    int moved = 0;
-    
-    static vector3f_t velocity;
-    const float max_velocity = 1.0f;
-    
-    if (keys[CONTROL_FORWARD].pressed) {
-        velocity.z = max_velocity;
-        moved = 1;
-    }
-    if (keys[CONTROL_BACKWARD].pressed) {
-        velocity.z = -max_velocity;
-        moved = 1;
-    }
-    if (keys[CONTROL_LEFT].pressed) {
-        velocity.x = -max_velocity;
-        moved = 1;
-    }
-    if (keys[CONTROL_RIGHT].pressed) {
-        velocity.x = max_velocity;
-        moved = 1;
-    }
-    if (controls_check_toggle(CONTROL_1)) {
-        stone->flags ^= MATERIAL_NO_NORMALMAP;
-        material_update(stone, shader_main);
-    }
-    if (controls_check_toggle(CONTROL_2)) {
-        static bool wireframe = false;
-        wireframe = !wireframe;
-        engine_render_wireframe(wireframe);
-
-    }
-    const float friction = 0.03;
-    if (velocity.x) {
-        if (velocity.x > 0.0f) {
-            camera_move(selected_camera, CAMERA_RIGHT);
-            velocity.x -= friction;
-            if (velocity.x < 0.0)
-                velocity.x = 0;
-        }
-        else {
-            camera_move(selected_camera, CAMERA_LEFT);
-            velocity.x += friction; 
-            if (velocity.x > 0.0)
-                velocity.x = 0;      
-        }
-        camera.move_mul.x = fabs(velocity.x);
-        moved = 1;
-    
-    }
-    if (velocity.z) {
-        if (velocity.z > 0.0f) {
-            camera_move(selected_camera, CAMERA_FORWARD);
-            velocity.z -= friction;
-            if (velocity.z < 0.0)
-                velocity.z = 0;
-        }
-        else {
-            camera_move(selected_camera, CAMERA_BACKWARD);
-            velocity.z += friction;
-            if (velocity.z > 0.0)
-                velocity.z = 0;
-        }
-        camera.move_mul.z = fabs(velocity.z);
-        moved = 1;
-    }
-    // if we move two directions at the same time, half the speed
-    // so we don't move faster than normal.
-    if ((camera.move_mul.x == max_velocity || camera.move_mul.x == -max_velocity) &&
-        (camera.move_mul.z == max_velocity || camera.move_mul.z == -max_velocity))
-    {
-        camera.move_mul.x /= 2;
-        camera.move_mul.z /= 2;
-    }
-    return moved;
-}
-
 int main() {
     init();
-    handles_init();
     setup_handles();
-    init_gl();
     handle_call(HANDLE_INIT, NULL);
-    shadows_init(2048, 2048, light->direction, (vector3f_t){0, 0, 0});
+    
+    light_t *light2;
+    light2 = light_new(LIGHT_DIRECTIONAL);
+    light2->direction = (vector3f_t){-0.2, 0.8, -0.7};
+    light2->ambient   = (vector3f_t){0.02f, 0.02f,  0.02f};
+    light2->diffuse   = (vector3f_t){0.35f, 0.35f,  0.35f};
+    light2->specular  = (vector3f_t){0.8f,  0.8f,   0.8f};
+    //light_init(light2, shader_main);
+    
+    light = light_new(LIGHT_POINT);
+    light->position = (vector3f_t){1, 2, -3};
+    light->ambient = (vector3f_t){0.05f, 0.05f, 0.05f};
+    light->diffuse   = (vector3f_t){0.35f, 0.35f, 0.35f};
+    light->specular  = (vector3f_t){0.8f,  0.8f,   0.8f};
+    light->radius = 5.0f;
+    light_init(light, shader_main);
     
     scene = scene_new("Scene");
-    scene_new_view(scene, &camera, 100, 100, GL_COLOR_ATTACHMENT0);
-    render_view_t *view2;
-    view2 = scene_new_view(scene, &shadow_cam, 100, 100, GL_COLOR_ATTACHMENT0);
-    view2->dest_position.x = 100;
+    //scene_attach(scene, SCENE_LIGHT, light2);
+    scene_attach(scene, SCENE_LIGHT, light);
+    render_init_shadows(scene, 1024, 1024);
     
     engine_setup_signals();
    
     SDL_Event event;
     time_init();
-    
-    shader_use(shader_main);
-    shader_use(shader_depth);
    
     log_msg(LOG_INFO, "Buffer usage: %.01fKB\n", (double)buffer_total_used/1024.0);
     while (game_info.flags & GAME_IS_RUNNING) {
@@ -203,7 +111,7 @@ int main() {
             check_event(&event);
             
         shader_use(shader_main);
-        move();
+        player_move(&camera);
         
         camera_update(selected_camera);
         shader_set_vec3f(shader_main, "view_pos", selected_camera->position);
@@ -223,11 +131,8 @@ int on_end(void *arg){
     (void)arg;
     //shader_destroy(shader_depth);
     //shader_destroy(shader_main);
+    render_destroy();
     window_destroy(&window);
-    
-    meshes_cleanup();
-    textures_cleanup();
-    //objects_cleanup();
     
     log_msg(LOG_INFO, "Buffer usage at program end: %llu\n", buffer_total_used);
     //os_print_backtrace();
@@ -244,6 +149,7 @@ void load_models() {
         texture_load(NULL, "../images/stone_normal.bmp", IMAGE_BMP),
         32.0f, 0
     });
+    
     brick = material_new((material_t){
         "Brick", 0,
         texture_load(NULL, "../images/brick.bmp", IMAGE_BMP),
@@ -265,14 +171,7 @@ void load_models() {
     render_object_t *box = object_new("Box");
     object_attach(box, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/cube.obj", MODEL_OBJ, 0));
     object_attach(box, OBJECT_ATTACH_MATERIAL, stone);
-    object_move(box, 0, 2, 0);
-    
-    light = light_new(LIGHT_DIRECTIONAL);
-    light->direction = (vector3f_t){-0.2, 0.8, -0.7};
-    light->ambient   = (vector3f_t){0.02f, 0.02f,  0.02f};
-    light->diffuse   = (vector3f_t){0.15f, 0.15f,  0.15f};
-    light->specular  = (vector3f_t){0.8f,  0.8f,   0.8f};
-    light_init(light, shader_main);
+    object_move(box, 0, 1, -1);
     
     objects_sort();
     default_framebuffer = NULL;

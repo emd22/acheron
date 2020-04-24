@@ -9,6 +9,7 @@
 
 #define SHADER_VERTEX   GL_VERTEX_SHADER
 #define SHADER_FRAGMENT GL_FRAGMENT_SHADER
+#define SHADER_GEOMETRY GL_GEOMETRY_SHADER
 
 #define MAX_UNIFORMS 512
 #define MAX_SHADERS 16
@@ -17,7 +18,7 @@ typedef struct {
     char name[32];
     hash_t hash;
     
-    long vertex, fragment;
+    long vertex, fragment, geometry;
     long program;
 } shader_t;
 

@@ -15,9 +15,7 @@ typedef struct {
     unsigned vbo;
 } cubemap_t;
 
-void cubemaps_init();
 void cubemap_init(cubemap_t *cubemap, texture_t **textures);
-void cubemap_render(cubemap_t *cubemap, camera_t *camera);
-
+void framebuffer_cubemap_init(cubemap_t *cubemap, int width, int height);
 
 #endif

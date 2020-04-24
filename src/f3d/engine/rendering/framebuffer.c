@@ -81,6 +81,8 @@ void framebuffer_texture(framebuffer_t *fb, int attachment) {
 }
 
 void framebuffer_destroy(framebuffer_t *fb) {
+    if (fb == NULL)
+        return;
     glDeleteFramebuffers(1, &fb->fbo);
     if (fb->texture->image.width != 0) {
         texture_destroy(fb->texture);
