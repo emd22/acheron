@@ -17,13 +17,14 @@ typedef struct {
     mat4_t point_vps[6];
     light_t *light;
     framebuffer_t framebuffer;
+    
+    mat4_t mat_perspective;
 } shadows_point_t;
 
-shadows_point_t shadows_point_init(light_t *light, int width, int height);
-void shadows_point_render(shadows_point_t *shadow, shader_t *shader_main);
+shadows_point_t shadows_point_init(vector3f_t position, int width, int height);
+void shadows_point_render(shadows_point_t *shadow, vector3f_t position, shader_t *shader_main);
+void shadows_point_update(shadows_point_t *shadow, vector3f_t position);
 
-//void shadows_init(light_t *light, int width, int height);
-void shadows_update(light_t *light, int width, int height);
 void shadows_render(shader_t *shader_main, camera_t *camera);
 void shadows_destroy(shadows_point_t *shadow);
 

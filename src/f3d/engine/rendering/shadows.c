@@ -28,29 +28,28 @@ void generate_vp(vector3f_t direction, vector3f_t center) {
     shadow_mat_vp = mat4_mul(shadow_mat_vp, model_mat);
 }*/
 
-void generate_point_vp(int index, light_t *light, shadows_point_t *shadow, vector3f_t offset, vector3f_t upvec, float aspect) {
-    mat4_t perspective;
-    const float near = 1.0f;
-    const float far  = 50.0f;
-    math_perspective(&perspective, math_deg_to_rad(90.0f), aspect, near, far);
-    
+void generate_point_vp(int index, vector3f_t position, shadows_point_t *shadow, vector3f_t offset, vector3f_t upvec) {
     vector3f_t to;
-    vec3f_add(&to, light->position, offset);
-    shadow->point_vps[index] = math_lookat(light->position, to, upvec);
-    shadow->point_vps[index] = mat4_mul(perspective, shadow->point_vps[index]);
+    vec3f_add(&to, position, offset);
+    shadow->point_vps[index] = math_lookat(position, to, upvec);
+    shadow->point_vps[index] = mat4_mul(shadow->mat_perspective, shadow->point_vps[index]);
 }
 
-void generate_point_vps(shadows_point_t *shadow, int width, int height) {
-    const float aspect = (float)width/(float)height;
-    generate_point_vp(0, shadow->light, shadow, (vector3f_t){ 1.0f,  0.0f,  0.0f}, (vector3f_t){0, -1,  0}, aspect);
-    generate_point_vp(1, shadow->light, shadow, (vector3f_t){-1.0f,  0.0f,  0.0f}, (vector3f_t){0, -1,  0}, aspect);
-    generate_point_vp(2, shadow->light, shadow, (vector3f_t){ 0.0f,  1.0f,  0.0f}, (vector3f_t){0,  0,  1}, aspect);
-    generate_point_vp(3, shadow->light, shadow, (vector3f_t){ 0.0f, -1.0f,  0.0f}, (vector3f_t){0,  0, -1}, aspect);
-    generate_point_vp(4, shadow->light, shadow, (vector3f_t){ 0.0f,  0.0f,  1.0f}, (vector3f_t){0, -1,  0}, aspect);
-    generate_point_vp(5, shadow->light, shadow, (vector3f_t){ 0.0f,  0.0f, -1.0f}, (vector3f_t){0, -1,  0}, aspect);
+void generate_point_vps(shadows_point_t *shadow, vector3f_t position) {
+    generate_point_vp(0, position, shadow, (vector3f_t){ 1.0f,  0.0f,  0.0f}, (vector3f_t){0, -1,  0});
+    generate_point_vp(1, position, shadow, (vector3f_t){-1.0f,  0.0f,  0.0f}, (vector3f_t){0, -1,  0});
+    generate_point_vp(2, position, shadow, (vector3f_t){ 0.0f,  1.0f,  0.0f}, (vector3f_t){0,  0,  1});
+    generate_point_vp(3, position, shadow, (vector3f_t){ 0.0f, -1.0f,  0.0f}, (vector3f_t){0,  0, -1});
+    generate_point_vp(4, position, shadow, (vector3f_t){ 0.0f,  0.0f,  1.0f}, (vector3f_t){0, -1,  0});
+    generate_point_vp(5, position, shadow, (vector3f_t){ 0.0f,  0.0f, -1.0f}, (vector3f_t){0, -1,  0});
 }
 
-shadows_point_t shadows_point_init(light_t *light, int width, int height) {
+void shadows_point_update(shadows_point_t *shadow, vector3f_t position) {
+    // recalculate View/Projection matrices
+    generate_point_vps(shadow);
+}
+
+shadows_point_t shadows_point_init(vector3f_t position, int width, int height) {
     shadows_point_t shadow;
     shadow.shader = shader_new("Point Shadow");
     shader_attach(shadow.shader, SHADER_VERTEX, "../shaders/shadows/point_vert.glsl");
@@ -61,9 +60,13 @@ shadows_point_t shadows_point_init(light_t *light, int width, int height) {
     shadow.width = width;
     shadow.height = height;
     
-    shadow.light = light;
+    const float near = 1.0f;
+    const float far  = 50.0f;
+    // generate perspective matrix
+    math_perspective(&shadow.mat_perspective, math_deg_to_rad(90.0f), (float)width/(float)height, near, far);
+    
     framebuffer_cubemap_init(&shadow.cubemap, width, height);
-    generate_point_vps(&shadow, width, height);
+    generate_point_vps(&shadow, position);
     
     shadow.framebuffer = framebuffer_new(width, height, GL_DEPTH_ATTACHMENT, false);
     shadow.framebuffer.texture = shadow.cubemap.map;
@@ -71,20 +74,21 @@ shadows_point_t shadows_point_init(light_t *light, int width, int height) {
     framebuffer_bind(&shadow.framebuffer);
     
     framebuffer_texture(&shadow.framebuffer, GL_DEPTH_ATTACHMENT);
+    
     return shadow;
 }
 
-void shadows_send_uniforms(shadows_point_t *shadow) {
+void shadows_send_uniforms(shadows_point_t *shadow, vector3f_t position) {
     char str[64];
     int i;
     for (i = 0; i < 6; i++) {
         sprintf(str, "shadow_matrices[%d]", i);
         shader_set_mat4(shadow->shader, str, &shadow->point_vps[i]);
     }
-    shader_set_vec3f(shadow->shader, "light_pos", shadow->light->position);
+    shader_set_vec3f(shadow->shader, "light_pos", position);
 }
 
-void shadows_point_render(shadows_point_t *shadow, shader_t *shader_main) {
+void shadows_point_render(shadows_point_t *shadow, vector3f_t position, shader_t *shader_main) {
     if (shadow->shader == NULL)
         return;
         

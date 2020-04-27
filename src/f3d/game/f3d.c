@@ -87,11 +87,11 @@ int main() {
     //light_init(light2, shader_main);
     
     light = light_new(LIGHT_POINT);
-    light->position = (vector3f_t){4, 4, -5};
+    light->position = (vector3f_t){4, 5, -5};
     light->ambient = VEC3F(0.10f);
     light->diffuse   = VEC3F(0.8f);
     light->specular  = VEC3F(1.1f);
-    light->radius = 9.0f;
+    light->radius = 12.0f;
     light_init(light, shader_main);
     
     shadows_point_t shadow = shadows_point_init(light, 1024, 1024);
@@ -107,7 +107,6 @@ int main() {
     SDL_Event event;
     time_init();
     
-    render_object_t *box = render_object_get("Box");
    
     log_msg(LOG_INFO, "Buffer usage: %.01fKB\n", (double)buffer_total_used/1024.0);
     while (game_info.flags & GAME_IS_RUNNING) {
@@ -122,10 +121,10 @@ int main() {
         shader_set_vec3f(shader_main, "view_pos", selected_camera->position);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //render_all();
-        if (box) {
-            box->rotation.x += 2.0*delta_time;
-            object_update(box);
-        }
+        light->position.x = sin(frames_rendered*0.03)*5;
+        light->position.z = cos(frames_rendered*0.03)*5;
+        light_update(light, shader_main);
+        shadows_point_update(&scene->shadow);
         handle_call(HANDLE_DRAW, NULL);
         window_buffers_swap(&window);
 
