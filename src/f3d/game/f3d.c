@@ -87,22 +87,27 @@ int main() {
     //light_init(light2, shader_main);
     
     light = light_new(LIGHT_POINT);
-    light->position = (vector3f_t){1, 4, -5};
-    light->ambient = (vector3f_t){0.05f, 0.05f, 0.05f};
-    light->diffuse   = VEC3F(0.7f);
-    light->specular  = VEC3F(1.0f);
+    light->position = (vector3f_t){4, 4, -5};
+    light->ambient = VEC3F(0.10f);
+    light->diffuse   = VEC3F(0.8f);
+    light->specular  = VEC3F(1.1f);
     light->radius = 9.0f;
     light_init(light, shader_main);
     
+    shadows_point_t shadow = shadows_point_init(light, 1024, 1024);
     scene = scene_new("Scene");
+    scene->shadow = shadow;
     //scene_attach(scene, SCENE_LIGHT, light2);
     scene_attach(scene, SCENE_LIGHT, light);
-    render_init_shadows(scene, 700, 700);
+    //render_init_shadows(scene, 300, 300);
+    //shadows_point_init(light, 400, 400);
     
     engine_setup_signals();
    
     SDL_Event event;
     time_init();
+    
+    render_object_t *box = render_object_get("Box");
    
     log_msg(LOG_INFO, "Buffer usage: %.01fKB\n", (double)buffer_total_used/1024.0);
     while (game_info.flags & GAME_IS_RUNNING) {
@@ -116,10 +121,11 @@ int main() {
         camera_update(selected_camera);
         shader_set_vec3f(shader_main, "view_pos", selected_camera->position);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        light->position.x = sin(frames_rendered*0.02)*2+2;
-        light_update(light, shader_main);
-        shadows_update(light, 700, 700);
         //render_all();
+        if (box) {
+            box->rotation.x += 2.0*delta_time;
+            object_update(box);
+        }
         handle_call(HANDLE_DRAW, NULL);
         window_buffers_swap(&window);
 
@@ -160,7 +166,7 @@ void load_models() {
         texture_load(NULL, "../images/brick_normal.bmp", IMAGE_BMP),
         32.0f, 0
     });
-
+    
     render_object_t *level = object_new("Level");
     object_attach(level, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/wall.obj", MODEL_OBJ, 0));
     object_attach(level, OBJECT_ATTACH_MATERIAL, brick);
@@ -174,7 +180,7 @@ void load_models() {
     render_object_t *box = object_new("Box");
     object_attach(box, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/cube.obj", MODEL_OBJ, 0));
     object_attach(box, OBJECT_ATTACH_MATERIAL, stone);
-    object_move(box, 0, 1, -1);
+    object_move(box, 0, 2, -1);
     
     objects_sort();
     default_framebuffer = NULL;

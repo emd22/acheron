@@ -7,14 +7,24 @@
 #include <f3d/engine/rendering/framebuffer.h>
 #include <f3d/engine/rendering/cubemap.h>
 
-extern framebuffer_t shadow_fb;
 extern camera_t shadow_cam;
-extern shader_t *shader_depth;
-extern cubemap_t shadow_cubemap;
 
-void shadows_init(light_t *light, int width, int height);
+typedef struct {
+    int width, height;
+
+    shader_t *shader;
+    cubemap_t cubemap;
+    mat4_t point_vps[6];
+    light_t *light;
+    framebuffer_t framebuffer;
+} shadows_point_t;
+
+shadows_point_t shadows_point_init(light_t *light, int width, int height);
+void shadows_point_render(shadows_point_t *shadow, shader_t *shader_main);
+
+//void shadows_init(light_t *light, int width, int height);
 void shadows_update(light_t *light, int width, int height);
 void shadows_render(shader_t *shader_main, camera_t *camera);
-void shadows_destroy();
+void shadows_destroy(shadows_point_t *shadow);
 
 #endif

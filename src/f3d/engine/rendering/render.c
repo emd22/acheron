@@ -67,7 +67,9 @@ void render_init_shadows(scene_t *scene, int width, int height) {
     point = light_get(scene->lights, NULL, LIGHT_POINT, scene->lights_index);
     if (point == NULL)
         return;
-    shadows_init(point, width, height);
+    //shadows_init(point, width, height);
+    (void)width;
+    (void)height;
 }
 
 void render_all() {
@@ -85,5 +87,5 @@ void render_destroy(void) {
     meshes_cleanup();
     textures_cleanup();
     shader_destroy(shader_main);
-    shadows_destroy();
+    //shadows_destroy();
 }

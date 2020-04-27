@@ -46,13 +46,14 @@ void scene_render(shader_t *shader_main, scene_t *scene) {
     // set framebuffer to our 'default' framebuffer
     framebuffer_bind(NULL);
     
-    if (shader_depth != NULL) {
+    //if (shader_depth != NULL) {
         // if shadows are setup, set shadow map in main shader
-        shadows_render(shader_main, scene->views[0].camera);
+        //shadows_render(shader_main, scene->views[0].camera);
+        shadows_point_render(&scene->shadow, shader_main);
         glActiveTexture(GL_TEXTURE4);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, shadow_fb.texture->id);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, scene->shadow.framebuffer.texture->id);
         shader_set_int(shader_main, "shadow_map", 4);
-    }
+    //}
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     handle_call(HANDLE_RENDER_MESHES, selected_camera);
