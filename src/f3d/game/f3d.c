@@ -87,18 +87,17 @@ int main() {
     //light_init(light2, shader_main);
     
     light = light_new(LIGHT_POINT);
-    light->position = (vector3f_t){1, 4, -3};
+    light->position = (vector3f_t){1, 4, -5};
     light->ambient = (vector3f_t){0.05f, 0.05f, 0.05f};
     light->diffuse   = VEC3F(0.7f);
     light->specular  = VEC3F(1.0f);
-    light->radius = 5.0f;
+    light->radius = 9.0f;
     light_init(light, shader_main);
     
     scene = scene_new("Scene");
     //scene_attach(scene, SCENE_LIGHT, light2);
     scene_attach(scene, SCENE_LIGHT, light);
-    render_init_shadows(scene, 400, 400);
-    log_msg(LOG_DEBUG, "%d,%d\n", window.width, window.height);
+    render_init_shadows(scene, 700, 700);
     
     engine_setup_signals();
    
@@ -117,9 +116,9 @@ int main() {
         camera_update(selected_camera);
         shader_set_vec3f(shader_main, "view_pos", selected_camera->position);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        light->position.z = sin(frames_rendered*0.02)-5.0f;
+        light->position.x = sin(frames_rendered*0.02)*2+2;
         light_update(light, shader_main);
-        shadows_update(light, 400, 400);
+        shadows_update(light, 700, 700);
         //render_all();
         handle_call(HANDLE_DRAW, NULL);
         window_buffers_swap(&window);

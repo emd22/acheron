@@ -67,7 +67,7 @@ void main() {
     else {
         n = normalize(norm);
     }
-    float bias = 0.005;
+    //float bias = 0.005;
     //float bias = 0.005*tan(acos(dot(n, normalize(dirLights[0].direction)))); // cosTheta is dot( n,l ), clamped between 0 and 1
     //bias = clamp(bias, 0, 0.01);
     float visibility = 1.0f;
@@ -85,15 +85,6 @@ void main() {
     output_colour = vec4(result, 1.0f);
 }
 
-vec3 gridSamplingDisk[20] = vec3[]
-(
-   vec3(1, 1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1, 1,  1), 
-   vec3(1, 1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
-   vec3(1, 1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1, 1,  0),
-   vec3(1, 0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1, 0, -1),
-   vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
-);
-
 float ShadowCalculation(vec3 light_pos)
 {
     // get vector between fragment position and light position
@@ -101,7 +92,7 @@ float ShadowCalculation(vec3 light_pos)
     // ise the fragment to light vector to sample from the depth map    
     float depth = texture(shadow_map, lightToFrag).r;
     // it is currently in linear range between [0,1], let's re-transform it back to original depth value
-    depth *= 25.0f;
+    depth *= 50.0f;
     // now get current linear depth as the length between the fragment and light position
     //float currentDepth = length(lightToFrag);
     // test for shadows
@@ -109,7 +100,7 @@ float ShadowCalculation(vec3 light_pos)
     //float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;        
     // display closestDepth as debug (to visualize depth cubemap)
     // vec4(vec3(closestDepth / far_plane), 1.0);    
-    return (depth + bias) < length(lightToFrag) ? 0.0f : 1.0f;
+    return (length(lightToFrag) - bias) > depth ? 0.0f : 1.0f;
     //return shadow;
 }
 

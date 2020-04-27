@@ -38,7 +38,7 @@ void generate_vp(vector3f_t direction, vector3f_t center) {
 void generate_point_vp(int index, light_t *light, vector3f_t offset, vector3f_t upvec, float aspect) {
     mat4_t perspective;
     const float near = 1.0f;
-    const float far  = 25.0f;
+    const float far  = 50.0f;
     math_perspective(&perspective, math_deg_to_rad(90.0f), aspect, near, far);
     
     vector3f_t to;
@@ -52,9 +52,9 @@ void gen_vps(light_t *light, int width, int height) {
     generate_point_vp(0, light, (vector3f_t){ 1.0f,  0.0f,  0.0f}, (vector3f_t){0, -1,  0}, aspect);
     generate_point_vp(1, light, (vector3f_t){-1.0f,  0.0f,  0.0f}, (vector3f_t){0, -1,  0}, aspect);
     generate_point_vp(2, light, (vector3f_t){ 0.0f,  1.0f,  0.0f}, (vector3f_t){0,  0,  1}, aspect);
-    generate_point_vp(3, light, (vector3f_t){ 1.0f, -1.0f,  0.0f}, (vector3f_t){0,  0, -1}, aspect);
-    generate_point_vp(4, light, (vector3f_t){ 1.0f,  0.0f,  1.0f}, (vector3f_t){0, -1,  0}, aspect);
-    generate_point_vp(5, light, (vector3f_t){ 1.0f,  0.0f, -1.0f}, (vector3f_t){0, -1,  0}, aspect);
+    generate_point_vp(3, light, (vector3f_t){ 0.0f, -1.0f,  0.0f}, (vector3f_t){0,  0, -1}, aspect);
+    generate_point_vp(4, light, (vector3f_t){ 0.0f,  0.0f,  1.0f}, (vector3f_t){0, -1,  0}, aspect);
+    generate_point_vp(5, light, (vector3f_t){ 0.0f,  0.0f, -1.0f}, (vector3f_t){0, -1,  0}, aspect);
 }
 
 void shadows_init(light_t *light, int width, int height) {
@@ -121,7 +121,7 @@ void shadows_render(shader_t *shader_main, camera_t *camera) {
     framebuffer_bind(&shadow_fb);
     //glDrawBuffer(GL_NONE);
     //glReadBuffer(GL_NONE);
-    glClear(GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     shader_use(shader_main);
     shader_set_mat4(shader_main, "shadow_bias", &shadow_mat_bias);
     shader_use(shader_depth);
