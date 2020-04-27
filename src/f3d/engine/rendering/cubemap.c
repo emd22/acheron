@@ -32,6 +32,9 @@ void cubemap_init(cubemap_t *cubemap, texture_t **textures) {
 void framebuffer_cubemap_init(cubemap_t *cubemap, int width, int height) {
     cubemap->textures = NULL;
     cubemap->map = texture_new();
+    cubemap->map->bind_type = GL_TEXTURE_CUBE_MAP;
+    cubemap->map->draw_type = GL_DEPTH_COMPONENT;
+    cubemap->map->data_type = GL_DEPTH_COMPONENT;
     texture_init(cubemap->map);
 
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap->map->id);

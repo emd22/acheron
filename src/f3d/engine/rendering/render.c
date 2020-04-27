@@ -63,11 +63,11 @@ void render_init() {
 }
 
 void render_init_shadows(scene_t *scene, int width, int height) {
-    light_t *directional;
-    directional = light_get(scene->lights, NULL, LIGHT_DIRECTIONAL, scene->lights_index);
-    if (directional == NULL)
+    light_t *point;
+    point = light_get(scene->lights, NULL, LIGHT_POINT, scene->lights_index);
+    if (point == NULL)
         return;
-    shadows_init(width, height, directional->direction, (vector3f_t){0, 0, 0});
+    shadows_init(point, width, height);
 }
 
 void render_all() {

@@ -82,12 +82,12 @@ int main() {
     light2 = light_new(LIGHT_DIRECTIONAL);
     light2->direction = (vector3f_t){-0.2, 0.8, -0.7};
     light2->ambient   = (vector3f_t){0.02f, 0.02f,  0.02f};
-    light2->diffuse   = (vector3f_t){0.35f, 0.35f,  0.35f};
-    light2->specular  = (vector3f_t){0.8f,  0.8f,   0.8f};
+    light2->diffuse   = (vector3f_t){0.15f, 0.15f,  0.15f};
+    light2->specular  = (vector3f_t){0.3f,  0.3f,   0.3f};
     //light_init(light2, shader_main);
     
     light = light_new(LIGHT_POINT);
-    light->position = (vector3f_t){1, 2, -3};
+    light->position = (vector3f_t){1, 4, -3};
     light->ambient = (vector3f_t){0.05f, 0.05f, 0.05f};
     light->diffuse   = VEC3F(0.7f);
     light->specular  = VEC3F(1.0f);
@@ -97,7 +97,8 @@ int main() {
     scene = scene_new("Scene");
     //scene_attach(scene, SCENE_LIGHT, light2);
     scene_attach(scene, SCENE_LIGHT, light);
-    render_init_shadows(scene, 1024, 1024);
+    render_init_shadows(scene, 400, 400);
+    log_msg(LOG_DEBUG, "%d,%d\n", window.width, window.height);
     
     engine_setup_signals();
    
@@ -116,6 +117,9 @@ int main() {
         camera_update(selected_camera);
         shader_set_vec3f(shader_main, "view_pos", selected_camera->position);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        light->position.z = sin(frames_rendered*0.02)-5.0f;
+        light_update(light, shader_main);
+        shadows_update(light, 400, 400);
         //render_all();
         handle_call(HANDLE_DRAW, NULL);
         window_buffers_swap(&window);
@@ -164,9 +168,9 @@ void load_models() {
     object_rotate(level, 1.57, 0.0f, 0.0f);
     object_move(level, 0, 0, -5);
 
-    render_object_t *wall = object_new("Wall");
-    object_attach(wall, OBJECT_ATTACH_MESH, level->mesh);
-    object_attach(wall, OBJECT_ATTACH_MATERIAL, stone);
+    //render_object_t *wall = object_new("Wall");
+    //object_attach(wall, OBJECT_ATTACH_MESH, level->mesh);
+    //object_attach(wall, OBJECT_ATTACH_MATERIAL, stone);
 
     render_object_t *box = object_new("Box");
     object_attach(box, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/cube.obj", MODEL_OBJ, 0));

@@ -68,7 +68,6 @@ void light_init(light_t *light, shader_t *shader) {
     else if (light->type == LIGHT_POINT) {
         log_msg(LOG_INFO, "Initializing point light (id: %d)\n", light->index);
         sprintf(lightstr, "pointLights[%d].position", light->index);
-        log_msg(LOG_INFO, "%s\n", lightstr);
         shader_set_vec3f(shader, lightstr, light->position);
 
         sprintf(lightstr, "pointLights[%d].ambient", light->index);

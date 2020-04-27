@@ -42,7 +42,7 @@ in vec4 frag_shadow_coords;
 
 layout(location = 0) out vec4 output_colour;
 
-uniform sampler2D shadow_map;
+uniform samplerCube shadow_map;
 
 uniform Material material;
 uniform vec3 view_pos;
@@ -71,9 +71,9 @@ void main() {
     //float bias = 0.005*tan(acos(dot(n, normalize(dirLights[0].direction)))); // cosTheta is dot( n,l ), clamped between 0 and 1
     //bias = clamp(bias, 0, 0.01);
     float visibility = 1.0f;
-    if (texture(shadow_map, frag_shadow_coords.xy).x < frag_shadow_coords.z-bias) {
-        visibility = 0.2;
-    }
+    //if (texture(shadow_map, frag_shadow_coords.xy).x < frag_shadow_coords.z-bias) {
+    //    visibility = 0.2;
+    //}
     
     vec3 result = vec3(0);
     for (int i = 0; i < MAX_DIR_LIGHTS; i++) {
@@ -83,6 +83,34 @@ void main() {
         result += clamp(CalcPointLight(pointLights[i], n, frag_eye_direction), 0.0, 1.0);
     }
     output_colour = vec4(result, 1.0f);
+}
+
+vec3 gridSamplingDisk[20] = vec3[]
+(
+   vec3(1, 1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1, 1,  1), 
+   vec3(1, 1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
+   vec3(1, 1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1, 1,  0),
+   vec3(1, 0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1, 0, -1),
+   vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
+);
+
+float ShadowCalculation(vec3 light_pos)
+{
+    // get vector between fragment position and light position
+    vec3 lightToFrag = frag_vertex - light_pos;
+    // ise the fragment to light vector to sample from the depth map    
+    float depth = texture(shadow_map, lightToFrag).r;
+    // it is currently in linear range between [0,1], let's re-transform it back to original depth value
+    depth *= 25.0f;
+    // now get current linear depth as the length between the fragment and light position
+    //float currentDepth = length(lightToFrag);
+    // test for shadows
+    float bias = 0.05; // we use a much larger bias since depth is now in [near_plane, far_plane] range
+    //float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;        
+    // display closestDepth as debug (to visualize depth cubemap)
+    // vec4(vec3(closestDepth / far_plane), 1.0);    
+    return (depth + bias) < length(lightToFrag) ? 0.0f : 1.0f;
+    //return shadow;
 }
 
 float blinnPhong(vec3 normal, vec3 frag_vertex, vec3 view_pos, vec3 light_dir, float shininess) {
@@ -160,6 +188,9 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 view_dir) {
     mat_diffuse  *= attenuation;
     mat_specular *= attenuation;
     
-    return (mat_ambient + mat_diffuse + mat_specular);
+    float vis = ShadowCalculation(light.position);
+    //return vec3(vis);
+    
+    return ((vis) * (mat_diffuse + mat_specular)+mat_ambient);
 }
 

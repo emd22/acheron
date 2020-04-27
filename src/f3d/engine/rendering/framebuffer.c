@@ -73,6 +73,10 @@ void framebuffer_bind(framebuffer_t *fb) {
 }
 
 void framebuffer_texture(framebuffer_t *fb, int attachment) {
+    if (fb->texture_target == GL_TEXTURE_CUBE_MAP) {
+        glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, fb->texture->id, 0);
+        return;
+    }
     glBindTexture(fb->texture_target, fb->texture->id);
 
     glTexParameteri(fb->texture_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

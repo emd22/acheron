@@ -48,9 +48,9 @@ void scene_render(shader_t *shader_main, scene_t *scene) {
     
     if (shader_depth != NULL) {
         // if shadows are setup, set shadow map in main shader
-        shadows_render(shader_main);
+        shadows_render(shader_main, scene->views[0].camera);
         glActiveTexture(GL_TEXTURE4);
-        glBindTexture(GL_TEXTURE_2D, shadow_fb.texture->id);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, shadow_fb.texture->id);
         shader_set_int(shader_main, "shadow_map", 4);
     }
 
