@@ -10,6 +10,8 @@ typedef struct {
     unsigned fbo;
     unsigned depth_buffer;
     
+    unsigned texture_target; // GL_TEXTURE_2D, GL_TEXTURE_CUBE_MAP
+    
     texture_t *texture;
     int width, height;
     int bpp;

@@ -26,6 +26,8 @@ framebuffer_t framebuffer_new(int width, int height, int attachment, bool depth_
     fb.originx = 0;
     fb.originy = 0;
     
+    fb.texture_target = GL_TEXTURE_2D;
+    
     framebuffer_texture(&fb, attachment);
     
     if (depth_buffer) {
@@ -71,13 +73,13 @@ void framebuffer_bind(framebuffer_t *fb) {
 }
 
 void framebuffer_texture(framebuffer_t *fb, int attachment) {
-    glBindTexture(GL_TEXTURE_2D, fb->texture->id);
+    glBindTexture(fb->texture_target, fb->texture->id);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, fb->texture->id, 0);
+    glTexParameteri(fb->texture_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(fb->texture_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(fb->texture_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(fb->texture_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, fb->texture_target, fb->texture->id, 0);
 }
 
 void framebuffer_destroy(framebuffer_t *fb) {

@@ -89,8 +89,8 @@ int main() {
     light = light_new(LIGHT_POINT);
     light->position = (vector3f_t){1, 2, -3};
     light->ambient = (vector3f_t){0.05f, 0.05f, 0.05f};
-    light->diffuse   = (vector3f_t){0.35f, 0.35f, 0.35f};
-    light->specular  = (vector3f_t){0.8f,  0.8f,   0.8f};
+    light->diffuse   = VEC3F(0.7f);
+    light->specular  = VEC3F(1.0f);
     light->radius = 5.0f;
     light_init(light, shader_main);
     

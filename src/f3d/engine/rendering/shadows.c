@@ -13,6 +13,8 @@ static mat4_t shadow_mat_bias;
 framebuffer_t shadow_fb;
 camera_t shadow_cam;
 
+static mat4_t shadow_point_vps[6];
+
 static cubemap_t shadow_cubemap;
 
 shader_t *shader_depth = NULL;
@@ -29,6 +31,21 @@ void generate_vp(vector3f_t direction, vector3f_t center) {
     shadow_mat_vp = mat4_mul(shadow_mat_vp, model_mat);
 }
 
+void generate_point_vps(light_t *light, vector3f_t offset, vector3f_t upvec, float aspect) {
+    mat4_t perspective;
+    const float near = 1.0f;
+    const float far  = 25.0f;
+    math_perspective(&perspective, math_deg_to_rad(90.0f), aspect, near, far);
+    
+    vector3f_t to;
+    int i;
+    for (i = 0; i < 6; i++) {
+        vec3f_add(&to, light->position, offset);
+        shadow_point_vps[i] = math_lookat(light->position, to, upvec);
+        shadow_point_vps[i] = mat4_mul(perspective, shadow_point_vps[i]);
+    }
+}
+
 void shadows_init(int width, int height, vector3f_t direction, vector3f_t center) {
     if (shader_depth == NULL) {
         shader_depth = shader_new("Depth");
@@ -41,6 +58,7 @@ void shadows_init(int width, int height, vector3f_t direction, vector3f_t center
 
     shadow_fb = framebuffer_new(width, height, GL_DEPTH_ATTACHMENT, false);
     shadow_fb.texture = shadow_cubemap.map;
+    shadow_fb.texture_target = GL_TEXTURE_CUBE_MAP;
     framebuffer_bind(&shadow_fb);
     
     framebuffer_texture(&shadow_fb, GL_DEPTH_ATTACHMENT);

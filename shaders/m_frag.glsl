@@ -1,4 +1,4 @@
-﻿#version 420 core
+#version 420 core
 
 #define MAX_DIR_LIGHTS 1
 #define MAX_POINT_LIGHTS 2
