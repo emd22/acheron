@@ -2,6 +2,7 @@
 
 #include <f3d/engine/rendering/shadows.h>
 #include <f3d/engine/core/handles.h>
+#include <f3d/engine/core/log.h>
 #include <string.h>
 
 scene_t scenes[8];
@@ -47,20 +48,26 @@ void scene_render(shader_t *shader_main, scene_t *scene) {
     framebuffer_bind(NULL);
     
     //if (shader_depth != NULL) {
+    int i;
+    light_t *light;
+    for (i = 0; i < scene->lights_index; i++) {
+        light = scene->lights[i];
         // if shadows are setup, set shadow map in main shader
-        //shadows_render(shader_main, scene->views[0].camera);
-        shadows_point_render(&scene->shadow, shader_main);
-        glActiveTexture(GL_TEXTURE4);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, scene->shadow.framebuffer.texture->id);
-        shader_set_int(shader_main, "shadow_map", 4);
+        //shadows_point_render(&scene->shadow, shader_main);
+        if (light->use_shadows) {
+            light_shadow_render(light, shader_main);
+            glActiveTexture(GL_TEXTURE4);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, light->point_shadow.framebuffer.texture->id);
+            shader_set_int(shader_main, "shadow_map", 4);        
+        }
+    }
     //}
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     handle_call(HANDLE_RENDER_MESHES, selected_camera);
     shader_use(shader_main);
     
-    // draw addtional views    
-    int i;
+    // draw addtional views
     render_view_t *view;
     for (i = 1; i < view_count; i++) {
         view = &scene->views[i];
@@ -94,6 +101,8 @@ void scene_attach(scene_t *scene, int type, void *ptr) {
         //skybox_new(&scene->skybox.cubemap);
     }
     else if (type == SCENE_LIGHT) {
+        if (scene->lights_index == MAX_LIGHTS)
+            return;
         scene->lights[scene->lights_index++] = (light_t *)ptr;
     }
 }

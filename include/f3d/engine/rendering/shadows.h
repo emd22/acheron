@@ -2,7 +2,6 @@
 #define F3D_SHADOWS_H
 
 #include <f3d/engine/rendering/shader.h>
-#include <f3d/engine/rendering/light.h>
 #include <f3d/engine/rendering/camera.h>
 #include <f3d/engine/rendering/framebuffer.h>
 #include <f3d/engine/rendering/cubemap.h>
@@ -15,7 +14,6 @@ typedef struct {
     shader_t *shader;
     cubemap_t cubemap;
     mat4_t point_vps[6];
-    light_t *light;
     framebuffer_t framebuffer;
     
     mat4_t mat_perspective;

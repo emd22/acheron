@@ -7,7 +7,6 @@
 #include <signal.h>
 
 #include <f3d/engine/engine.h>
-#include <f3d/engine/rendering/render.h>
 
 #include <f3d/game/game.h>
 #include <f3d/game/player.h>
@@ -78,29 +77,39 @@ int main() {
     setup_handles();
     handle_call(HANDLE_INIT, NULL);
     
-    light_t *light2;
+    /*light_t *light2;
     light2 = light_new(LIGHT_DIRECTIONAL);
     light2->direction = (vector3f_t){-0.2, 0.8, -0.7};
     light2->ambient   = (vector3f_t){0.02f, 0.02f,  0.02f};
     light2->diffuse   = (vector3f_t){0.15f, 0.15f,  0.15f};
     light2->specular  = (vector3f_t){0.3f,  0.3f,   0.3f};
-    //light_init(light2, shader_main);
+    light_init(light2, shader_main);*/
+    
+    light_t *light2 = light_new(LIGHT_POINT);
+    light2->position = (vector3f_t){0, 5, 5};
+    light2->ambient = VEC3F(0.10f);
+    light2->diffuse   = VEC3F(0.3f);
+    light2->specular  = VEC3F(1.1f);
+    light2->diffuse.x = 1.0f;
+    light2->radius = 8.0f;
+    light_init(light2, shader_main);
     
     light = light_new(LIGHT_POINT);
-    light->position = (vector3f_t){4, 5, -5};
+    light->position = (vector3f_t){0, 5, -5};
     light->ambient = VEC3F(0.10f);
-    light->diffuse   = VEC3F(0.8f);
+    light->diffuse   = VEC3F(0.3f);
     light->specular  = VEC3F(1.1f);
-    light->radius = 12.0f;
+    light->diffuse.y = 1.0f;
+    light->radius = 8.0f;
     light_init(light, shader_main);
     
-    shadows_point_t shadow = shadows_point_init(light, 1024, 1024);
+    light_shadow_new(light, 500, 500);
+    light_shadow_new(light2, 500, 500);
+    
     scene = scene_new("Scene");
-    scene->shadow = shadow;
-    //scene_attach(scene, SCENE_LIGHT, light2);
     scene_attach(scene, SCENE_LIGHT, light);
-    //render_init_shadows(scene, 300, 300);
-    //shadows_point_init(light, 400, 400);
+    scene_attach(scene, SCENE_LIGHT, light2);
+    selected_scene = scene;
     
     engine_setup_signals();
    
@@ -121,10 +130,7 @@ int main() {
         shader_set_vec3f(shader_main, "view_pos", selected_camera->position);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //render_all();
-        light->position.x = sin(frames_rendered*0.03)*5;
-        light->position.z = cos(frames_rendered*0.03)*5;
         light_update(light, shader_main);
-        shadows_point_update(&scene->shadow);
         handle_call(HANDLE_DRAW, NULL);
         window_buffers_swap(&window);
 
@@ -179,7 +185,7 @@ void load_models() {
     render_object_t *box = object_new("Box");
     object_attach(box, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/cube.obj", MODEL_OBJ, 0));
     object_attach(box, OBJECT_ATTACH_MATERIAL, stone);
-    object_move(box, 0, 2, -1);
+    object_move(box, 0, 2, 0);
     
     objects_sort();
     default_framebuffer = NULL;

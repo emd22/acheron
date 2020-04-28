@@ -7,6 +7,7 @@
 
 static light_t lights[MAX_LIGHTS];
 static int lights_index = 0;
+static light_t dummy;
 
 int count_light_types(int type) {
     int i;
@@ -29,9 +30,10 @@ light_t *light_get(light_t **lights, light_t *next, int type, int max) {
 }
 
 light_t *light_new(int type) {
-    if (lights_index == MAX_LIGHTS) {
+    memset(&dummy, 0, sizeof(light_t));
+    if (lights_index == MAX_LIGHTS-1) {
         log_msg(LOG_ERROR, "Light limit (%d) reached\n", MAX_LIGHTS);
-        return NULL;
+        return &dummy;
     }
     light_t *light = &lights[lights_index++];
     // make sure all light data is NULL'd
@@ -42,7 +44,21 @@ light_t *light_new(int type) {
     light->index = count_light_types(type);
     log_msg(LOG_INFO, "%d\n", light->index);
     light->type = type;
+    light->use_shadows = false;
     return light;
+}
+
+void light_shadow_new(light_t *light, int width, int height) {
+    if (light->type != LIGHT_POINT)
+        return;
+    light->point_shadow = shadows_point_init(light->position, width, height);
+    light->use_shadows = true;
+}
+
+void light_shadow_render(light_t *light, shader_t *shader_main) {
+    if (light->use_shadows == false)
+        return;
+    shadows_point_render(&light->point_shadow, light->position, shader_main);
 }
 
 // TODO: replace this with something better
@@ -99,5 +115,7 @@ void light_update(light_t *light, shader_t *shader) {
     else if (light->type == LIGHT_POINT) {
         sprintf(lightstr, "pointLights[%d].position", light->index);
         shader_set_vec3f(shader, lightstr, light->position);
+        if (light->use_shadows)
+            shadows_point_update(&light->point_shadow, light->position);
     }
 }

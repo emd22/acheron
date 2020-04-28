@@ -25,6 +25,18 @@ int player_move(camera_t *camera) {
         velocity.x = max_velocity;
         moved = 1;
     }
+    if (controls_check_toggle(CONTROL_1)) {
+        light_t *new_light = light_new(LIGHT_POINT);
+        new_light->position = camera->position;
+        new_light->ambient = VEC3F(0.10f);
+        new_light->diffuse   = VEC3F(0.3f);
+        new_light->specular  = VEC3F(1.1f);
+        new_light->diffuse.z = 1.0f;
+        new_light->radius = 5.0f;
+        light_init(new_light, shader_main);
+        //light_shadow_new(new_light, 500, 500);
+        scene_attach(selected_scene, SCENE_LIGHT, new_light);
+    }
     if (controls_check_toggle(CONTROL_2)) {
         static bool wireframe = false;
         wireframe = !wireframe;

@@ -3,6 +3,9 @@
 
 #include <f3d/engine/types.h>
 #include <f3d/engine/rendering/shader.h>
+#include <f3d/engine/rendering/shadows.h>
+
+#include <stdbool.h>
 
 #define MAX_LIGHTS 16
 
@@ -20,6 +23,9 @@ typedef struct {
     vector3f_t diffuse;
     vector3f_t specular;
     
+    shadows_point_t point_shadow;
+    bool use_shadows;
+    
     // directional light
     vector3f_t direction;
     
@@ -32,5 +38,8 @@ light_t *light_new(int type);
 light_t *light_get(light_t **lights, light_t *next, int type, int max);
 void light_init(light_t *light, shader_t *shader);
 void light_update(light_t *light, shader_t *shader);
+
+void light_shadow_new(light_t *light, int width, int height);
+void light_shadow_render(light_t *light, shader_t *shader_main);
 
 #endif

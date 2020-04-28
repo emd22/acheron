@@ -9,6 +9,7 @@
 #define MAX_RENDER_OBJECTS 64
 
 extern shader_t *shader_main;
+extern scene_t *selected_scene;
 
 void render_init_shadows(scene_t *scene, int width, int height);
 void render_init();

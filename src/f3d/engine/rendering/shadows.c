@@ -46,7 +46,7 @@ void generate_point_vps(shadows_point_t *shadow, vector3f_t position) {
 
 void shadows_point_update(shadows_point_t *shadow, vector3f_t position) {
     // recalculate View/Projection matrices
-    generate_point_vps(shadow);
+    generate_point_vps(shadow, position);
 }
 
 shadows_point_t shadows_point_init(vector3f_t position, int width, int height) {
@@ -109,7 +109,7 @@ void shadows_point_render(shadows_point_t *shadow, vector3f_t position, shader_t
     shader_use(shader_main);
     shader_set_mat4(shader_main, "shadow_bias", &shadow_mat_bias);
     shader_use(shadow->shader);
-    shadows_send_uniforms(shadow);
+    shadows_send_uniforms(shadow, position);
     objects_draw(shadow->shader, &shadow_cam);
     framebuffer_texture(&shadow->framebuffer, GL_DEPTH_ATTACHMENT);
     shader_use(shader_main);

@@ -1,7 +1,7 @@
 #version 420 core
 
 #define MAX_DIR_LIGHTS 1
-#define MAX_POINT_LIGHTS 2
+#define MAX_POINT_LIGHTS 8
 
 struct Material {
     bool use_normalmap;
