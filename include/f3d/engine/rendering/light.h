@@ -7,9 +7,10 @@
 
 #include <stdbool.h>
 
-#define MAX_LIGHTS 16
+#define MAX_LIGHTS 8
 
 enum {
+    LIGHT_DUMMY,
     LIGHT_DIRECTIONAL,
     LIGHT_POINT,
     LIGHT_SPOTLIGHT,

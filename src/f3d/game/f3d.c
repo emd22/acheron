@@ -86,21 +86,21 @@ int main() {
     light_init(light2, shader_main);*/
     
     light_t *light2 = light_new(LIGHT_POINT);
-    light2->position = (vector3f_t){0, 5, 5};
+    light2->position = (vector3f_t){0, 3, 5};
     light2->ambient = VEC3F(0.10f);
     light2->diffuse   = VEC3F(0.3f);
     light2->specular  = VEC3F(1.1f);
     light2->diffuse.x = 1.0f;
-    light2->radius = 8.0f;
+    light2->radius = 5.0f;
     light_init(light2, shader_main);
     
     light = light_new(LIGHT_POINT);
-    light->position = (vector3f_t){0, 5, -5};
+    light->position = (vector3f_t){0, 3, -5};
     light->ambient = VEC3F(0.10f);
     light->diffuse   = VEC3F(0.3f);
     light->specular  = VEC3F(1.1f);
     light->diffuse.y = 1.0f;
-    light->radius = 8.0f;
+    light->radius = 5.0f;
     light_init(light, shader_main);
     
     light_shadow_new(light, 500, 500);
@@ -130,7 +130,6 @@ int main() {
         shader_set_vec3f(shader_main, "view_pos", selected_camera->position);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //render_all();
-        light_update(light, shader_main);
         handle_call(HANDLE_DRAW, NULL);
         window_buffers_swap(&window);
 
@@ -161,7 +160,7 @@ void load_models() {
         texture_load(NULL, "../images/stone.bmp", IMAGE_BMP),
         texture_load(NULL, "../images/stone_spec.bmp", IMAGE_BMP),
         texture_load(NULL, "../images/stone_normal.bmp", IMAGE_BMP),
-        32.0f, 0
+        32.0f, MATERIAL_NO_SPECULARMAP
     });
     
     brick = material_new((material_t){
@@ -169,7 +168,7 @@ void load_models() {
         texture_load(NULL, "../images/brick.bmp", IMAGE_BMP),
         texture_load(NULL, "../images/brick_spec.bmp", IMAGE_BMP),
         texture_load(NULL, "../images/brick_normal.bmp", IMAGE_BMP),
-        32.0f, 0
+        32.0f, MATERIAL_NO_SPECULARMAP
     });
     
     render_object_t *level = object_new("Level");
@@ -177,6 +176,7 @@ void load_models() {
     object_attach(level, OBJECT_ATTACH_MATERIAL, brick);
     object_rotate(level, 1.57, 0.0f, 0.0f);
     object_move(level, 0, 0, -5);
+    //object_scale(level, 0.01, 0.01, 0.01);
 
     //render_object_t *wall = object_new("Wall");
     //object_attach(wall, OBJECT_ATTACH_MESH, level->mesh);

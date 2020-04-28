@@ -31,8 +31,8 @@ light_t *light_get(light_t **lights, light_t *next, int type, int max) {
 
 light_t *light_new(int type) {
     memset(&dummy, 0, sizeof(light_t));
-    if (lights_index == MAX_LIGHTS-1) {
-        log_msg(LOG_ERROR, "Light limit (%d) reached\n", MAX_LIGHTS);
+    dummy.type = LIGHT_DUMMY;
+    if (lights_index == MAX_LIGHTS) {
         return &dummy;
     }
     light_t *light = &lights[lights_index++];
@@ -42,7 +42,6 @@ light_t *light_new(int type) {
     // count amount of a type of light because of the shader having
     // multiple arrays for different lights
     light->index = count_light_types(type);
-    log_msg(LOG_INFO, "%d\n", light->index);
     light->type = type;
     light->use_shadows = false;
     return light;
@@ -64,6 +63,8 @@ void light_shadow_render(light_t *light, shader_t *shader_main) {
 // TODO: replace this with something better
 void light_init(light_t *light, shader_t *shader) {
     if (light == NULL || shader == NULL)
+        return;
+    if (light->type == LIGHT_DUMMY)
         return;
         
     char lightstr[48];

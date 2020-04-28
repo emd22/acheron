@@ -4,6 +4,16 @@
 #include <f3d/game/game.h>
 
 int player_move(camera_t *camera) {
+    const vector3f_t colours[] = {
+        (vector3f_t){1.0, 1.0, 0.0},
+        (vector3f_t){0.0, 1.0, 1.0},
+        (vector3f_t){1.0, 0.0, 1.0},
+        (vector3f_t){0.5, 0.5, 1.0},
+        (vector3f_t){1.0, 1.0, 1.0},
+        (vector3f_t){0.8, 0.9, 0.4},
+    };
+    static int colour_index = 0;
+    
     int moved = 0;
     
     static vector3f_t velocity;
@@ -29,9 +39,8 @@ int player_move(camera_t *camera) {
         light_t *new_light = light_new(LIGHT_POINT);
         new_light->position = camera->position;
         new_light->ambient = VEC3F(0.10f);
-        new_light->diffuse   = VEC3F(0.3f);
+        new_light->diffuse   = colours[colour_index++];
         new_light->specular  = VEC3F(1.1f);
-        new_light->diffuse.z = 1.0f;
         new_light->radius = 5.0f;
         light_init(new_light, shader_main);
         //light_shadow_new(new_light, 500, 500);

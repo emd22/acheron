@@ -3,6 +3,7 @@
 #include <f3d/engine/rendering/shadows.h>
 #include <f3d/engine/core/handles.h>
 #include <f3d/engine/core/log.h>
+#include <f3d/engine/core/time.h>
 #include <string.h>
 
 scene_t scenes[8];
@@ -54,14 +55,13 @@ void scene_render(shader_t *shader_main, scene_t *scene) {
         light = scene->lights[i];
         // if shadows are setup, set shadow map in main shader
         //shadows_point_render(&scene->shadow, shader_main);
-        if (light->use_shadows) {
+        if ((!(frames_rendered % 5)) && light->use_shadows) {
             light_shadow_render(light, shader_main);
             glActiveTexture(GL_TEXTURE4);
             glBindTexture(GL_TEXTURE_CUBE_MAP, light->point_shadow.framebuffer.texture->id);
             shader_set_int(shader_main, "shadow_map", 4);        
         }
     }
-    //}
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     handle_call(HANDLE_RENDER_MESHES, selected_camera);

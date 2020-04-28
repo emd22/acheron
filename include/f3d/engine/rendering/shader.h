@@ -11,12 +11,20 @@
 #define SHADER_FRAGMENT GL_FRAGMENT_SHADER
 #define SHADER_GEOMETRY GL_GEOMETRY_SHADER
 
-#define MAX_UNIFORMS 512
+#define MAX_SHADER_UNIFORMS 64
 #define MAX_SHADERS 16
+
+typedef struct {
+    hash_t hash;
+    unsigned location;
+} shader_uniform_t;
 
 typedef struct {
     char name[32];
     hash_t hash;
+    
+    shader_uniform_t uniforms[MAX_SHADER_UNIFORMS];
+    int uniform_index;
     
     long vertex, fragment, geometry;
     long program;
