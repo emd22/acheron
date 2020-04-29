@@ -54,6 +54,6 @@ void object_scale_v(render_object_t *object, vector3f_t val);
 render_object_t *render_object_get(const char *name);
 void objects_sort(void);
 void object_attach(render_object_t *object, int type, void *data);
-void objects_draw(shader_t *shader, camera_t *camera);
+void objects_draw(shader_t *shader, camera_t *camera, bool render_materials);
 
 #endif

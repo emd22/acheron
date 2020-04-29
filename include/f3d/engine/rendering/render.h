@@ -6,8 +6,6 @@
 #include <f3d/engine/rendering/shader.h>
 #include <f3d/engine/rendering/scene.h>
 
-#define MAX_RENDER_OBJECTS 64
-
 extern shader_t *shader_main;
 extern scene_t *selected_scene;
 

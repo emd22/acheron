@@ -4,7 +4,9 @@
 #include <f3d/engine/core/handles.h>
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/core/time.h>
+#include <f3d/engine/limits.h>
 #include <string.h>
+#include <stdio.h>
 
 scene_t scenes[8];
 int scenes_index = 0;
@@ -38,6 +40,19 @@ render_view_t *scene_new_view(scene_t *scene, camera_t *camera, int width, int h
     return view;
 }
 
+void scene_render_shadows(scene_t *scene, shader_t *shader_main) {
+    int i;
+    light_t *light;
+    for (i = 0; i < scene->lights_index; i++) {
+        light = scene->lights[i];
+        // if shadows are setup, set shadow map in main shader
+        //shadows_point_render(&scene->shadow, shader_main);
+        if (light->use_shadows) {
+            light_shadow_render(light, shader_main);   
+        }
+    }
+}
+
 void scene_render(shader_t *shader_main, scene_t *scene) {
     int view_count = 0;
     
@@ -51,15 +66,25 @@ void scene_render(shader_t *shader_main, scene_t *scene) {
     //if (shader_depth != NULL) {
     int i;
     light_t *light;
-    for (i = 0; i < scene->lights_index; i++) {
+    char str[48];
+    for (i = 0; i < MAX_LIGHTS; i++) {
+        if (i >= scene->lights_index) {
+            sprintf(str, "pointLights[%d].shadow_map", i);
+            shader_set_int(shader_main, str, 4);
+            continue;
+        }
         light = scene->lights[i];
         // if shadows are setup, set shadow map in main shader
         //shadows_point_render(&scene->shadow, shader_main);
-        if ((!(frames_rendered % 5)) && light->use_shadows) {
-            light_shadow_render(light, shader_main);
-            glActiveTexture(GL_TEXTURE4);
+        if (light->use_shadows) {
+            glActiveTexture(GL_TEXTURE4+light->point_shadow.shadow_map_id);
             glBindTexture(GL_TEXTURE_CUBE_MAP, light->point_shadow.framebuffer.texture->id);
-            shader_set_int(shader_main, "shadow_map", 4);        
+            sprintf(str, "pointLights[%d].shadow_map", i);
+            shader_set_int(shader_main, str, 4+light->point_shadow.shadow_map_id);
+            sprintf(str, "pointLights[%d].shadow_far_plane", i);
+            shader_set_float(shader_main, str, light->point_shadow.far_plane);
+            sprintf(str, "pointLights[%d].shadows_enabled", i);
+            shader_set_float(shader_main, str, light->use_shadows);
         }
     }
 

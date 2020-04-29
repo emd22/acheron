@@ -8,6 +8,7 @@
 static light_t lights[MAX_LIGHTS];
 static int lights_index = 0;
 static light_t dummy;
+static int shadow_map_id = 0;
 
 int count_light_types(int type) {
     int i;
@@ -50,8 +51,9 @@ light_t *light_new(int type) {
 void light_shadow_new(light_t *light, int width, int height) {
     if (light->type != LIGHT_POINT)
         return;
-    light->point_shadow = shadows_point_init(light->position, width, height);
+    light->point_shadow = shadows_point_init(light->position, width, height, light->radius);
     light->use_shadows = true;
+    light->point_shadow.shadow_map_id = ++shadow_map_id;
 }
 
 void light_shadow_render(light_t *light, shader_t *shader_main) {

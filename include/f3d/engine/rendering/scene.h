@@ -6,9 +6,7 @@
 #include <f3d/engine/rendering/camera.h>
 #include <f3d/engine/rendering/light.h>
 #include <f3d/engine/rendering/shadows.h>
-
-#define SCENE_MAX_RENDER_VIEWS 8
-#define SCENE_MAX_LIGHTS       8
+#include <f3d/engine/limits.h>
 
 #define SCENE_ENABLE_SHADOWS 0x01
 #define SCENE_ENABLE_SKYBOX  0x02
@@ -21,13 +19,13 @@ enum {
 typedef struct {
     char name[32];
 
-    render_view_t views[SCENE_MAX_RENDER_VIEWS];
+    render_view_t views[MAX_SCENE_RENDER_VIEWS];
     int views_index;
     
     //object_t objects[MAX_RENDER_OBJECTS];
     //int objects_index;
     
-    light_t *lights[SCENE_MAX_LIGHTS];
+    light_t *lights[MAX_SCENE_LIGHTS];
     int lights_index;
     
     skybox_t skybox;
@@ -38,6 +36,7 @@ extern scene_t scenes[8];
 extern int scenes_index;
 
 scene_t *scene_new(const char *name);
+void scene_render_shadows(scene_t *scene, shader_t *shader_main);
 render_view_t *scene_new_view(scene_t *scene, camera_t *camera, int width, int height, int attachment);
 void scene_attach(scene_t *scene, int type, void *ptr);
 void scene_render(shader_t *shader_main, scene_t *scene);

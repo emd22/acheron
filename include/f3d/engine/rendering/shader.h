@@ -3,6 +3,7 @@
 
 #include <f3d/engine/types.h>
 #include <f3d/engine/util.h>
+#include <f3d/engine/limits.h>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -10,9 +11,6 @@
 #define SHADER_VERTEX   GL_VERTEX_SHADER
 #define SHADER_FRAGMENT GL_FRAGMENT_SHADER
 #define SHADER_GEOMETRY GL_GEOMETRY_SHADER
-
-#define MAX_SHADER_UNIFORMS 64
-#define MAX_SHADERS 16
 
 typedef struct {
     hash_t hash;

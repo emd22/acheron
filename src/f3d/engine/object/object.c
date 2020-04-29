@@ -2,12 +2,11 @@
 #include <f3d/engine/object/material.h>
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/util.h>
+#include <f3d/engine/limits.h>
 
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
-
-#define MAX_RENDER_OBJECTS 128
 
 render_object_t render_objects[MAX_RENDER_OBJECTS];
 int render_objects_index = 0;
@@ -140,16 +139,20 @@ void objects_sort(void) {
     qsort(render_objects, render_objects_index, sizeof(render_object_t), &compare_materials);
 }
 
-void objects_draw(shader_t *shader, camera_t *camera) {
+void objects_draw(shader_t *shader, camera_t *camera, bool render_materials) {
     int i;
     hash_t mat_hash = 1;
     render_object_t *object;
     for (i = 0; i < render_objects_index; i++) {
         object = &render_objects[i];
-
-        if (mat_hash != get_material_hash(object)) {
-            material_update(object->material, shader);
-            mat_hash = get_material_hash(object);
+        if (render_materials == false) {
+            material_update(NULL, shader);
+        }
+        else {
+            if (mat_hash != get_material_hash(object)) {
+                material_update(object->material, shader);
+                mat_hash = get_material_hash(object);
+            }        
         }
         if (object->flags & RENDER_OBJECT_FLAG_UPDATE) {
             object_update(object);

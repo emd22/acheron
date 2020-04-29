@@ -2,6 +2,7 @@
 #include <f3d/engine/core/handles.h>
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/engine.h>
+#include <f3d/engine/limits.h>
 
 #include <f3d/engine/type/vec.h>
 

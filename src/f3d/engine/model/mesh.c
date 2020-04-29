@@ -3,14 +3,13 @@
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/rendering/shader.h>
 #include <f3d/engine/type/vec.h>
+#include <f3d/engine/limits.h>
 
 #include <string.h>
 #include <stdlib.h>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
-
-#define MAX_MESHES 128
 
 static mesh_t *meshes;
 static int meshes_index = 0;

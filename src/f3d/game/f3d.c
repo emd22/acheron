@@ -52,7 +52,8 @@ int init(void) {
     
     camera = camera_new();
     camera.move_speed = 6.0f;
-    camera.position = (vector3f_t){2, 3, -5};
+    camera.position = (vector3f_t){0, 3, 4};
+    camera.rotation.x = 3.14;
 
     load_models();
     
@@ -86,36 +87,36 @@ int main() {
     light_init(light2, shader_main);*/
     
     light_t *light2 = light_new(LIGHT_POINT);
-    light2->position = (vector3f_t){0, 3, 5};
+    light2->position = (vector3f_t){-1, 2, -5};
     light2->ambient = VEC3F(0.10f);
     light2->diffuse   = VEC3F(0.3f);
     light2->specular  = VEC3F(1.1f);
     light2->diffuse.x = 1.0f;
-    light2->radius = 5.0f;
+    light2->radius = 8.0f;
     light_init(light2, shader_main);
     
     light = light_new(LIGHT_POINT);
-    light->position = (vector3f_t){0, 3, -5};
+    light->position = (vector3f_t){1, 2, -5};
     light->ambient = VEC3F(0.10f);
     light->diffuse   = VEC3F(0.3f);
     light->specular  = VEC3F(1.1f);
     light->diffuse.y = 1.0f;
-    light->radius = 5.0f;
+    light->radius = 8.0f;
     light_init(light, shader_main);
     
-    light_shadow_new(light, 500, 500);
-    light_shadow_new(light2, 500, 500);
+    light_shadow_new(light, 800, 800);
+    light_shadow_new(light2, 800, 800);
     
     scene = scene_new("Scene");
     scene_attach(scene, SCENE_LIGHT, light);
     scene_attach(scene, SCENE_LIGHT, light2);
     selected_scene = scene;
-    
+    scene_render_shadows(scene, shader_main);
+
     engine_setup_signals();
    
     SDL_Event event;
-    time_init();
-    
+    time_init(); 
    
     log_msg(LOG_INFO, "Buffer usage: %.01fKB\n", (double)buffer_total_used/1024.0);
     while (game_info.flags & GAME_IS_RUNNING) {
@@ -172,11 +173,11 @@ void load_models() {
     });
     
     render_object_t *level = object_new("Level");
-    object_attach(level, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/wall.obj", MODEL_OBJ, 0));
+    object_attach(level, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/metro.obj", MODEL_OBJ, 0));
     object_attach(level, OBJECT_ATTACH_MATERIAL, brick);
-    object_rotate(level, 1.57, 0.0f, 0.0f);
-    object_move(level, 0, 0, -5);
-    //object_scale(level, 0.01, 0.01, 0.01);
+    //object_rotate(level, 1.57, 0.0f, 0.0f);
+    object_move(level, 0, 2, -5);
+    object_scale(level, 5, 5, 5);
 
     //render_object_t *wall = object_new("Wall");
     //object_attach(wall, OBJECT_ATTACH_MESH, level->mesh);

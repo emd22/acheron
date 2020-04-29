@@ -16,10 +16,13 @@ typedef struct {
     mat4_t point_vps[6];
     framebuffer_t framebuffer;
     
+    float far_plane;
+    int shadow_map_id;
+    
     mat4_t mat_perspective;
 } shadows_point_t;
 
-shadows_point_t shadows_point_init(vector3f_t position, int width, int height);
+shadows_point_t shadows_point_init(vector3f_t position, int width, int height, float far_plane);
 void shadows_point_render(shadows_point_t *shadow, vector3f_t position, shader_t *shader_main);
 void shadows_point_update(shadows_point_t *shadow, vector3f_t position);
 

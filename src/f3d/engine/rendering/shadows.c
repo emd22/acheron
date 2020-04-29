@@ -49,7 +49,7 @@ void shadows_point_update(shadows_point_t *shadow, vector3f_t position) {
     generate_point_vps(shadow, position);
 }
 
-shadows_point_t shadows_point_init(vector3f_t position, int width, int height) {
+shadows_point_t shadows_point_init(vector3f_t position, int width, int height, float far_plane) {
     shadows_point_t shadow;
     shadow.shader = shader_new("Point Shadow");
     shader_attach(shadow.shader, SHADER_VERTEX, "../shaders/shadows/point_vert.glsl");
@@ -61,9 +61,9 @@ shadows_point_t shadows_point_init(vector3f_t position, int width, int height) {
     shadow.height = height;
     
     const float near = 1.0f;
-    const float far  = 50.0f;
+    shadow.far_plane = far_plane;
     // generate perspective matrix
-    math_perspective(&shadow.mat_perspective, math_deg_to_rad(90.0f), (float)width/(float)height, near, far);
+    math_perspective(&shadow.mat_perspective, math_deg_to_rad(90.0f), (float)width/(float)height, near, far_plane);
     
     framebuffer_cubemap_init(&shadow.cubemap, width, height);
     generate_point_vps(&shadow, position);
@@ -74,6 +74,8 @@ shadows_point_t shadows_point_init(vector3f_t position, int width, int height) {
     framebuffer_bind(&shadow.framebuffer);
     
     framebuffer_texture(&shadow.framebuffer, GL_DEPTH_ATTACHMENT);
+    
+    shadow.shadow_map_id = 0;
     
     return shadow;
 }
@@ -106,11 +108,15 @@ void shadows_point_render(shadows_point_t *shadow, vector3f_t position, shader_t
         
     framebuffer_bind(&shadow->framebuffer);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
     shader_use(shader_main);
     shader_set_mat4(shader_main, "shadow_bias", &shadow_mat_bias);
     shader_use(shadow->shader);
+    shader_set_float(shadow->shader, "far_plane", shadow->far_plane);
     shadows_send_uniforms(shadow, position);
-    objects_draw(shadow->shader, &shadow_cam);
+    
+    objects_draw(shadow->shader, &shadow_cam, false);
+    
     framebuffer_texture(&shadow->framebuffer, GL_DEPTH_ATTACHMENT);
     shader_use(shader_main);
     

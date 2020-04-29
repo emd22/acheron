@@ -3,14 +3,13 @@
 #include <f3d/engine/core/handles.h>
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/types.h>
+#include <f3d/engine/limits.h>
 
 #include <stdlib.h>
 #include <string.h>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
-
-#define MAX_TEXTURES 512
 
 static texture_t textures[MAX_TEXTURES];
 static int textures_index = 0;
