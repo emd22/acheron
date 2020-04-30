@@ -45,6 +45,21 @@ light_t *light_new(int type) {
     light->index = count_light_types(type);
     light->type = type;
     light->use_shadows = false;
+    
+    if (type == LIGHT_POINT) {
+        light->position = VEC3F(0.0f);
+        light->ambient = VEC3F(0.10f);
+        light->diffuse   = VEC3F(0.8f);
+        light->specular  = VEC3F(1.0f);
+        light->radius = 8.0f;
+    }
+    else if (type == LIGHT_DIRECTIONAL) {
+        light->direction = (vector3f_t){-0.2, 0.8, -0.7};
+        light->ambient   = VEC3F(0.02f);
+        light->diffuse   = VEC3F(0.15f);
+        light->specular  = VEC3F(0.3f);
+    }
+    
     return light;
 }
 
@@ -86,6 +101,7 @@ void light_init(light_t *light, shader_t *shader) {
     }
     else if (light->type == LIGHT_POINT) {
         log_msg(LOG_INFO, "Initializing point light (id: %d)\n", light->index);
+        
         sprintf(lightstr, "pointLights[%d].position", light->index);
         shader_set_vec3f(shader, lightstr, light->position);
 
@@ -100,6 +116,16 @@ void light_init(light_t *light, shader_t *shader) {
 
         sprintf(lightstr, "pointLights[%d].radius", light->index);
         shader_set_float(shader, lightstr, light->radius);
+        
+        // Shadows
+        sprintf(lightstr, "pointLights[%d].shadow_map", light->index);
+        shader_set_int(shader, lightstr, 4+light->point_shadow.shadow_map_id);
+        
+        sprintf(lightstr, "pointLights[%d].shadow_far_plane", light->index);
+        shader_set_float(shader, lightstr, light->point_shadow.far_plane);
+        
+        sprintf(lightstr, "pointLights[%d].shadows_enabled", light->index);
+        shader_set_float(shader, lightstr, light->use_shadows);
     }
     else {
         log_msg(LOG_ERROR, "light type #%d not implemented\n", light->type);
@@ -118,7 +144,18 @@ void light_update(light_t *light, shader_t *shader) {
     else if (light->type == LIGHT_POINT) {
         sprintf(lightstr, "pointLights[%d].position", light->index);
         shader_set_vec3f(shader, lightstr, light->position);
-        if (light->use_shadows)
+        
+        if (light->use_shadows) {
+            sprintf(lightstr, "pointLights[%d].shadow_map", light->index);
+            shader_set_int(shader, lightstr, 4+light->point_shadow.shadow_map_id);
+            
+            sprintf(lightstr, "pointLights[%d].shadow_far_plane", light->index);
+            shader_set_float(shader, lightstr, light->point_shadow.far_plane);
+            
+            sprintf(lightstr, "pointLights[%d].shadows_enabled", light->index);
+            shader_set_float(shader, lightstr, light->use_shadows);
+            
             shadows_point_update(&light->point_shadow, light->position);
+        }
     }
 }

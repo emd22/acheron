@@ -3,17 +3,7 @@
 #include <f3d/engine/engine.h>
 #include <f3d/game/game.h>
 
-int player_move(camera_t *camera) {
-    const vector3f_t colours[] = {
-        (vector3f_t){1.0, 1.0, 0.0},
-        (vector3f_t){0.0, 1.0, 1.0},
-        (vector3f_t){1.0, 0.0, 1.0},
-        (vector3f_t){0.5, 0.5, 1.0},
-        (vector3f_t){1.0, 1.0, 1.0},
-        (vector3f_t){0.8, 0.9, 0.4},
-    };
-    static int colour_index = 0;
-    
+int player_move(camera_t *camera) {   
     int moved = 0;
     
     static vector3f_t velocity;
@@ -38,12 +28,10 @@ int player_move(camera_t *camera) {
     if (controls_check_toggle(CONTROL_1)) {
         light_t *new_light = light_new(LIGHT_POINT);
         new_light->position = camera->position;
-        new_light->ambient = VEC3F(0.10f);
-        new_light->diffuse   = colours[colour_index++];
-        new_light->specular  = VEC3F(1.1f);
-        new_light->radius = 10.0f;
-        light_init(new_light, shader_main);
+        new_light->diffuse   = VEC3F(1.0f);
         light_shadow_new(new_light, 800, 800);
+        light_init(new_light, shader_main);
+        
         scene_attach(selected_scene, SCENE_LIGHT, new_light);
         scene_render_shadows(selected_scene, shader_main);
     }

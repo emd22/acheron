@@ -79,12 +79,6 @@ void scene_render(shader_t *shader_main, scene_t *scene) {
         if (light->use_shadows) {
             glActiveTexture(GL_TEXTURE4+light->point_shadow.shadow_map_id);
             glBindTexture(GL_TEXTURE_CUBE_MAP, light->point_shadow.framebuffer.texture->id);
-            sprintf(str, "pointLights[%d].shadow_map", i);
-            shader_set_int(shader_main, str, 4+light->point_shadow.shadow_map_id);
-            sprintf(str, "pointLights[%d].shadow_far_plane", i);
-            shader_set_float(shader_main, str, light->point_shadow.far_plane);
-            sprintf(str, "pointLights[%d].shadows_enabled", i);
-            shader_set_float(shader_main, str, light->use_shadows);
         }
     }
 

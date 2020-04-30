@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+
 render_object_t render_objects[MAX_RENDER_OBJECTS];
 int render_objects_index = 0;
 

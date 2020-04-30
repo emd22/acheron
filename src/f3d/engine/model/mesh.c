@@ -28,27 +28,8 @@ mesh_t *mesh_new(void) {
     return mesh;    
 }
 
-mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags) {
-    if (mesh == NULL)
-        mesh = mesh_new();
-        
-    if (type == MODEL_OBJ) {
-        mesh->obj = malloc(sizeof(obj_model_t));
-        obj_model_t obj = obj_load(path);
-        memcpy(mesh->obj, &obj, sizeof(obj_model_t));
-        
-        mesh->vertices = &(mesh->obj->vertices);
-        mesh->uvs = &(mesh->obj->uvs);
-        mesh->normals = &(mesh->obj->normals);
-    }
-    else {
-        log_msg(LOG_ERROR, "Cannot load mesh of unknown type\n", 0);
-        mesh->vertices = NULL;
-        mesh->normals = NULL;
-        mesh->uvs = NULL;
-        return NULL;
-    }
-    
+
+void mesh_init(mesh_t *mesh, int flags) {    
     // vertices
     glGenBuffers(1, &mesh->vertex_id);
     glBindBuffer(GL_ARRAY_BUFFER, mesh->vertex_id);
@@ -102,6 +83,67 @@ mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags) {
         glBindBuffer(GL_ARRAY_BUFFER, mesh->bitangent_id);
         glVertexAttribPointer(4, 3, GL_FLOAT, 0, 0, NULL);
     }
+}
+
+void mesh_set_data(
+    mesh_t *mesh, 
+    vector3f_t *vertices, int verts_size,
+    vector2f_t *uvs,      int uvs_size,
+    vector3f_t *normals,  int norms_size,
+    int flags)
+{
+    if (vertices != NULL) {
+        unsigned data_size = verts_size*sizeof(vector3f_t);
+        
+        mesh->vertices->data = malloc(data_size);
+        memcpy(mesh->vertices->data, vertices, data_size);
+        mesh->vertices->index = verts_size;
+        mesh->vertices->obj_sz = sizeof(vector3f_t);
+        mesh->vertices->size = verts_size;
+    }
+    if (uvs != NULL) {
+        unsigned data_size = uvs_size*sizeof(vector2f_t);
+        
+        mesh->uvs->data = malloc(data_size);
+        memcpy(mesh->uvs->data, uvs, data_size);
+        mesh->uvs->index = uvs_size;
+        mesh->uvs->obj_sz = sizeof(vector2f_t);
+        mesh->uvs->size = uvs_size;
+    }
+    if (normals != NULL) {
+        unsigned data_size = norms_size*sizeof(vector3f_t);
+        
+        mesh->normals->data = malloc(data_size);
+        memcpy(mesh->normals->data, normals, data_size);
+        mesh->normals->index = norms_size;
+        mesh->normals->obj_sz = sizeof(vector3f_t);
+        mesh->normals->size = norms_size;
+    }
+    mesh_init(mesh, flags);
+}
+
+mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags) {
+    if (mesh == NULL)
+        mesh = mesh_new();
+        
+    if (type == MODEL_OBJ) {
+        mesh->obj = malloc(sizeof(obj_model_t));
+        obj_model_t obj = obj_load(path);
+        memcpy(mesh->obj, &obj, sizeof(obj_model_t));
+        
+        mesh->vertices = &(mesh->obj->vertices);
+        mesh->uvs = &(mesh->obj->uvs);
+        mesh->normals = &(mesh->obj->normals);
+    }
+    else {
+        log_msg(LOG_ERROR, "Cannot load mesh of unknown type\n", 0);
+        mesh->vertices = NULL;
+        mesh->normals = NULL;
+        mesh->uvs = NULL;
+        return NULL;
+    }
+    
+    mesh_init(mesh, flags);
     
     return mesh;
 }

@@ -78,38 +78,22 @@ int main() {
     setup_handles();
     handle_call(HANDLE_INIT, NULL);
     
-    /*light_t *light2;
-    light2 = light_new(LIGHT_DIRECTIONAL);
-    light2->direction = (vector3f_t){-0.2, 0.8, -0.7};
-    light2->ambient   = (vector3f_t){0.02f, 0.02f,  0.02f};
-    light2->diffuse   = (vector3f_t){0.15f, 0.15f,  0.15f};
-    light2->specular  = (vector3f_t){0.3f,  0.3f,   0.3f};
-    light_init(light2, shader_main);*/
-    
-    light_t *light2 = light_new(LIGHT_POINT);
-    light2->position = (vector3f_t){-1, 2, -5};
-    light2->ambient = VEC3F(0.10f);
-    light2->diffuse   = VEC3F(0.3f);
-    light2->specular  = VEC3F(1.1f);
-    light2->diffuse.x = 1.0f;
-    light2->radius = 8.0f;
-    light_init(light2, shader_main);
+    //light_t *light2 = light_new(LIGHT_POINT);
+    //light2->position = (vector3f_t){-1, 2, -5};
+    //light2->diffuse   = VEC3F(0.3f);
+    //light2->diffuse.x = 1.0f;
+    //light_shadow_new(light2, 800, 800);
+    //light_init(light2, shader_main);
     
     light = light_new(LIGHT_POINT);
-    light->position = (vector3f_t){1, 2, -5};
-    light->ambient = VEC3F(0.10f);
-    light->diffuse   = VEC3F(0.3f);
-    light->specular  = VEC3F(1.1f);
-    light->diffuse.y = 1.0f;
-    light->radius = 8.0f;
+    light_shadow_new(light, 800, 800);
+    light->position = (vector3f_t){1, 3, -5};
     light_init(light, shader_main);
     
-    light_shadow_new(light, 800, 800);
-    light_shadow_new(light2, 800, 800);
     
     scene = scene_new("Scene");
     scene_attach(scene, SCENE_LIGHT, light);
-    scene_attach(scene, SCENE_LIGHT, light2);
+    //scene_attach(scene, SCENE_LIGHT, light2);
     selected_scene = scene;
     scene_render_shadows(scene, shader_main);
 
@@ -159,25 +143,25 @@ void load_models() {
     stone = material_new((material_t){
         "Stone", 0,
         texture_load(NULL, "../images/stone.bmp", IMAGE_BMP),
-        texture_load(NULL, "../images/stone_spec.bmp", IMAGE_BMP),
+        NULL,
         texture_load(NULL, "../images/stone_normal.bmp", IMAGE_BMP),
-        32.0f, MATERIAL_NO_SPECULARMAP
+        32.0f, 0
     });
     
     brick = material_new((material_t){
         "Brick", 0,
         texture_load(NULL, "../images/brick.bmp", IMAGE_BMP),
-        texture_load(NULL, "../images/brick_spec.bmp", IMAGE_BMP),
+        NULL,
         texture_load(NULL, "../images/brick_normal.bmp", IMAGE_BMP),
-        32.0f, MATERIAL_NO_SPECULARMAP
+        50.0f, 0
     });
     
     render_object_t *level = object_new("Level");
-    object_attach(level, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/metro.obj", MODEL_OBJ, 0));
+    object_attach(level, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/conference/conference.obj", MODEL_OBJ, 0));
     object_attach(level, OBJECT_ATTACH_MATERIAL, brick);
     //object_rotate(level, 1.57, 0.0f, 0.0f);
-    object_move(level, 0, 2, -5);
-    object_scale(level, 5, 5, 5);
+    //object_move(level, 0, 2, -5);
+    object_scale(level, 0.01, 0.01, 0.01);
 
     //render_object_t *wall = object_new("Wall");
     //object_attach(wall, OBJECT_ATTACH_MESH, level->mesh);
