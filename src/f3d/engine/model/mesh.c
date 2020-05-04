@@ -25,26 +25,32 @@ mesh_t *mesh_new(void) {
     mesh_t *mesh = &meshes[index];
     mesh->type = MODEL_NONE;
     mesh->index = index;
+    mesh->normals = NULL;
+    mesh->uvs = NULL;
+    mesh->vertices = NULL;
     return mesh;    
 }
 
 
-void mesh_init(mesh_t *mesh, int flags) {    
-    // vertices
-    glGenBuffers(1, &mesh->vertex_id);
-    glBindBuffer(GL_ARRAY_BUFFER, mesh->vertex_id);
-    glBufferData(GL_ARRAY_BUFFER, mesh->vertices->index*sizeof(vector3f_t), mesh->vertices->data, GL_STATIC_DRAW);
-
-    // uvs
-    glGenBuffers(1, &mesh->uv_id);
-    glBindBuffer(GL_ARRAY_BUFFER, mesh->uv_id);
-    glBufferData(GL_ARRAY_BUFFER, mesh->uvs->index*sizeof(vector2f_t), mesh->uvs->data, GL_STATIC_DRAW);
-    
-    // normals
-    glGenBuffers(1, &mesh->normal_id);
-    glBindBuffer(GL_ARRAY_BUFFER, mesh->normal_id);
-    glBufferData(GL_ARRAY_BUFFER, mesh->normals->index*sizeof(vector3f_t), mesh->normals->data, GL_STATIC_DRAW);
-    
+void mesh_init(mesh_t *mesh, int flags) {
+    if (mesh->vertices) {
+        // vertices
+        glGenBuffers(1, &mesh->vertex_id);
+        glBindBuffer(GL_ARRAY_BUFFER, mesh->vertex_id);
+        glBufferData(GL_ARRAY_BUFFER, mesh->vertices->index*sizeof(vector3f_t), mesh->vertices->data, GL_STATIC_DRAW);    
+    }
+    if (mesh->uvs) {
+        // uvs
+        glGenBuffers(1, &mesh->uv_id);
+        glBindBuffer(GL_ARRAY_BUFFER, mesh->uv_id);
+        glBufferData(GL_ARRAY_BUFFER, mesh->uvs->index*sizeof(vector2f_t), mesh->uvs->data, GL_STATIC_DRAW);    
+    }
+    if (mesh->normals) {
+        // normals
+        glGenBuffers(1, &mesh->normal_id);
+        glBindBuffer(GL_ARRAY_BUFFER, mesh->normal_id);
+        glBufferData(GL_ARRAY_BUFFER, mesh->normals->index*sizeof(vector3f_t), mesh->normals->data, GL_STATIC_DRAW);    
+    }
     glGenVertexArrays(1, &mesh->vao);
     
     mesh->flags = flags;
@@ -62,17 +68,22 @@ void mesh_init(mesh_t *mesh, int flags) {
     
     glBindVertexArray(mesh->vao);
     
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, mesh->vertex_id);
-    glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, NULL);
+    if (mesh->vertices) {
+        glEnableVertexAttribArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, mesh->vertex_id);
+        glVertexAttribPointer(0, 3, GL_FLOAT, 0, 0, NULL);    
+    }
+    if (mesh->uvs) {
+        glEnableVertexAttribArray(1);
+        glBindBuffer(GL_ARRAY_BUFFER, mesh->uv_id);
+        glVertexAttribPointer(1, 2, GL_FLOAT, 0, 0, NULL);
+    }
     
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, mesh->uv_id);
-    glVertexAttribPointer(1, 2, GL_FLOAT, 0, 0, NULL);
-    
-    glEnableVertexAttribArray(2);
-    glBindBuffer(GL_ARRAY_BUFFER, mesh->normal_id);
-    glVertexAttribPointer(2, 3, GL_FLOAT, 0, 0, NULL);
+    if (mesh->normals) {
+        glEnableVertexAttribArray(2);
+        glBindBuffer(GL_ARRAY_BUFFER, mesh->normal_id);
+        glVertexAttribPointer(2, 3, GL_FLOAT, 0, 0, NULL);    
+    }
     
     if (!(mesh->flags & MESH_NO_TANGENTS)) {
         glEnableVertexAttribArray(3);
@@ -94,6 +105,7 @@ void mesh_set_data(
 {
     if (vertices != NULL) {
         unsigned data_size = verts_size*sizeof(vector3f_t);
+        mesh->vertices = malloc(sizeof(buffer_t));
         
         mesh->vertices->data = malloc(data_size);
         memcpy(mesh->vertices->data, vertices, data_size);
@@ -149,6 +161,9 @@ mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags) {
 }
 
 void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, shader_t *shader) {
+    if (mesh == NULL || mesh->vertices == NULL)
+        return;
+        
     if (camera != NULL && matrix != NULL && shader != NULL) {
         shader_set_mat4(shader, "m", matrix);
         shader_set_mat4(shader, "v", &camera->mat_view);
@@ -231,7 +246,7 @@ void meshes_cleanup(void) {
 }
 
 void mesh_destroy(mesh_t *mesh) {
-    if (mesh->type == MODEL_NONE)
+    if (mesh == NULL || mesh->type == MODEL_NONE)
         return;
     //log_msg(LOG_INFO, "Deleting mesh(idx: %d)\n", mesh->index);
         

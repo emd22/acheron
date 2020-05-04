@@ -71,7 +71,7 @@ void buffer_resize(buffer_t *buffer) {
 }
 
 void buffer_destroy(buffer_t *buffer) {
-    if (buffer->data == NULL)
+    if (buffer == NULL || buffer->data == NULL)
         return;
     buffer_total_used -= buffer->size*buffer->obj_sz;
     free(buffer->data);

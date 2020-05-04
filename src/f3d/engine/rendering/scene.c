@@ -1,6 +1,7 @@
 #include <f3d/engine/rendering/scene.h>
 
 #include <f3d/engine/rendering/shadows.h>
+#include <f3d/engine/rendering/ui.h>
 #include <f3d/engine/core/handles.h>
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/core/time.h>
@@ -85,7 +86,8 @@ void scene_render(shader_t *shader_main, scene_t *scene) {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     handle_call(HANDLE_RENDER_MESHES, selected_camera);
     shader_use(shader_main);
-    
+    ui_render();
+    //shader_use(shader_main);    
     // draw addtional views
     render_view_t *view;
     for (i = 1; i < view_count; i++) {
@@ -110,7 +112,6 @@ void scene_render(shader_t *shader_main, scene_t *scene) {
             GL_COLOR_BUFFER_BIT, GL_NEAREST
         );
     }
-
 }
 
 void scene_attach(scene_t *scene, int type, void *ptr) {

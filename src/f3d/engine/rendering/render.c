@@ -43,7 +43,6 @@ int render_all_objects(void *arg) {
     camera_t *cam = (camera_t *)arg;
     
     //skybox_render(&scenes[0].skybox, cam);
-    shader_use(shader_main);
     objects_draw(shader_main, cam, true);
     
     return 0;

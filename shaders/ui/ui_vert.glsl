@@ -13,7 +13,8 @@ out vec3 frag_normal;
 out vec3 frag_vertex;
 
 void main() {
-    mat4 mvp = p*v*m;
+    //mat4 mvp = p*v*m;
+    mat4 mvp = p*m;
     // vertex position
     frag_vertex = (m*vec4(vert_position, 1.0)).xyz;
     frag_uv = vert_uv;

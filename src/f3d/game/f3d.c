@@ -54,12 +54,13 @@ int init(void) {
     camera.move_speed = 6.0f;
     camera.position = (vector3f_t){0, 3, 4};
     camera.rotation.x = 3.14;
-
-    load_models();
-    
     // select camera to be default and calculate perspective matrix
     camera_select(&camera);
     log_msg(LOG_INFO, "Camera initialized\n", 0);
+
+    load_models();
+    
+    ui_init();
     
     // disable mouse cursor
     window_set_mouse_mode(WINDOW_MOUSE_DISABLED);
@@ -86,10 +87,9 @@ int main() {
     //light_init(light2, shader_main);
     
     light = light_new(LIGHT_POINT);
+    light->position = (vector3f_t){5, 3, 4};
     light_shadow_new(light, 800, 800);
-    light->position = (vector3f_t){1, 3, -5};
     light_init(light, shader_main);
-    
     
     scene = scene_new("Scene");
     scene_attach(scene, SCENE_LIGHT, light);
@@ -116,6 +116,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //render_all();
         handle_call(HANDLE_DRAW, NULL);
+        
         window_buffers_swap(&window);
 
         time_end();
