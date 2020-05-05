@@ -21,12 +21,15 @@ typedef struct {
 
     obj_model_t *obj;
     buffer_t *vertices;
+    buffer_t *vertex_indices;
+    
     buffer_t *uvs;
     buffer_t *normals;
     
     unsigned vertex_id;
     unsigned uv_id;
     unsigned normal_id;
+    unsigned indices_id;
     
     unsigned vao;
     

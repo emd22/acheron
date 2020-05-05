@@ -73,6 +73,7 @@ obj_model_t obj_load(const char *path) {
                 &vertex_index[2], &uv_index[2], &normal_index[2]
             );
             if (matches != 9) {
+                log_msg(LOG_WARN, "model not using vert 9\n", 0);
                 uv_index[0] = 0;
                 uv_index[1] = 0;
                 uv_index[2] = 0;
@@ -112,16 +113,18 @@ obj_model_t obj_load(const char *path) {
     }
     //log_msg(LOG_INFO, "Indexing...\n", 0);
     unsigned i;
-    vector3f_t vertex;
+    //vector3f_t vertex;
     //log_msg(LOG_INFO, "vertices... %llu, %llu\n", vertex_indices.index, vertex_indices.size);
-    for (i = 0; i < vertex_indices.index; i++) {
-        int vertex_index = ((unsigned *)vertex_indices.data)[i];
-        vertex = ((vector3f_t *)temp_vertices.data)[vertex_index-1];
-        buffer_push(&model.vertices, &vertex);
-    }
-    buffer_destroy(&temp_vertices);
-    buffer_destroy(&vertex_indices);
-    
+    //for (i = 0; i < vertex_indices.index; i++) {
+    //    int vertex_index = ((unsigned *)vertex_indices.data)[i];
+    //    vertex = ((vector3f_t *)temp_vertices.data)[vertex_index-1];
+    //    buffer_push(&model.vertices, &vertex);
+    //}
+    model.vertices = temp_vertices;
+    model.vertex_indices = vertex_indices;
+    log_msg(LOG_INFO, "VERTS: %u, INDS: %u\n", model.vertices.index, vertex_indices.index);
+    //buffer_destroy(&temp_vertices);
+    //buffer_destroy(&vertex_indices);
     vector2f_t uv;
     for (i = 0; i < uv_indices.index; i++) {
         int uv_index = ((int *)uv_indices.data)[i];
@@ -141,6 +144,7 @@ obj_model_t obj_load(const char *path) {
     }
     buffer_destroy(&temp_normals);    
     buffer_destroy(&normal_indices);
+    
     fclose(fp);
     model.inited = 1;
     return model;
@@ -149,7 +153,10 @@ obj_model_t obj_load(const char *path) {
 void obj_destroy(obj_model_t *model) {
     if (!model->inited)
         return;
+    // vertex
     buffer_destroy(&model->vertices);
+    buffer_destroy(&model->vertex_indices);
+    
     buffer_destroy(&model->uvs);
     buffer_destroy(&model->normals);
 }

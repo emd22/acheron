@@ -25,10 +25,10 @@ void ui_init() {
     //node.mesh = mesh_load(NULL, "../models/cube.obj", MODEL_OBJ, 0);
     node.mesh = mesh_new();
     vector3f_t quad_vertices[] = {
-        (vector3f_t){1, -1, 0},
-        (vector3f_t){1, 1, 0},
         (vector3f_t){-1, -1, 0},
-        (vector3f_t){-1, 1, 0}
+        (vector3f_t){-1, 1, 0},
+        (vector3f_t){1, 1, 0},
+        (vector3f_t){1, -1, 0}
     };
     
 /*    float quad_vertices[] = {*/
@@ -58,6 +58,6 @@ void ui_render() {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex->id);
     shader_set_int(shader_ui, "image", 0);
-    mesh_draw(node.mesh, &matrix, &ui_cam, shader_ui);
+    //mesh_draw(node.mesh, &matrix, &ui_cam, shader_ui);
     glEnable(GL_CULL_FACE);
 }
