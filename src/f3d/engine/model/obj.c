@@ -61,24 +61,28 @@ obj_model_t obj_load(const char *path) {
             buffer_push(&temp_normals, &normal);
         }
         else if (!strcmp(line, "f")) {
-            int vertex_index[4] = { 0 },
+            unsigned vertex_index[4] = { 0 },
                 uv_index[4] = { 0 },
                 normal_index[4] = { 0 };
             char newl[128];
             fgets(newl, 128, fp);
             int matches = sscanf(
-                newl, "%d/%d/%d %d/%d/%d %d/%d/%d\n",
+                newl, "%u/%u/%u %u/%u/%u %u/%u/%u\n",
                 &vertex_index[0], &uv_index[0], &normal_index[0],
                 &vertex_index[1], &uv_index[1], &normal_index[1],
                 &vertex_index[2], &uv_index[2], &normal_index[2]
             );
+            vertex_index[0]--;
+            vertex_index[1]--;
+            vertex_index[2]--;
+            
             if (matches != 9) {
                 log_msg(LOG_WARN, "model not using vert 9\n", 0);
                 uv_index[0] = 0;
                 uv_index[1] = 0;
                 uv_index[2] = 0;
                 matches = sscanf(
-                    newl, "%d//%d %d//%d %d//%d\n",
+                    newl, "%u//%u %u//%u %u//%u\n",
                     &vertex_index[0], &normal_index[0],
                     &vertex_index[1], &normal_index[1],
                     &vertex_index[2], &normal_index[2]
@@ -112,39 +116,41 @@ obj_model_t obj_load(const char *path) {
         }
     }
     //log_msg(LOG_INFO, "Indexing...\n", 0);
-    unsigned i;
+    //unsigned i;
     //vector3f_t vertex;
     //log_msg(LOG_INFO, "vertices... %llu, %llu\n", vertex_indices.index, vertex_indices.size);
     //for (i = 0; i < vertex_indices.index; i++) {
-    //    int vertex_index = ((unsigned *)vertex_indices.data)[i];
-    //    vertex = ((vector3f_t *)temp_vertices.data)[vertex_index-1];
-    //    buffer_push(&model.vertices, &vertex);
+        //int vertex_index = ((unsigned *)vertex_indices.data)[i];
+        //vertex = ((vector3f_t *)temp_vertices.data)[vertex_index-1];
+        //buffer_push(&model.vertices, &vertex);
     //}
     model.vertices = temp_vertices;
     model.vertex_indices = vertex_indices;
-    log_msg(LOG_INFO, "VERTS: %u, INDS: %u\n", model.vertices.index, vertex_indices.index);
+    //unsigned i;
+    //log_msg(LOG_INFO, "VERTS: %u, INDS: %u\n", model.vertices.index, vertex_indices.index);
     //buffer_destroy(&temp_vertices);
     //buffer_destroy(&vertex_indices);
-    vector2f_t uv;
-    for (i = 0; i < uv_indices.index; i++) {
-        int uv_index = ((int *)uv_indices.data)[i];
+    //vector2f_t uv;
+    //for (i = 0; i < uv_indices.index; i++) {
+    //    unsigned uv_index = ((unsigned *)uv_indices.data)[i];
 
-        uv = ((vector2f_t *)temp_uvs.data)[uv_index-1];
-        buffer_push(&model.uvs, &uv);
-    }
-    buffer_destroy(&temp_uvs);
-    buffer_destroy(&uv_indices);
+    //    uv = ((vector2f_t *)temp_uvs.data)[uv_index-1];
+    //    buffer_push(&model.uvs, &uv);
+    //}
+    model.uvs = temp_uvs;
+    //buffer_destroy(&temp_uvs);
+    //buffer_destroy(&uv_indices);
     //log_msg(LOG_INFO, "destroying buffers... %llu\n", buffer_total_used);
     
-    vector3f_t normal;
-    for (i = 0; i < normal_indices.index; i++) {
-        unsigned normal_index = ((unsigned *)normal_indices.data)[i];
-        normal = ((vector3f_t *)temp_normals.data)[normal_index-1];
-        buffer_push(&model.normals, &normal);
-    }
-    buffer_destroy(&temp_normals);    
-    buffer_destroy(&normal_indices);
-    
+    //vector3f_t normal;
+    //for (i = 0; i < normal_indices.index; i++) {
+    //    unsigned normal_index = ((unsigned *)normal_indices.data)[i];
+    //    normal = ((vector3f_t *)temp_normals.data)[normal_index-1];
+    //    buffer_push(&model.normals, &normal);
+    //}
+    //buffer_destroy(&temp_normals);    
+    //buffer_destroy(&normal_indices);
+    model.normals = temp_normals;
     fclose(fp);
     model.inited = 1;
     return model;

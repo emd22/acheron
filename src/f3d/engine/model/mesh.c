@@ -28,9 +28,9 @@ mesh_t *mesh_new(void) {
     mesh->normals = NULL;
     mesh->uvs = NULL;
     mesh->vertices = NULL;
+    mesh->vertex_indices = NULL;
     return mesh;    
 }
-
 
 void mesh_init(mesh_t *mesh, int flags) {
     if (mesh->vertices) {
@@ -51,10 +51,13 @@ void mesh_init(mesh_t *mesh, int flags) {
         glBindBuffer(GL_ARRAY_BUFFER, mesh->normal_id);
         glBufferData(GL_ARRAY_BUFFER, mesh->normals->index*sizeof(vector3f_t), mesh->normals->data, GL_STATIC_DRAW);    
     }
+    
     glGenBuffers(1, &mesh->indices_id);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indices_id);
-    log_msg(LOG_WARN, "%d\n", mesh->vertex_indices->index);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->vertex_indices->index*sizeof(unsigned), mesh->vertex_indices->data, GL_STATIC_DRAW);
+    //glBindBuffer(GL_ARRAY_BUFFER, 0);
+    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    
     glGenVertexArrays(1, &mesh->vao);
     
     mesh->flags = flags;
@@ -69,6 +72,8 @@ void mesh_init(mesh_t *mesh, int flags) {
         buffer_destroy(mesh->uvs);
         buffer_destroy(mesh->normals);
     }
+    
+    log_msg(LOG_INFO, "V: %u, UV: %u\n", mesh->vertices->index, mesh->uvs->index);
     
     glBindVertexArray(mesh->vao);
     
@@ -98,7 +103,7 @@ void mesh_init(mesh_t *mesh, int flags) {
         glBindBuffer(GL_ARRAY_BUFFER, mesh->bitangent_id);
         glVertexAttribPointer(4, 3, GL_FLOAT, 0, 0, NULL);
     }
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indices_id);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->indices_id);
 }
 
 void mesh_set_data(
@@ -169,6 +174,7 @@ mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags) {
 }
 
 void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, shader_t *shader) {
+    glDisable(GL_CULL_FACE);
     if (mesh == NULL || mesh->vertices == NULL)
         return;
         
@@ -178,8 +184,8 @@ void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, shader_t *shader)
         shader_set_mat4(shader, "p", &camera->mat_projection);    
     }
     
-    //glBindVertexArray(mesh->vao);
-    //glDrawElements(GL_TRIANGLES, mesh->vertex_indices->index, GL_UNSIGNED_INT, NULL);
+    glBindVertexArray(mesh->vao);
+    glDrawElements(GL_TRIANGLES, mesh->vertex_indices->index, GL_UNSIGNED_INT, NULL);
     //glDrawArrays(GL_TRIANGLES, 0, mesh->vertices->size*3);
 }
 

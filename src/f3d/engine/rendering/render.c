@@ -22,7 +22,8 @@ void init_gl() {
 
     // enable vsync
     SDL_GL_SetSwapInterval(-1);
-    SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+    //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
+    //glEnable(GL_MULTISAMPLE);
 
     glClearColor(0.0, 0.0, 0.0, 1);
     glViewport(0, 0, default_window->width, default_window->height);
