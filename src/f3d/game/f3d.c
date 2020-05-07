@@ -169,7 +169,7 @@ void load_models() {
     //object_attach(wall, OBJECT_ATTACH_MATERIAL, stone);
 
     render_object_t *box = object_new("Box");
-    object_attach(box, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/cube.obj", MODEL_OBJ, 0));
+    object_attach(box, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/basiccube.obj", MODEL_OBJ, 0));
     object_attach(box, OBJECT_ATTACH_MATERIAL, stone);
     object_move(box, 0, 2, 0);
     
