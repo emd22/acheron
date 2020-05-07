@@ -74,6 +74,10 @@ void mesh_init(mesh_t *mesh, int flags) {
     }
     
     log_msg(LOG_INFO, "V: %u, UV: %u\n", mesh->vertices->index, mesh->uvs->index);
+    unsigned i;
+    for (i = 0; i < mesh->vertex_indices->index; i++) {
+        log_msg(LOG_WARN, "VVUV %d\n", ((int *)mesh->vertex_indices->data)[i]);
+    }
     
     glBindVertexArray(mesh->vao);
     
