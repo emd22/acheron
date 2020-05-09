@@ -8,7 +8,19 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
+
+typedef struct {
+    vector3f_t position;
+    vector2f_t uv;
+    vector3f_t normal;
+} packed_vertex_t;
+
+
+void generate_indices(buffer_t *indices, buffer_t *vertices, buffer_t *uvs, buffer_t *normals) {
+
+}
 
 obj_model_t obj_load(const char *path) {
     // https://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/
@@ -152,7 +164,7 @@ obj_model_t obj_load(const char *path) {
     //    buffer_push(&model.uvs, &uv);
     //}
     model.uvs = temp_uvs;
-    //log_msg(LOG_DEBUG, "V: %d, UV: %d\n", model.vertices.index, model.uvs.index);
+    log_msg(LOG_DEBUG, "VERTICES: %d, INDICES: %d\n", model.vertices.index, model.vertex_indices.index);
     //buffer_destroy(&temp_uvs);
     //buffer_destroy(&uv_indices);
     //log_msg(LOG_INFO, "destroying buffers... %llu\n", buffer_total_used);
