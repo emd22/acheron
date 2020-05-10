@@ -11,17 +11,6 @@
 #include <stdbool.h>
 #include <string.h>
 
-typedef struct {
-    vector3f_t position;
-    vector2f_t uv;
-    vector3f_t normal;
-} packed_vertex_t;
-
-
-void generate_indices(buffer_t *indices, buffer_t *vertices, buffer_t *uvs, buffer_t *normals) {
-
-}
-
 obj_model_t obj_load(const char *path) {
     // https://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/
 
@@ -53,6 +42,7 @@ obj_model_t obj_load(const char *path) {
     char line[128];
     unsigned line_number = 0;
     int res;
+    
     for (;; line_number++) {
         res = fscanf(fp, "%s", line); 
         if (res == EOF)
@@ -130,7 +120,6 @@ obj_model_t obj_load(const char *path) {
             fgets(fut, 2048, fp);
         }
     }
-    //unsigned i;
     /*unsigned i;
     for (i = 0; i < vertex_indices.index; i++) {
         unsigned vert_index = ((unsigned *)vertex_indices.data)[i];
@@ -151,7 +140,6 @@ obj_model_t obj_load(const char *path) {
         //buffer_push(&model.vertices, &vertex);
     //}
     model.vertices = temp_vertices;
-    model.vertex_indices = vertex_indices;
     //unsigned i;
     //log_msg(LOG_INFO, "VERTS: %u, INDS: %u\n", model.vertices.index, vertex_indices.index);
     //buffer_destroy(&temp_vertices);
@@ -164,7 +152,7 @@ obj_model_t obj_load(const char *path) {
     //    buffer_push(&model.uvs, &uv);
     //}
     model.uvs = temp_uvs;
-    log_msg(LOG_DEBUG, "VERTICES: %d, INDICES: %d\n", model.vertices.index, model.vertex_indices.index);
+    //log_msg(LOG_DEBUG, "VERTICES: %d, INDICES: %d\n", model.vertices.index, model.vertex_indices.index);
     //buffer_destroy(&temp_uvs);
     //buffer_destroy(&uv_indices);
     //log_msg(LOG_INFO, "destroying buffers... %llu\n", buffer_total_used);
@@ -188,7 +176,6 @@ void obj_destroy(obj_model_t *model) {
         return;
     // vertex
     buffer_destroy(&model->vertices);
-    buffer_destroy(&model->vertex_indices);
     
     buffer_destroy(&model->uvs);
     buffer_destroy(&model->normals);

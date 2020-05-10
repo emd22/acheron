@@ -9,6 +9,12 @@
 #define MESH_NO_TANGENTS 0x01
 #define MESH_KEEP_DATA   0x02
 
+typedef struct {
+    vector3f_t position;
+    vector2f_t uv;
+    vector3f_t normal;
+} __attribute__((packed)) vertex_t;
+
 enum {
     MODEL_NONE,
     MODEL_OBJ,
@@ -20,18 +26,21 @@ typedef struct {
     int flags;
 
     obj_model_t *obj;
-    buffer_t *vertices;
-    buffer_t *vertex_indices;
     
+    buffer_t vertices;
+    buffer_t indices;
+
+    /*buffer_t *vertices;
+    buffer_t *vertex_indices;
     buffer_t *uvs;
     buffer_t *normals;
     
     unsigned vertex_id;
     unsigned uv_id;
     unsigned normal_id;
-    unsigned indices_id;
+    unsigned indices_id;*/
     
-    unsigned vao;
+    unsigned vao, vbo, ibo;
     
     vector3f_t *tangents, *bitangents;
     unsigned tangent_id, bitangent_id;   

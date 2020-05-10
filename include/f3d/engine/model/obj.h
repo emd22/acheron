@@ -7,7 +7,6 @@ typedef struct {
     int inited;
     // vec3f buffer
     buffer_t vertices;
-    buffer_t vertex_indices;
     // vec2f buffer
     buffer_t uvs;
     // vec3f buffer

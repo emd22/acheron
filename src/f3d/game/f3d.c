@@ -57,7 +57,7 @@ int init(void) {
     // select camera to be default and calculate perspective matrix
     camera_select(&camera);
     log_msg(LOG_INFO, "Camera initialized\n", 0);
-
+    
     load_models();
     
     ui_init();
@@ -75,8 +75,8 @@ void setup_handles() {
 }
 
 int main() {
-    init();
     setup_handles();
+    init();
     handle_call(HANDLE_INIT, NULL);
     
     //light_t *light2 = light_new(LIGHT_POINT);
