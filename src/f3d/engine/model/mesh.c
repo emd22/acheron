@@ -7,6 +7,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stddef.h>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -24,8 +25,10 @@ void generate_indices(mesh_t *mesh) {
     unsigned i;
     buffer_init(&mesh->indices, sizeof(unsigned), 2048);
     for (i = 0; i < mesh->vertices.index; i++) {
+        
         buffer_push(&mesh->indices, &i);
     }
+    log_msg(LOG_INFO, "Generating indices...\n", 0);
 }
 
 void gen_packed_verts(mesh_t *mesh, obj_model_t *obj) {
@@ -62,7 +65,6 @@ void mesh_init(mesh_t *mesh, int flags) {
     // TODO: implement methods with dynamic drawing instead of just static
     glBufferData(GL_ARRAY_BUFFER, mesh->vertices.index*sizeof(vertex_t), mesh->vertices.data, GL_STATIC_DRAW);
     
-    
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->ibo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh->indices.index*sizeof(unsigned), mesh->indices.data, GL_STATIC_DRAW);
     
@@ -76,23 +78,19 @@ void mesh_init(mesh_t *mesh, int flags) {
     // vertex positions
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, 0, stride, NULL);
-    
+    // uv
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, 0, stride, (void *)(3*sizeof(float)));
-    
+    glVertexAttribPointer(1, 2, GL_FLOAT, 0, stride, (void *)offsetof(vertex_t, uv));
+    // normal
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, 0, stride, (void *)(5*sizeof(float)));
+    glVertexAttribPointer(2, 3, GL_FLOAT, 0, stride, (void *)offsetof(vertex_t, normal));
+    // tangents
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, 0, stride, (void *)offsetof(vertex_t, tangent));
+    // bitangents
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 3, GL_FLOAT, 0, stride, (void *)offsetof(vertex_t, bitangent));
     
-    if (!(mesh->flags & MESH_NO_TANGENTS)) {
-        glEnableVertexAttribArray(3);
-        glBindBuffer(GL_ARRAY_BUFFER, mesh->tangent_id);
-        glVertexAttribPointer(3, 3, GL_FLOAT, 0, 0, NULL);
-        
-        glEnableVertexAttribArray(4);
-        glBindBuffer(GL_ARRAY_BUFFER, mesh->bitangent_id);
-        glVertexAttribPointer(4, 3, GL_FLOAT, 0, 0, NULL);
-    }
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh->ibo);
 }
 
 /*void mesh_set_data(
@@ -173,6 +171,7 @@ void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, shader_t *shader)
     glBindVertexArray(mesh->vao);
     glDrawElements(GL_TRIANGLES, mesh->indices.index, GL_UNSIGNED_INT, NULL);
     //glDrawArrays(GL_TRIANGLES, 0, mesh->vertices->size*3);
+    //glBindVertexArray(0);
 }
 
 void calculate_tangents(mesh_t *mesh) {
@@ -186,11 +185,7 @@ void calculate_tangents(mesh_t *mesh) {
     vector3f_t tangent, bitangent;
     float r;
         
-    vector3f_t *tangents, *bitangents;
     vector3f_t tmp;
-    
-    tangents = malloc(sizeof(vector3f_t)*3*mesh->vertices.index);
-    bitangents = malloc(sizeof(vector3f_t)*3*mesh->vertices.index);
     
     unsigned i;
     unsigned bufidx = 0;
@@ -216,26 +211,13 @@ void calculate_tangents(mesh_t *mesh) {
         vec3f_sub(&tmp, vec3f_mul_v(delta_pos1, delta_uv0.x), vec3f_mul_v(delta_pos0, delta_uv1.x));
         bitangent = vec3f_mul_v(tmp, r);
         
-        bitangents[bufidx] = bitangent;
-        tangents[bufidx++] = tangent;
-        bitangents[bufidx] = bitangent;
-        tangents[bufidx++] = tangent;
-        bitangents[bufidx] = bitangent;
-        tangents[bufidx++] = tangent;
+        vertices[bufidx].bitangent = bitangent;
+        vertices[bufidx++].tangent = tangent;
+        vertices[bufidx].bitangent = bitangent;
+        vertices[bufidx++].tangent = tangent;
+        vertices[bufidx].bitangent = bitangent;
+        vertices[bufidx++].tangent = tangent;
     }
-    
-/*    // tangents*/
-/*    glGenBuffers(1, &mesh->tangent_id);*/
-/*    glBindBuffer(GL_ARRAY_BUFFER, mesh->tangent_id);*/
-/*    glBufferData(GL_ARRAY_BUFFER, mesh->vertices->index*sizeof(vector3f_t), mesh->normals->data, GL_STATIC_DRAW);*/
-/*    */
-/*    // bitangents*/
-/*    glGenBuffers(1, &mesh->bitangent_id);*/
-/*    glBindBuffer(GL_ARRAY_BUFFER, mesh->bitangent_id);*/
-/*    glBufferData(GL_ARRAY_BUFFER, mesh->vertices->index*sizeof(vector3f_t), mesh->normals->data, GL_STATIC_DRAW);*/
-    
-    mesh->tangents = tangents;
-    mesh->bitangents = bitangents;
 }
 
 void meshes_cleanup(void) {
@@ -253,10 +235,6 @@ void mesh_destroy(mesh_t *mesh) {
         
     if (mesh->type == MODEL_OBJ) {
         obj_destroy(mesh->obj);
-    }
-    if (!(mesh->flags & MESH_NO_TANGENTS)) {
-        free(mesh->tangents);
-        free(mesh->bitangents);
     }
     mesh->type = MODEL_NONE;
 }

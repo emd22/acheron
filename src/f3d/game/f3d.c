@@ -75,8 +75,8 @@ void setup_handles() {
 }
 
 int main() {
-    setup_handles();
     init();
+    setup_handles();
     handle_call(HANDLE_INIT, NULL);
     
     //light_t *light2 = light_new(LIGHT_POINT);
@@ -102,7 +102,6 @@ int main() {
     SDL_Event event;
     time_init(); 
    
-    log_msg(LOG_INFO, "Buffer usage: %.01fKB\n", (double)buffer_total_used/1024.0);
     while (game_info.flags & GAME_IS_RUNNING) {
         time_tick();
         while (SDL_PollEvent(&event))
@@ -132,8 +131,6 @@ int on_end(void *arg){
     //shader_destroy(shader_main);
     render_destroy();
     window_destroy(&window);
-    
-    log_msg(LOG_INFO, "Buffer usage at program end: %llu\n", buffer_total_used);
     //os_print_backtrace();
     
     SDL_Quit();
@@ -157,19 +154,19 @@ void load_models() {
         50.0f, 0
     });
     
-    //render_object_t *level = object_new("Level");
-    //object_attach(level, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/conference/conference.obj", MODEL_OBJ, 0));
-    //object_attach(level, OBJECT_ATTACH_MATERIAL, brick);
+    render_object_t *level = object_new("Level");
+    object_attach(level, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/conference/conference.obj", MODEL_OBJ, 0));
+    object_attach(level, OBJECT_ATTACH_MATERIAL, brick);
     //object_rotate(level, 1.57, 0.0f, 0.0f);
     //object_move(level, 0, 2, -5);
-    //object_scale(level, 0.01, 0.01, 0.01);
+    object_scale(level, 0.01, 0.01, 0.01);
 
     //render_object_t *wall = object_new("Wall");
     //object_attach(wall, OBJECT_ATTACH_MESH, level->mesh);
     //object_attach(wall, OBJECT_ATTACH_MATERIAL, stone);
 
     render_object_t *box = object_new("Box");
-    object_attach(box, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/basiccube.obj", MODEL_OBJ, 0));
+    object_attach(box, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/cube.obj", MODEL_OBJ, 0));
     object_attach(box, OBJECT_ATTACH_MATERIAL, stone);
     object_move(box, 0, 2, 0);
     

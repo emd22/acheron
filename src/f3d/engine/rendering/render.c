@@ -25,7 +25,7 @@ void init_gl() {
     //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
     //glEnable(GL_MULTISAMPLE);
 
-    glClearColor(0.0, 0.0, 0.0, 1);
+    glClearColor(0.0, 0.2, 0.2, 1);
     glViewport(0, 0, default_window->width, default_window->height);
     
     handles_init();

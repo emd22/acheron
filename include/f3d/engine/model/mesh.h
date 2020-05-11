@@ -13,6 +13,8 @@ typedef struct {
     vector3f_t position;
     vector2f_t uv;
     vector3f_t normal;
+    vector3f_t tangent;
+    vector3f_t bitangent;
 } __attribute__((packed)) vertex_t;
 
 enum {

@@ -75,13 +75,7 @@ obj_model_t obj_load(const char *path) {
                 &vertex_index[2], &uv_index[2], &normal_index[2]
             );
             int i;
-            
-            for (i = 0; i < 3; i++) {
-                vertex_index[i]--;
-                uv_index[i]--;
-                normal_index[i]--;
-            }
-            
+
             if (matches != 9) {
                 log_msg(LOG_WARN, "model not using vert 9\n", 0);
                 uv_index[0] = 0;
@@ -120,7 +114,7 @@ obj_model_t obj_load(const char *path) {
             fgets(fut, 2048, fp);
         }
     }
-    /*unsigned i;
+    unsigned i;
     for (i = 0; i < vertex_indices.index; i++) {
         unsigned vert_index = ((unsigned *)vertex_indices.data)[i];
         unsigned uv_index   = ((unsigned *)uv_indices.data)[i];
@@ -131,7 +125,7 @@ obj_model_t obj_load(const char *path) {
         buffer_push(&model.vertices, &vertex);
         buffer_push(&model.uvs, &uv);
         buffer_push(&model.normals, &normal);    
-    }*/
+    }
     //vector3f_t vertex;
     //log_msg(LOG_INFO, "vertices... %llu, %llu\n", vertex_indices.index, vertex_indices.size);
     //for (i = 0; i < vertex_indices.index; i++) {
@@ -139,7 +133,7 @@ obj_model_t obj_load(const char *path) {
         //vertex = ((vector3f_t *)temp_vertices.data)[vertex_index-1];
         //buffer_push(&model.vertices, &vertex);
     //}
-    model.vertices = temp_vertices;
+    //model.vertices = temp_vertices;
     //unsigned i;
     //log_msg(LOG_INFO, "VERTS: %u, INDS: %u\n", model.vertices.index, vertex_indices.index);
     //buffer_destroy(&temp_vertices);
@@ -151,7 +145,7 @@ obj_model_t obj_load(const char *path) {
     //    uv = ((vector2f_t *)temp_uvs.data)[uv_index-1];
     //    buffer_push(&model.uvs, &uv);
     //}
-    model.uvs = temp_uvs;
+    //model.uvs = temp_uvs;
     //log_msg(LOG_DEBUG, "VERTICES: %d, INDICES: %d\n", model.vertices.index, model.vertex_indices.index);
     //buffer_destroy(&temp_uvs);
     //buffer_destroy(&uv_indices);
@@ -163,9 +157,13 @@ obj_model_t obj_load(const char *path) {
     //    normal = ((vector3f_t *)temp_normals.data)[normal_index-1];
     //    buffer_push(&model.normals, &normal);
     //}
-    //buffer_destroy(&temp_normals);    
-    //buffer_destroy(&normal_indices);
-    model.normals = temp_normals;
+    buffer_destroy(&temp_vertices);
+    buffer_destroy(&temp_normals);
+    buffer_destroy(&temp_uvs);  
+    buffer_destroy(&normal_indices);
+    buffer_destroy(&vertex_indices);
+    buffer_destroy(&uv_indices);
+    //model.normals = temp_normals;
     fclose(fp);
     model.inited = 1;
     return model;
