@@ -150,12 +150,14 @@ void shader_attach(shader_t *shader, int type, const char *path) {
     }
 }
 
-unsigned shader_get_uniform_location(shader_t *shader, const char *var) {
+unsigned shader_get_uniform_location(shader_t *shader, const char *var, int *uniform_index) {
     hash_t hash = util_hash_str(var);
     int i;
     for (i = 0; i < shader->uniform_index; i++) {
         // compare hash to caches uniforms
         if (shader->uniforms[i].hash == hash) {
+            if (uniform_index != NULL)
+                (*uniform_index) = i;
             return shader->uniforms[i].location;
         }
     }
@@ -170,35 +172,52 @@ unsigned shader_get_uniform_location(shader_t *shader, const char *var) {
     shader->uniforms[shader->uniform_index++] = new_uniform;
 done:;
     // return our location
+    if (uniform_index != NULL)
+        (*uniform_index) = shader->uniform_index-1;
+    new_uniform.value = 0.0f;
     return new_uniform.location;
 }
 
 void shader_set_mat4(shader_t *shader, const char *var, mat4_t *mat) {
-    const unsigned location = shader_get_uniform_location(shader, var);
+    const unsigned location = shader_get_uniform_location(shader, var, NULL);
     glUniformMatrix4fv(location, 1, GL_FALSE, mat->val);
     const char *errmsg = engine_get_opengl_error();
     if (errmsg != NULL)
         log_msg(LOG_ERROR, "OpenGL error: %s: %s\n", var, errmsg);
 }
 
-void shader_set_float(shader_t *shader, const char *var, float val) {
-    const unsigned location = shader_get_uniform_location(shader, var);
-    glUniform1f(location, val);
-    const char *errmsg = engine_get_opengl_error();
-    if (errmsg != NULL)
-        log_msg(LOG_ERROR, "OpenGL error: %s: %s\n", var, errmsg);
-}
-
 void shader_set_vec3f(shader_t *shader, const char *var, vector3f_t vec) {
-    const unsigned location = shader_get_uniform_location(shader, var);
+    const unsigned location = shader_get_uniform_location(shader, var, NULL);
     glUniform3f(location, vec.x, vec.y, vec.z);
     const char *errmsg = engine_get_opengl_error();
     if (errmsg != NULL)
         log_msg(LOG_ERROR, "OpenGL error: %s: %s\n", var, errmsg);
 }
 
+void shader_set_float(shader_t *shader, const char *var, float val) {
+    int uniform_i;
+    
+    const unsigned location = shader_get_uniform_location(shader, var, &uniform_i);
+    // check if uniform is already set to value
+    if (shader->uniforms[uniform_i].value == val)
+        return;
+    shader->uniforms[uniform_i].value = val;
+    
+    glUniform1f(location, val);
+    const char *errmsg = engine_get_opengl_error();
+    if (errmsg != NULL)
+        log_msg(LOG_ERROR, "OpenGL error: %s: %s\n", var, errmsg);
+}
+
 void shader_set_int(shader_t *shader, const char *var, int val) {
-    const unsigned location = shader_get_uniform_location(shader, var);
+    int uniform_i;
+    
+    const unsigned location = shader_get_uniform_location(shader, var, &uniform_i);
+    // check if uniform is already set to value
+    if (shader->uniforms[uniform_i].value == val)
+        return;
+    shader->uniforms[uniform_i].value = val;
+    
     glUniform1i(location, val);
     const char *errmsg = engine_get_opengl_error();
     if (errmsg != NULL)

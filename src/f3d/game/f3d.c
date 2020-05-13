@@ -44,8 +44,8 @@ int init(void) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     
     window = window_new("Ethan's 3D Engine", 700, 700, 0);
-    SDL_SetWindowFullscreen(window.win, SDL_WINDOW_FULLSCREEN_DESKTOP); 
-    SDL_GetWindowSize(window.win, &window.width, &window.height);
+    //SDL_SetWindowFullscreen(window.win, SDL_WINDOW_FULLSCREEN_DESKTOP); 
+    //SDL_GetWindowSize(window.win, &window.width, &window.height);
     default_window = &window;
     
     render_init();
@@ -78,13 +78,6 @@ int main() {
     init();
     setup_handles();
     handle_call(HANDLE_INIT, NULL);
-    
-    //light_t *light2 = light_new(LIGHT_POINT);
-    //light2->position = (vector3f_t){-1, 2, -5};
-    //light2->diffuse   = VEC3F(0.3f);
-    //light2->diffuse.x = 1.0f;
-    //light_shadow_new(light2, 800, 800);
-    //light_init(light2, shader_main);
     
     light = light_new(LIGHT_POINT);
     light->position = (vector3f_t){5, 3, 4};
@@ -156,9 +149,7 @@ void load_models() {
     
     render_object_t *level = object_new("Level");
     object_attach(level, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/conference/conference.obj", MODEL_OBJ, 0));
-    object_attach(level, OBJECT_ATTACH_MATERIAL, brick);
-    //object_rotate(level, 1.57, 0.0f, 0.0f);
-    //object_move(level, 0, 2, -5);
+    //object_attach(level, OBJECT_ATTACH_MATERIAL, brick);
     object_scale(level, 0.01, 0.01, 0.01);
 
     //render_object_t *wall = object_new("Wall");

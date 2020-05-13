@@ -15,6 +15,7 @@
 typedef struct {
     hash_t hash;
     unsigned location;
+    float value;
 } shader_uniform_t;
 
 typedef struct {

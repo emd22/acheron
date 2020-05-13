@@ -33,7 +33,8 @@ int player_move(camera_t *camera) {
         light_init(new_light, shader_main);
         
         scene_attach(selected_scene, SCENE_LIGHT, new_light);
-        scene_render_shadows(selected_scene, shader_main);
+        //scene_render_shadows(selected_scene, shader_main);
+        light_shadow_render(new_light, shader_main);
     }
     if (controls_check_toggle(CONTROL_2)) {
         static bool wireframe = false;

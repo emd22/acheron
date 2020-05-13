@@ -8,6 +8,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <stdbool.h>
+#include <math.h>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -21,14 +23,70 @@ void meshes_init(void) {
     meshes = malloc(sizeof(mesh_t)*MAX_MESHES);
 }
 
+bool is_near(float v0, float v1) {
+    return (fabs(v0-v1) < 0.01f);
+}
+
+static float get_distance_avg(vertex_t *vertex0, vertex_t *vertex1) {
+    float avg = 0.0f;
+    avg += (float)vertex0->position.x-(float)vertex1->position.x;
+    avg += (float)vertex0->position.y-(float)vertex1->position.y;
+    avg += (float)vertex0->position.z-(float)vertex1->position.z;
+    avg /= 3;
+    return avg;
+}
+
+int check_vertex_matches(buffer_t *vertices, vertex_t *vertex1, unsigned j) {
+    unsigned i;
+    (void)j;
+    vertex_t vertex;
+    for (i = 0; i < vertices->index; i++) {
+        vertex = ((vertex_t *)vertices->data)[i];
+        // we don't want to loop through unneccisary vertices, so we cut it off once the
+        // difference is too great.
+        if (get_distance_avg(&vertex, vertex1) > 100.0)
+            break;
+            
+        if (is_near(vertex.position.x, vertex1->position.x) &&
+            is_near(vertex.position.y, vertex1->position.y) &&
+            is_near(vertex.position.z, vertex1->position.z) &&
+            is_near(vertex.uv.x, vertex1->uv.x) &&
+            is_near(vertex.uv.y, vertex1->uv.y) &&
+            is_near(vertex.normal.x, vertex1->normal.x) &&
+            is_near(vertex.normal.y, vertex1->normal.y) &&
+            is_near(vertex.normal.z, vertex1->normal.z)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
 void generate_indices(mesh_t *mesh) {
     unsigned i;
     buffer_init(&mesh->indices, sizeof(unsigned), 2048);
+    buffer_t new_verts;
+    buffer_init(&new_verts, sizeof(vertex_t), 4096);
+    vertex_t *vertex;
+    
+    int index;
+    log_msg(LOG_DEBUG, "%u\n", mesh->vertices.index);
+    int amt_created = 0;
+    int amt_reused = 0;
     for (i = 0; i < mesh->vertices.index; i++) {
-        
-        buffer_push(&mesh->indices, &i);
+        vertex = &((vertex_t *)mesh->vertices.data)[i];
+        if ((index = check_vertex_matches(&new_verts, vertex, i)) != -1) {
+            buffer_push(&mesh->indices, &index);
+            amt_reused++;
+        }
+        else {
+            buffer_push(&mesh->indices, &new_verts.index);
+            buffer_push(&new_verts, vertex);
+            amt_created++;
+        }
     }
-    log_msg(LOG_INFO, "Generating indices...\n", 0);
+    buffer_destroy(&mesh->vertices);
+    mesh->vertices = new_verts;
+    log_msg(LOG_INFO, "Generating indices... %.02f%% saved\n", amt_reused/((float)amt_created+amt_reused)*100);
 }
 
 void gen_packed_verts(mesh_t *mesh, obj_model_t *obj) {
@@ -158,7 +216,6 @@ mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags) {
 }
 
 void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, shader_t *shader) {
-    glDisable(GL_CULL_FACE);
     if (mesh == NULL/* || mesh->vertices == NULL*/)
         return;
         
