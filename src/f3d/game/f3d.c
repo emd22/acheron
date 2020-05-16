@@ -147,17 +147,17 @@ void load_models() {
         50.0f, 0
     });
     
-    render_object_t *level = object_new("Level");
-    object_attach(level, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/conference/conference.obj", MODEL_OBJ, 0));
+    //render_object_t *level = object_new("Level");
+    //object_attach(level, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/conference/conference.obj", MODEL_OBJ, 0));
     //object_attach(level, OBJECT_ATTACH_MATERIAL, brick);
-    object_scale(level, 0.01, 0.01, 0.01);
+    //object_scale(level, 0.01, 0.01, 0.01);
 
     //render_object_t *wall = object_new("Wall");
     //object_attach(wall, OBJECT_ATTACH_MESH, level->mesh);
     //object_attach(wall, OBJECT_ATTACH_MATERIAL, stone);
 
     render_object_t *box = object_new("Box");
-    object_attach(box, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/cube.obj", MODEL_OBJ, 0));
+    object_attach(box, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/basiccube.obj", MODEL_OBJ, 0));
     object_attach(box, OBJECT_ATTACH_MATERIAL, stone);
     object_move(box, 0, 2, 0);
     

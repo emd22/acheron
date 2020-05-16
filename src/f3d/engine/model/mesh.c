@@ -16,6 +16,8 @@
 
 static mesh_t *meshes;
 static int meshes_index = 0;
+static int curidx  = 0;
+static vertex_t *base = NULL;
 
 void calculate_tangents(mesh_t *mesh);
 
@@ -27,26 +29,44 @@ bool is_near(float v0, float v1) {
     return (fabs(v0-v1) < 0.01f);
 }
 
-static float get_distance_avg(vertex_t *vertex0, vertex_t *vertex1) {
-    float avg = 0.0f;
-    avg += (float)vertex0->position.x-(float)vertex1->position.x;
-    avg += (float)vertex0->position.y-(float)vertex1->position.y;
-    avg += (float)vertex0->position.z-(float)vertex1->position.z;
-    avg /= 3;
-    return avg;
+int vertcmp(const void *a, const void *b) {
+    vertex_t *v0 = (vertex_t *)a;
+    vertex_t *v1 = (vertex_t *)b;
+    
+    int total0 = v0->position.x+v0->position.y+v0->position.z;
+    int total1 = v1->position.x+v1->position.y+v1->position.z;
+    if (is_near(v0->position.x, v1->position.x) &&
+        is_near(v0->position.y, v1->position.y) &&
+        is_near(v0->position.z, v1->position.z) &&
+        is_near(v0->uv.x, v1->uv.x) &&
+        is_near(v0->uv.y, v1->uv.y) &&
+        is_near(v0->normal.x, v1->normal.x) &&
+        is_near(v0->normal.y, v1->normal.y) &&
+        is_near(v0->normal.z, v1->normal.z))
+        return 0;
+    else if (total0 > total1)
+        return 1;
+    else
+        return -1;
 }
 
 int check_vertex_matches(buffer_t *vertices, vertex_t *vertex1, unsigned j) {
-    unsigned i;
+    //unsigned i;
     (void)j;
-    vertex_t vertex;
-    for (i = 0; i < vertices->index; i++) {
+    //vertex_t vertex;
+    vertex_t *svert;
+    curidx = j;
+    base = (vertex_t *)vertices->data;
+    svert = bsearch(vertex1, (vertex_t *)vertices->data, vertices->index, sizeof(vertex_t), &vertcmp);
+    //svert = NULL;
+    (void)vertex1;
+    if (svert == NULL)
+        return -1;
+    return ((vertex_t *)vertices->data-svert);
+    /*for (i = 0; i < vertices->index; i++) {
         vertex = ((vertex_t *)vertices->data)[i];
-        // we don't want to loop through unneccisary vertices, so we cut it off once the
-        // difference is too great.
-        if (get_distance_avg(&vertex, vertex1) > 100.0)
+        if (i == j)
             break;
-            
         if (is_near(vertex.position.x, vertex1->position.x) &&
             is_near(vertex.position.y, vertex1->position.y) &&
             is_near(vertex.position.z, vertex1->position.z) &&
@@ -55,9 +75,17 @@ int check_vertex_matches(buffer_t *vertices, vertex_t *vertex1, unsigned j) {
             is_near(vertex.normal.x, vertex1->normal.x) &&
             is_near(vertex.normal.y, vertex1->normal.y) &&
             is_near(vertex.normal.z, vertex1->normal.z)) {
-            return i;
         }
-    }
+    }*/
+}
+
+int sortcmp(const void *a, const void *b) {
+    vertex_t *v0 = (vertex_t *)a;
+    vertex_t *v1 = (vertex_t *)b;
+    if (v0->position.x == v1->position.x &&
+        v0->position.y == v1->position.y &&
+        v0->position.z == v1->position.z)
+        return 0;
     return -1;
 }
 
@@ -68,10 +96,12 @@ void generate_indices(mesh_t *mesh) {
     buffer_init(&new_verts, sizeof(vertex_t), 4096);
     vertex_t *vertex;
     
-    int index;
+    //int index;
     log_msg(LOG_DEBUG, "%u\n", mesh->vertices.index);
     int amt_created = 0;
+    int index;
     int amt_reused = 0;
+    //qsort((vertex_t *)mesh->vertices.data, mesh->vertices.index, sizeof(vertex_t), &vertcmp);
     for (i = 0; i < mesh->vertices.index; i++) {
         vertex = &((vertex_t *)mesh->vertices.data)[i];
         if ((index = check_vertex_matches(&new_verts, vertex, i)) != -1) {
