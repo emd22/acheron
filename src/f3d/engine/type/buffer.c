@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 
 // NOTE: buffers resize dynamically, resizing in increments of buffer_size*2.
@@ -13,10 +14,11 @@
 // and detect if there are any leaks. This number should only be used for debugging.
 unsigned long long buffer_total_used = 0;
 
-int buffer_init(buffer_t *buffer, unsigned obj_sz, unsigned start_size) {
+int buffer_init(buffer_t *buffer, buffer_type_t type, unsigned obj_sz, unsigned start_size) {
     buffer->index = 0;
     buffer->obj_sz = obj_sz;
     buffer->size = start_size;
+    buffer->type = type;
     
     unsigned long bytes_sz = (unsigned long)obj_sz*(unsigned long)start_size;
     buffer->data = malloc(bytes_sz);
@@ -36,14 +38,50 @@ int buffer_init(buffer_t *buffer, unsigned obj_sz, unsigned start_size) {
 
 void buffer_push(buffer_t *buffer, void *obj) {
     if (buffer->index >= buffer->size) {
-        buffer_resize(buffer);
+        if (buffer->type != BUFFER_DYNAMIC) {
+            log_msg(LOG_ERROR, "Hit end of non-dynamic buffer\n", 0);
+            return;
+        }
+        buffer_resize(buffer, BUFFER_RESIZE_AUTO);
     }
-    unsigned long index = (buffer->index)*(buffer->obj_sz);
-    memcpy(((unsigned char *)buffer->data)+(index), obj, buffer->obj_sz);
+    const unsigned long index = (buffer->index)*(buffer->obj_sz);
+    memcpy(((uint8_t *)buffer->data)+(index), obj, buffer->obj_sz);
     buffer->index++;
 }
 
-void buffer_resize(buffer_t *buffer) {
+buffer_t buffer_duplicate(buffer_t *buffer, buffer_type_t type) {
+    buffer_t buf;
+    buf = buffer_from_data(type, buffer->data, buffer->obj_sz, buffer->index);
+    return buf;
+}
+
+buffer_t buffer_from_data(buffer_type_t type, void *data, unsigned obj_sz, unsigned data_size) {
+    buffer_t buffer;
+    buffer_init(&buffer, type, obj_sz, data_size);
+    buffer_copy_data(&buffer, data, data_size);
+    buffer.index = data_size;
+    return buffer;
+}
+
+void buffer_copy_data(buffer_t *buffer, void *data, int data_size) {
+    const int buffer_start = buffer->index;
+    const int block_size = data_size;
+    
+    if ((unsigned)buffer_start+block_size > buffer->size) {
+        if (buffer->type != BUFFER_DYNAMIC) {
+            log_msg(LOG_ERROR, "Hit end of non-dynamic buffer\n", 0);
+            return;
+        }
+        buffer_resize(buffer, buffer_start+block_size);
+    }
+    memcpy((uint8_t *)buffer->data+buffer_start, (uint8_t *)data, block_size);
+    buffer->index += block_size;
+}
+
+void buffer_resize(buffer_t *buffer, int set) {
+    if (buffer->type != BUFFER_DYNAMIC)
+        return;
+        
     // resizing a destroyed buffer or a error with buffer creation
     if (buffer->data == NULL) {
         log_msg(LOG_ERROR, "buffer->data == NULL\n", 0);
@@ -58,13 +96,20 @@ void buffer_resize(buffer_t *buffer) {
     // debug message
     //log_msg(LOG_INFO, "Resizing buffer from %luKB to %luKB\n", buffer->size/1024, buffer->size*2/1024);
     buffer_total_used -= buffer->size*buffer->obj_sz;
-    buffer->size *= 2;
+    int obj_sz = buffer->obj_sz;
+    if (set == -1) {
+        buffer->size *= 2;
+    }
+    else {
+        obj_sz = 1;
+        buffer->size = set;
+    }
     
-    buffer->data = realloc(buffer->data, buffer->size*buffer->obj_sz);
+    buffer->data = realloc(buffer->data, buffer->size*obj_sz);
 
     // error in realloc, probably ran out of memory
     if (buffer->data == NULL) {
-        log_msg(LOG_ERROR, "Error resizing buffer (size:%lu, obj_sz: %lu)\n", buffer->size, buffer->obj_sz);
+        log_msg(LOG_ERROR, "Error resizing buffer (size:%lu, obj_sz: %lu)\n", buffer->size, obj_sz);
     }
     
     buffer_total_used += buffer->size*buffer->obj_sz;

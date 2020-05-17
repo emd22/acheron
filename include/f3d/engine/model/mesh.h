@@ -50,7 +50,7 @@ typedef struct {
 
 void meshes_init(void);
 mesh_t *mesh_new(void);
-void mesh_set_data(mesh_t *mesh, vector3f_t *vertices, int verts_size, vector2f_t *uvs, int uvs_size, vector3f_t *normals, int norms_size, int flags);
+void mesh_set_data(mesh_t *mesh, buffer_t *vertices, buffer_t *uvs, buffer_t *normals);
 mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags);
 void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, shader_t *shader);
 void meshes_cleanup(void);

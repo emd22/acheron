@@ -54,6 +54,10 @@ void scene_render_shadows(scene_t *scene, shader_t *shader_main) {
     }
 }
 
+void scene_select(scene_t *scene, shader_t *shader_main) {
+    
+}
+
 void scene_render(shader_t *shader_main, scene_t *scene) {
     int view_count = 0;
     

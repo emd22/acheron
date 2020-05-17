@@ -142,6 +142,7 @@ void light_update(light_t *light, shader_t *shader) {
         shader_set_vec3f(shader, lightstr, light->direction);
     }
     else if (light->type == LIGHT_POINT) {
+        light->point_shadow.far_plane = light->radius;
         sprintf(lightstr, "pointLights[%d].position", light->index);
         shader_set_vec3f(shader, lightstr, light->position);
         

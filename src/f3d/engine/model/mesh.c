@@ -4,6 +4,7 @@
 #include <f3d/engine/rendering/shader.h>
 #include <f3d/engine/type/vec.h>
 #include <f3d/engine/limits.h>
+#include <f3d/engine/engine.h>
 
 #include <string.h>
 #include <stdlib.h>
@@ -16,8 +17,6 @@
 
 static mesh_t *meshes;
 static int meshes_index = 0;
-static int curidx  = 0;
-static vertex_t *base = NULL;
 
 void calculate_tangents(mesh_t *mesh);
 
@@ -43,57 +42,32 @@ int vertcmp(const void *a, const void *b) {
         is_near(v0->normal.x, v1->normal.x) &&
         is_near(v0->normal.y, v1->normal.y) &&
         is_near(v0->normal.z, v1->normal.z))
+    {
         return 0;
-    else if (total0 > total1)
+    }
+    else if (total0 > total1) {
         return 1;
-    else
+    }
+    else {
         return -1;
+    }
 }
 
-int check_vertex_matches(buffer_t *vertices, vertex_t *vertex1, unsigned j) {
-    //unsigned i;
-    (void)j;
-    //vertex_t vertex;
-    vertex_t *svert;
-    curidx = j;
-    base = (vertex_t *)vertices->data;
-    svert = bsearch(vertex1, (vertex_t *)vertices->data, vertices->index, sizeof(vertex_t), &vertcmp);
-    //svert = NULL;
-    (void)vertex1;
-    if (svert == NULL)
+int check_vertex_matches(buffer_t *vertices, vertex_t *vertex1) {
+    vertex_t *vertex = bsearch(vertex1, (vertex_t *)vertices->data, vertices->index, sizeof(vertex_t), &vertcmp);
+    
+    if (vertex == NULL)
         return -1;
-    return ((vertex_t *)vertices->data-svert);
-    /*for (i = 0; i < vertices->index; i++) {
-        vertex = ((vertex_t *)vertices->data)[i];
-        if (i == j)
-            break;
-        if (is_near(vertex.position.x, vertex1->position.x) &&
-            is_near(vertex.position.y, vertex1->position.y) &&
-            is_near(vertex.position.z, vertex1->position.z) &&
-            is_near(vertex.uv.x, vertex1->uv.x) &&
-            is_near(vertex.uv.y, vertex1->uv.y) &&
-            is_near(vertex.normal.x, vertex1->normal.x) &&
-            is_near(vertex.normal.y, vertex1->normal.y) &&
-            is_near(vertex.normal.z, vertex1->normal.z)) {
-        }
-    }*/
+    // return index of vertex
+    return (vertex-(vertex_t *)vertices->data);
 }
 
-int sortcmp(const void *a, const void *b) {
-    vertex_t *v0 = (vertex_t *)a;
-    vertex_t *v1 = (vertex_t *)b;
-    if (v0->position.x == v1->position.x &&
-        v0->position.y == v1->position.y &&
-        v0->position.z == v1->position.z)
-        return 0;
-    return -1;
-}
 
-void generate_indices(mesh_t *mesh) {
+static void generate_indices(mesh_t *mesh) {
     unsigned i;
-    buffer_init(&mesh->indices, sizeof(unsigned), 2048);
+    buffer_init(&mesh->indices, BUFFER_STATIC, sizeof(unsigned), mesh->vertices.index);
     buffer_t new_verts;
-    buffer_init(&new_verts, sizeof(vertex_t), 4096);
+    buffer_init(&new_verts, BUFFER_STATIC, sizeof(vertex_t), mesh->vertices.index);
     vertex_t *vertex;
     
     //int index;
@@ -101,10 +75,11 @@ void generate_indices(mesh_t *mesh) {
     int amt_created = 0;
     int index;
     int amt_reused = 0;
-    //qsort((vertex_t *)mesh->vertices.data, mesh->vertices.index, sizeof(vertex_t), &vertcmp);
+    
+    
     for (i = 0; i < mesh->vertices.index; i++) {
         vertex = &((vertex_t *)mesh->vertices.data)[i];
-        if ((index = check_vertex_matches(&new_verts, vertex, i)) != -1) {
+        if ((index = check_vertex_matches(&new_verts, vertex)) != -1) {
             buffer_push(&mesh->indices, &index);
             amt_reused++;
         }
@@ -119,14 +94,14 @@ void generate_indices(mesh_t *mesh) {
     log_msg(LOG_INFO, "Generating indices... %.02f%% saved\n", amt_reused/((float)amt_created+amt_reused)*100);
 }
 
-void gen_packed_verts(mesh_t *mesh, obj_model_t *obj) {
+static void generate_packed_vertices(mesh_t *mesh, buffer_t *vertices, buffer_t *uvs, buffer_t *normals) {
     unsigned i;
-    buffer_init(&mesh->vertices, sizeof(vertex_t), 4096);
+    buffer_init(&mesh->vertices, BUFFER_DYNAMIC, sizeof(vertex_t), vertices->index+1);
     vertex_t vertex;
-    for (i = 0; i < obj->vertices.index; i++) {
-        vertex.position = ((vector3f_t *)obj->vertices.data)[i];
-        vertex.uv = ((vector2f_t *)obj->uvs.data)[i];
-        vertex.normal = ((vector3f_t *)obj->normals.data)[i];
+    for (i = 0; i < vertices->index; i++) {
+        vertex.position = ((vector3f_t *)vertices->data)[i];
+        vertex.uv =       ((vector2f_t *)uvs->data)[i];
+        vertex.normal =   ((vector3f_t *)normals->data)[i];
         buffer_push(&mesh->vertices, &vertex);
     }
 }
@@ -181,6 +156,20 @@ void mesh_init(mesh_t *mesh, int flags) {
     
 }
 
+void mesh_set_data(mesh_t *mesh, buffer_t *vertices, buffer_t *uvs, buffer_t *normals) {
+    generate_packed_vertices(mesh, vertices, uvs, normals);
+    generate_indices(mesh);
+/*    if (vertices != NULL) {*/
+/*        buffer->vertices = buffer_duplicate(vertices, BUFFER_STATIC);*/
+/*    }*/
+/*    if (uvs != NULL) {*/
+/*        buffer->uvs = buffer_duplicate(uvs, BUFFER_STATIC);*/
+/*    }*/
+/*    if (normals != NULL) {*/
+/*        buffer->normals = buffer_duplicate(normals, BUFFER_STATIC);*/
+/*    }*/
+}
+
 /*void mesh_set_data(
     mesh_t *mesh, 
     vector3f_t *vertices, int verts_size,
@@ -228,7 +217,7 @@ mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags) {
         obj_model_t obj = obj_load(path);
         memcpy(mesh->obj, &obj, sizeof(obj_model_t));
         
-        gen_packed_verts(mesh, &obj);
+        generate_packed_vertices(mesh, &obj.vertices, &obj.uvs, &obj.normals);
         generate_indices(mesh);
     }
     else {

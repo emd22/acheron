@@ -17,21 +17,21 @@ obj_model_t obj_load(const char *path) {
     obj_model_t model;
     model.inited = 0;
     
-    buffer_init(&model.vertices, sizeof(vector3f_t), 4096);
-    buffer_init(&model.uvs,      sizeof(vector2f_t), 4096);
-    buffer_init(&model.normals,  sizeof(vector3f_t), 4096);
+    buffer_init(&model.vertices, BUFFER_DYNAMIC, sizeof(vector3f_t), 4096);
+    buffer_init(&model.uvs,      BUFFER_DYNAMIC, sizeof(vector2f_t), 4096);
+    buffer_init(&model.normals,  BUFFER_DYNAMIC, sizeof(vector3f_t), 4096);
     
     buffer_t temp_vertices;
     buffer_t temp_uvs;
     buffer_t temp_normals;
-    buffer_init(&temp_vertices, sizeof(vector3f_t), 4096);
-    buffer_init(&temp_uvs,      sizeof(vector2f_t), 4096);
-    buffer_init(&temp_normals,  sizeof(vector3f_t), 4096);
+    buffer_init(&temp_vertices, BUFFER_DYNAMIC, sizeof(vector3f_t), 4096);
+    buffer_init(&temp_uvs,      BUFFER_DYNAMIC, sizeof(vector2f_t), 4096);
+    buffer_init(&temp_normals,  BUFFER_DYNAMIC, sizeof(vector3f_t), 4096);
     
     buffer_t vertex_indices, uv_indices, normal_indices;
-    buffer_init(&vertex_indices, sizeof(unsigned), 8192);
-    buffer_init(&uv_indices,     sizeof(unsigned), 8192);
-    buffer_init(&normal_indices, sizeof(unsigned), 8192);
+    buffer_init(&vertex_indices, BUFFER_DYNAMIC, sizeof(unsigned), 8192);
+    buffer_init(&uv_indices,     BUFFER_DYNAMIC, sizeof(unsigned), 8192);
+    buffer_init(&normal_indices, BUFFER_DYNAMIC, sizeof(unsigned), 8192);
 
     FILE *fp = fopen(path, "r");
     if (fp == NULL) {
