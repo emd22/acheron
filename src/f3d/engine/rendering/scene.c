@@ -55,7 +55,8 @@ void scene_render_shadows(scene_t *scene, shader_t *shader_main) {
 }
 
 void scene_select(scene_t *scene, shader_t *shader_main) {
-    
+    (void)scene;
+    (void)shader_main;
 }
 
 void scene_render(shader_t *shader_main, scene_t *scene) {
@@ -83,7 +84,8 @@ void scene_render(shader_t *shader_main, scene_t *scene) {
         //shadows_point_render(&scene->shadow, shader_main);
         if (light->use_shadows) {
             glActiveTexture(GL_TEXTURE4+light->point_shadow.shadow_map_id);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, light->point_shadow.framebuffer.texture->id);
+            //glBindTexture(GL_TEXTURE_CUBE_MAP, light->point_shadow.framebuffer.texture->id);
+            texture_bind(light->point_shadow.framebuffer.texture);
         }
     }
 

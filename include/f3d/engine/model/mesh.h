@@ -1,6 +1,8 @@
 #ifndef F3D_MESH_H
 #define F3D_MESH_H
 
+#include <stdbool.h>
+
 #include <f3d/engine/model/obj.h>
 #include <f3d/engine/types.h>
 #include <f3d/engine/rendering/camera.h>
@@ -26,6 +28,8 @@ typedef struct {
     int type;
     int index;
     int flags;
+     
+    unsigned primative;
 
     obj_model_t *obj;
     
@@ -45,7 +49,9 @@ typedef struct {
     unsigned vao, vbo, ibo;
     
     vector3f_t *tangents, *bitangents;
-    unsigned tangent_id, bitangent_id;   
+    unsigned tangent_id, bitangent_id;
+    
+    bool initialized;
 } mesh_t;
 
 void meshes_init(void);

@@ -18,8 +18,6 @@ void init_gl() {
         exit(1);
     }
     
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
     // enable vsync
     SDL_GL_SetSwapInterval(-1);
     //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
@@ -51,11 +49,9 @@ int render_all_objects(void *arg) {
 
 void render_init() {
     init_gl();
-    //shader_main = shader_load();
     shader_main = shader_new("Main");
     shader_attach(shader_main, SHADER_VERTEX, "../shaders/m_vert.glsl");
     shader_attach(shader_main, SHADER_FRAGMENT, "../shaders/m_frag.glsl");
-    shader_link(shader_main);
     
     shader_use(shader_main);
     

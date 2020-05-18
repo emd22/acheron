@@ -7,7 +7,7 @@ int player_move(camera_t *camera) {
     int moved = 0;
     
     static vector3f_t velocity;
-    const float max_velocity = 2.0f;
+    const float max_velocity = 1.0f;
     
     if (keys[CONTROL_FORWARD].pressed) {
         velocity.z = max_velocity;
@@ -29,12 +29,12 @@ int player_move(camera_t *camera) {
         light_t *new_light = light_new(LIGHT_POINT);
         new_light->position = camera->position;
         new_light->diffuse   = VEC3F(1.0f);
-        light_shadow_new(new_light, 800, 800);
+        //light_shadow_new(new_light, 800, 800);
         light_init(new_light, shader_main);
         
         scene_attach(selected_scene, SCENE_LIGHT, new_light);
         //scene_render_shadows(selected_scene, shader_main);
-        light_shadow_render(new_light, shader_main);
+        //light_shadow_render(new_light, shader_main);
     }
     if (controls_check_toggle(CONTROL_2)) {
         static bool wireframe = false;
@@ -84,5 +84,6 @@ int player_move(camera_t *camera) {
         camera->move_mul.x /= 2;
         camera->move_mul.z /= 2;
     }
+    
     return moved;
 }

@@ -1,7 +1,7 @@
 #version 420 core
 
 #define MAX_DIR_LIGHTS 1
-#define MAX_POINT_LIGHTS 8
+#define MAX_POINT_LIGHTS 4
 
 struct Material {
     bool use_normalmap;
@@ -78,9 +78,9 @@ void main() {
     //}
     
     vec3 result = vec3(0);
-    for (int i = 0; i < MAX_DIR_LIGHTS; i++) {
-        result += CalcDirectionalLight(dirLights[i], n, frag_eye_direction, visibility);
-    }
+    //for (int i = 0; i < MAX_DIR_LIGHTS; i++) {
+    //    result += CalcDirectionalLight(dirLights[i], n, frag_eye_direction, visibility);
+    //}
     for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
         result += clamp(CalcPointLight(pointLights[i], n, frag_eye_direction), 0.0, 1.0);
     }
@@ -91,19 +91,16 @@ vec3 ShadowCalculation(PointLight light)
 {
     // get vector between fragment position and light position
     vec3 lightToFrag = frag_vertex - light.position;
-    // ise the fragment to light vector to sample from the depth map    
+    
     float depth = texture(light.shadow_map, lightToFrag).r;
-    // it is currently in linear range between [0,1], let's re-transform it back to original depth value
     depth *= light.shadow_far_plane;
-    // now get current linear depth as the length between the fragment and light position
-    //float currentDepth = length(lightToFrag);
-    // test for shadows
-    float bias = 0.05; // we use a much larger bias since depth is now in [near_plane, far_plane] range
-    //float shadow = currentDepth - bias > closestDepth ? 1.0 : 0.0;        
-    // display closestDepth as debug (to visualize depth cubemap)
-    // vec4(vec3(closestDepth / far_plane), 1.0);    
-    return (length(lightToFrag) - bias) > depth ? 0.2f*light.diffuse : vec3(1.0f);
-    //return shadow;
+    const float bias = 0.05;
+    float current_depth = length(lightToFrag);
+    
+    if (current_depth-bias > depth) {
+        return 0.1f*light.diffuse;
+    }
+    return vec3(1.0f);
 }
 
 float blinnPhong(vec3 normal, vec3 frag_vertex, vec3 view_pos, vec3 light_dir, float shininess) {
@@ -147,8 +144,8 @@ vec3 CalcDirectionalLight(DirectionalLight light, vec3 normal, vec3 view_dir, fl
 vec3 CalcPointLight(PointLight light, vec3 normal, vec3 view_dir) {
     view_dir = normalize(view_dir);
     
-    vec3 diffuse_tex = vec3(1);
-    vec3 specular_tex = vec3(1);
+    vec3 diffuse_tex = vec3(1.0f);
+    vec3 specular_tex = vec3(1.0f);
     
     if (material.use_diffuse) {
         diffuse_tex = vec3(texture(material.diffuse, frag_uv));
@@ -160,11 +157,8 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 view_dir) {
     diffuse_tex *= light.diffuse;
     specular_tex *= light.specular;
     
-    vec3 light_pos = light.position - frag_vertex;
-    //float dist = distance(light.position, fragVertex);
-    float dist = length(light_pos);
-    //dist = dist*dist;
-    light_pos = normalize(light_pos);
+    float dist = length(light.position - frag_vertex);
+    
     vec3 light_dir = normalize(light.position - frag_vertex);
 
     float specularity = blinnPhong(normal, frag_vertex, view_pos, light_dir, material.shininess);
@@ -180,12 +174,9 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 view_dir) {
     mat_diffuse  *= attenuation;
     mat_specular *= attenuation;
     
-    vec3 vis;
+    vec3 vis = vec3(1.0f);
     if (light.shadows_enabled) {
         vis = ShadowCalculation(light);    
-    }
-    else {
-        vis = vec3(1.0f);
     }
     
     return ((vis) * (mat_diffuse + mat_specular)+mat_ambient);

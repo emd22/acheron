@@ -5,6 +5,7 @@
 #include <f3d/engine/rendering/camera.h>
 #include <f3d/engine/rendering/framebuffer.h>
 #include <f3d/engine/rendering/cubemap.h>
+#include <f3d/engine/physics/object.h>
 
 extern camera_t shadow_cam;
 
@@ -18,6 +19,8 @@ typedef struct {
     
     float far_plane;
     int shadow_map_id;
+    
+    physics_collider_t collider;
     
     mat4_t mat_perspective;
 } shadows_point_t;

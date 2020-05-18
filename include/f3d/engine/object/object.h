@@ -8,6 +8,7 @@
 #include <f3d/engine/rendering/camera.h>
 #include <f3d/engine/rendering/framebuffer.h>
 #include <f3d/engine/object/material.h>
+#include <f3d/engine/physics/object.h>
 
 #define RENDER_OBJECT_FLAG_UPDATE 0x01
 
@@ -36,6 +37,8 @@ typedef struct {
     vector3f_t rotation;
     vector3f_t scale;
     mat4_t matrix;
+    
+    physics_collider_t collider;
     
     int flags;
 } render_object_t;

@@ -27,6 +27,7 @@ const char *get_shader_type_name(int type) {
         return "Vertex";
     else if (type == SHADER_GEOMETRY)
         return "Geometry";
+        
     return "Unknown";
 }
 
@@ -34,18 +35,32 @@ void check_status(unsigned id, int type) {
     int info_log_length;
 	glGetShaderiv(id, GL_INFO_LOG_LENGTH, &info_log_length);
 	if (info_log_length > 0) {
-	    char info_log[4096];
+	    char info_log[info_log_length];
 	    glGetShaderInfoLog(id, info_log_length, NULL, info_log);
 	    log_msg(LOG_ERROR, "Error in %s shader! (%d)\n", get_shader_type_name(type), info_log_length);
 	    log_msg(LOG_ERROR, "Error log:\n%s\n", info_log);
 	}
 }
 
+bool shader_check_linked(shader_t *shader) {
+    return (shader->program != SHADER_NONE);
+}
+
+static void link_shader_check(shader_t *shader) {
+    if (!shader_check_linked(shader))
+        shader_link(shader);
+} 
+
 void shader_use(shader_t *shader) {
+    link_shader_check(shader);
     glUseProgram(shader->program);
 }
 
 void shader_link(shader_t *shader) {
+    // shader already linked
+    if (shader->program != SHADER_NONE)
+        return;
+        
     shader->program = glCreateProgram();
     
     // attach shaders for linking
@@ -75,6 +90,15 @@ void shader_link(shader_t *shader) {
         glDetachShader(shader->program, shader->geometry);
         glDeleteShader(shader->geometry);
     }
+
+    int is_linked = 0;
+    glGetProgramiv(shader->program, GL_LINK_STATUS, &is_linked);
+    if (!is_linked) {
+        // free our program memory in OpenGL if the link has failed
+        glDeleteProgram(shader->program);
+        shader->program = SHADER_NONE;
+        return;
+    }
     
     handle_call(HANDLE_ON_SHADER_LOAD, shader);
 }
@@ -84,7 +108,7 @@ void shader_destroy(shader_t *shader) {
         glDeleteProgram(shader->program);
 }
 
-long load_shader(const char *path, int type) {
+static long load_shader(const char *path, int type) {
     unsigned shader_id = glCreateShader(type);
     FILE *fp = fopen(path, "rb");
     if (fp == NULL) {
@@ -96,6 +120,7 @@ long load_shader(const char *path, int type) {
     unsigned long fsize = ftell(fp);
     rewind(fp);
     
+    // allocate +1 for null character
     char *data = malloc(fsize+1);
     // read shader file into buffer
     fread(data, 1, fsize, fp);
@@ -151,13 +176,17 @@ void shader_attach(shader_t *shader, int type, const char *path) {
 }
 
 unsigned shader_get_uniform_location(shader_t *shader, const char *var, int *uniform_index) {
+    link_shader_check(shader);
+    
     hash_t hash = util_hash_str(var);
     int i;
     for (i = 0; i < shader->uniform_index; i++) {
-        // compare hash to caches uniforms
+        // compare hash to cached uniforms
         if (shader->uniforms[i].hash == hash) {
+            // we found the hash, so we set the index
             if (uniform_index != NULL)
                 (*uniform_index) = i;
+            // uniform has already been cached, so we return the location
             return shader->uniforms[i].location;
         }
     }
@@ -165,15 +194,15 @@ unsigned shader_get_uniform_location(shader_t *shader, const char *var, int *uni
     shader_uniform_t new_uniform;
     new_uniform.hash = hash;
     new_uniform.location = glGetUniformLocation(shader->program, var);
-    // we hit max uniforms, so we don't want to cache the location
-    if (shader->uniform_index == MAX_SHADER_UNIFORMS)
-        goto done;
+    
+    // cache the location
+    if (shader->uniform_index != MAX_SHADER_UNIFORMS)
+        shader->uniforms[shader->uniform_index++] = new_uniform;
         
-    shader->uniforms[shader->uniform_index++] = new_uniform;
-done:;
-    // return our location
+    // set uniform_index to the index of the new cached object
     if (uniform_index != NULL)
         (*uniform_index) = shader->uniform_index-1;
+    
     new_uniform.value = 0.0f;
     return new_uniform.location;
 }

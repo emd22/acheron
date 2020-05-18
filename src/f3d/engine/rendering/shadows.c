@@ -14,6 +14,7 @@
 //static mat4_t shadow_mat_bias;
 //framebuffer_t shadow_fb;
 camera_t shadow_cam;
+static shader_t *shader_point_shadow = NULL;
 
 /*
 void generate_vp(vector3f_t direction, vector3f_t center) {
@@ -47,15 +48,18 @@ void generate_point_vps(shadows_point_t *shadow, vector3f_t position) {
 void shadows_point_update(shadows_point_t *shadow, vector3f_t position) {
     // recalculate View/Projection matrices
     generate_point_vps(shadow, position);
+    shadow->collider.position = position;
 }
 
 shadows_point_t shadows_point_init(vector3f_t position, int width, int height, float far_plane) {
     shadows_point_t shadow;
-    shadow.shader = shader_new("Point Shadow");
-    shader_attach(shadow.shader, SHADER_VERTEX, "../shaders/shadows/point_vert.glsl");
-    shader_attach(shadow.shader, SHADER_FRAGMENT, "../shaders/shadows/point_frag.glsl");
-    shader_attach(shadow.shader, SHADER_GEOMETRY, "../shaders/shadows/point_geom.glsl");
-    shader_link(shadow.shader);
+    if (shader_point_shadow == NULL) {
+        shader_point_shadow = shader_new("Point Shadow");
+        shader_attach(shader_point_shadow, SHADER_VERTEX, "../shaders/shadows/point_vert.glsl");
+        shader_attach(shader_point_shadow, SHADER_FRAGMENT, "../shaders/shadows/point_frag.glsl");
+        shader_attach(shader_point_shadow, SHADER_GEOMETRY, "../shaders/shadows/point_geom.glsl");
+    }
+    shadow.shader = shader_point_shadow;
     
     shadow.width = width;
     shadow.height = height;
@@ -74,6 +78,11 @@ shadows_point_t shadows_point_init(vector3f_t position, int width, int height, f
     framebuffer_bind(&shadow.framebuffer);
     
     framebuffer_texture(&shadow.framebuffer, GL_DEPTH_ATTACHMENT);
+    //texture_set_parameter(shadow.framebuffer.texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    
+    shadow.collider = physics_collider_new(PHYSICS_COLLIDER_AABB);
+    shadow.collider.position = position;
+    shadow.collider.dimensions = (vector3f_t){far_plane, far_plane, far_plane};
     
     shadow.shadow_map_id = 0;
     

@@ -99,9 +99,21 @@ static void generate_packed_vertices(mesh_t *mesh, buffer_t *vertices, buffer_t 
     buffer_init(&mesh->vertices, BUFFER_DYNAMIC, sizeof(vertex_t), vertices->index+1);
     vertex_t vertex;
     for (i = 0; i < vertices->index; i++) {
-        vertex.position = ((vector3f_t *)vertices->data)[i];
-        vertex.uv =       ((vector2f_t *)uvs->data)[i];
-        vertex.normal =   ((vector3f_t *)normals->data)[i];
+        if (vertices != NULL)
+            vertex.position = ((vector3f_t *)vertices->data)[i];
+        else
+            vertex.position = (vector3f_t){0, 0, 0};
+            
+        if (uvs != NULL)
+            vertex.uv = ((vector2f_t *)uvs->data)[i];
+        else
+            vertex.uv = (vector2f_t){0, 0};
+            
+        if (normals != NULL)
+            vertex.normal =   ((vector3f_t *)normals->data)[i];
+        else
+            vertex.normal = (vector3f_t){0, 0, 0};
+            
         buffer_push(&mesh->vertices, &vertex);
     }
 }
@@ -111,6 +123,7 @@ mesh_t *mesh_new(void) {
     mesh_t *mesh = &meshes[index];
     mesh->type = MODEL_NONE;
     mesh->index = index;
+    mesh->primative = GL_TRIANGLES;
     /*mesh->normals = NULL;
     mesh->uvs = NULL;
     mesh->vertices = NULL;*/
@@ -153,7 +166,6 @@ void mesh_init(mesh_t *mesh, int flags) {
     // bitangents
     glEnableVertexAttribArray(4);
     glVertexAttribPointer(4, 3, GL_FLOAT, 0, stride, (void *)offsetof(vertex_t, bitangent));
-    
 }
 
 void mesh_set_data(mesh_t *mesh, buffer_t *vertices, buffer_t *uvs, buffer_t *normals) {
@@ -245,7 +257,7 @@ void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, shader_t *shader)
     }
     
     glBindVertexArray(mesh->vao);
-    glDrawElements(GL_TRIANGLES, mesh->indices.index, GL_UNSIGNED_INT, NULL);
+    glDrawElements(mesh->primative, mesh->indices.index, GL_UNSIGNED_INT, NULL);
     //glDrawArrays(GL_TRIANGLES, 0, mesh->vertices->size*3);
     //glBindVertexArray(0);
 }

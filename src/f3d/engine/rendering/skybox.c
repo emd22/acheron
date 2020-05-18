@@ -10,7 +10,6 @@ skybox_t skybox_new(texture_t **textures) {
         shader_skybox = shader_new("Skybox");
         shader_attach(shader_skybox, SHADER_VERTEX, "../shaders/skybox_vert.glsl");
         shader_attach(shader_skybox, SHADER_FRAGMENT, "../shaders/skybox_frag.glsl");
-        shader_link(shader_skybox);
     }
     shader_use(shader_skybox);
     skybox_t skybox;

@@ -29,6 +29,7 @@ window_t window;
 material_t *brick, *stone;
 light_t *light, *player_light;
 camera_t camera;
+render_object_t *box;
 
 scene_t *scene;
 
@@ -43,13 +44,15 @@ int init(void) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     
-    window = window_new("Ethan's 3D Engine", 700, 700, 0);
-    SDL_SetWindowFullscreen(window.win, SDL_WINDOW_FULLSCREEN_DESKTOP); 
-    SDL_GetWindowSize(window.win, &window.width, &window.height);
+    SDL_DisplayMode mode;
+    SDL_GetCurrentDisplayMode(0, &mode);
+    
+    window = window_new("Ethan's 3D Engine", mode.w, mode.h, 0);
+    SDL_SetWindowFullscreen(window.win, SDL_WINDOW_FULLSCREEN); 
+    //SDL_GetWindowSize(window.win, &window.width, &window.height);
     default_window = &window;
-    
+
     render_init();
-    
     camera = camera_new();
     camera.move_speed = 6.0f;
     camera.position = (vector3f_t){0, 3, 4};
@@ -57,7 +60,6 @@ int init(void) {
     // select camera to be default and calculate perspective matrix
     camera_select(&camera);
     log_msg(LOG_INFO, "Camera initialized\n", 0);
-    
     load_models();
     
     ui_init();
@@ -79,19 +81,19 @@ int main() {
     setup_handles();
     handle_call(HANDLE_INIT, NULL);
     
-    light = light_new(LIGHT_POINT);
-    light->position = (vector3f_t){5, 3, 4};
-    light_shadow_new(light, 800, 800);
-    light_init(light, shader_main);
+    //light = light_new(LIGHT_POINT);
+    //light->position = (vector3f_t){5, 3, 4};
+    //light_shadow_new(light, 800, 800);
+    //light_init(light, shader_main);
     
     player_light = light_new(LIGHT_POINT);
     player_light->position = camera.position;
-    player_light->radius = 15.0f;
+    player_light->radius = 8.0f;
     light_shadow_new(player_light, 800, 800);
     light_init(player_light, shader_main);
     
     scene = scene_new("Scene");
-    scene_attach(scene, SCENE_LIGHT, light);
+    //scene_attach(scene, SCENE_LIGHT, light);
     scene_attach(scene, SCENE_LIGHT, player_light);
     selected_scene = scene;
     scene_render_shadows(scene, shader_main);
@@ -107,16 +109,17 @@ int main() {
             check_event(&event);
             
         shader_use(shader_main);
-        player_move(&camera);
+        if (player_move(&camera)) {
+            player_light->position = camera.position;
+            player_light->position.x -= 1;
+            light_update(player_light, shader_main);
+            light_shadow_render(player_light, shader_main);
+        }
         
         camera_update(selected_camera);
         shader_set_vec3f(shader_main, "view_pos", selected_camera->position);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
  
-        player_light->position = camera.position;
-        player_light->position.x -= 1;
-        light_update(player_light, shader_main);
-        light_shadow_render(player_light, shader_main);
         handle_call(HANDLE_DRAW, NULL);
         
         window_buffers_swap(&window);
@@ -155,16 +158,16 @@ void load_models() {
     });
     
     render_object_t *level = object_new("Level");
-    object_attach(level, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/metro.obj", MODEL_OBJ, 0));
+    object_attach(level, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/conference/conference.obj", MODEL_OBJ, 0));
     object_attach(level, OBJECT_ATTACH_MATERIAL, brick);
-    object_scale(level, 5, 5, 5);
-    object_move(level, 0, 2, 0);
+    object_scale(level, 0.01, 0.01, 0.01);
+    object_move(level, 0, 0, 0);
 
     //render_object_t *wall = object_new("Wall");
     //object_attach(wall, OBJECT_ATTACH_MESH, level->mesh);
     //object_attach(wall, OBJECT_ATTACH_MATERIAL, stone);
 
-    render_object_t *box = object_new("Box");
+    box = object_new("Box");
     object_attach(box, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/cube.obj", MODEL_OBJ, 0));
     object_attach(box, OBJECT_ATTACH_MATERIAL, stone);
     object_move(box, 0, 2, 0);

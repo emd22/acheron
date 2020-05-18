@@ -8,6 +8,8 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
+#include <stdbool.h>
+
 #define SHADER_VERTEX   GL_VERTEX_SHADER
 #define SHADER_FRAGMENT GL_FRAGMENT_SHADER
 #define SHADER_GEOMETRY GL_GEOMETRY_SHADER
@@ -31,10 +33,11 @@ typedef struct {
 
 shader_t *shader_new(const char *name);
 void shader_attach(shader_t *shader, int type, const char *path);
-void shader_link(shader_t *shader);
 shader_t *shader_get(const char *name);
-void shader_destroy(shader_t *shader);
 void shader_use(shader_t *shader);
+void shader_link(shader_t *shader);
+bool shader_check_linked(shader_t *shader);
+void shader_destroy(shader_t *shader);
 
 void shader_set_int(shader_t *shader, const char *var, int val);
 void shader_set_float(shader_t *shader, const char *var, float val);

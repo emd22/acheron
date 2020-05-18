@@ -58,7 +58,8 @@ void framebuffer_generate_texture(framebuffer_t *fb, int draw_type, int data_typ
 void framebuffer_bind(framebuffer_t *fb) {
     if (fb == NULL) {
         int fbo = 0;
-        int width = default_window->width, height = default_window->height;
+        int width = default_window->width;
+        int height = default_window->height;
         if (default_framebuffer != NULL) {
             width = default_framebuffer->width;
             height = default_framebuffer->height;

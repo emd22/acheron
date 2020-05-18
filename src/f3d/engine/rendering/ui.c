@@ -21,7 +21,7 @@ void ui_init() {
     shader_ui = shader_new("UI");
     shader_attach(shader_ui, SHADER_VERTEX, "../shaders/ui/ui_vert.glsl");
     shader_attach(shader_ui, SHADER_FRAGMENT, "../shaders/ui/ui_frag.glsl");
-    shader_link(shader_ui);
+    
     //node.mesh = mesh_load(NULL, "../models/cube.obj", MODEL_OBJ, 0);
     node.mesh = mesh_new();
     vector3f_t quad_vertices[] = {

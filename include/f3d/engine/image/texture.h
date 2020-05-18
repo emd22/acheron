@@ -22,6 +22,7 @@ typedef struct {
 
 texture_t *texture_new(void);
 void texture_init(texture_t *texture);
+void texture_bind(texture_t *texture);
 texture_t *texture_load(texture_t *texture, const char *path, int type);
 texture_t *texture_load_data(texture_t *texture, const char *path, int type);
 void texture_set_data(texture_t *texture, int width, int height, int type_size, unsigned char *data);

@@ -30,6 +30,8 @@ render_object_t *object_new(const char *name) {
     object->scale = (vector3f_t){1, 1, 1};
     object->material = NULL;
     
+    object->collider = physics_collider_new(PHYSICS_COLLIDER_AABB);
+    
     object_update(object);
     
     return object;
@@ -115,6 +117,7 @@ void object_update(render_object_t *object) {
 void object_attach(render_object_t *object, int type, void *data) {
     if (type == OBJECT_ATTACH_MESH) {
         object->mesh = (mesh_t *)data;
+        physics_collider_stretch_to_vertices(&object->collider, &object->mesh->vertices);
     }
     else if (type == OBJECT_ATTACH_MATERIAL) {
         object->material = (material_t *)data;
