@@ -9,8 +9,6 @@ int render_all_objects(void *ptr);
 
 shader_t *shader_main;
 
-scene_t *selected_scene = NULL;
-
 void init_gl() {
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK) {

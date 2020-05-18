@@ -7,7 +7,6 @@
 #include <f3d/engine/rendering/scene.h>
 
 extern shader_t *shader_main;
-extern scene_t *selected_scene;
 
 void render_init_shadows(scene_t *scene, int width, int height);
 void render_init();

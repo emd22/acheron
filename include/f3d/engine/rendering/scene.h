@@ -6,6 +6,7 @@
 #include <f3d/engine/rendering/camera.h>
 #include <f3d/engine/rendering/light.h>
 #include <f3d/engine/rendering/shadows.h>
+#include <f3d/engine/object/object.h>
 #include <f3d/engine/limits.h>
 
 #define SCENE_ENABLE_SHADOWS 0x01
@@ -33,11 +34,14 @@ typedef struct {
 } scene_t;
 
 extern scene_t scenes[8];
+extern scene_t *selected_scene;
 extern int scenes_index;
 
 scene_t *scene_new(const char *name);
 void scene_render_shadows(scene_t *scene, shader_t *shader_main);
+void scene_select(scene_t *scene, shader_t *shader_main);
 render_view_t *scene_new_view(scene_t *scene, camera_t *camera, int width, int height, int attachment);
+void scene_object_update(scene_t *scene, render_object_t *object, shader_t *shader_main);
 void scene_attach(scene_t *scene, int type, void *ptr);
 void scene_render(shader_t *shader_main, scene_t *scene);
 void scene_destroy(scene_t *scene);

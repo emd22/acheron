@@ -15,6 +15,7 @@ typedef struct {
     
     vector3f_t position;
     vector3f_t dimensions;
+    vector3f_t scale;
     
     mesh_t *debug_mesh;
 } physics_collider_t;

@@ -157,6 +157,7 @@ void light_update(light_t *light, shader_t *shader) {
             shader_set_float(shader, lightstr, light->use_shadows);
             
             shadows_point_update(&light->point_shadow, light->position);
+            light_shadow_render(light, shader);
         }
     }
 }

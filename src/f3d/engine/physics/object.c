@@ -4,9 +4,9 @@
 
 #include <math.h>
 
-#define OBJ_MAX_X(obj) (obj->position.x+obj->dimensions.x)
-#define OBJ_MAX_Y(obj) (obj->position.y+obj->dimensions.y)
-#define OBJ_MAX_Z(obj) (obj->position.z+obj->dimensions.z)
+#define OBJ_MAX_X(obj) (obj->position.x+(obj->dimensions.x))*obj->scale.x
+#define OBJ_MAX_Y(obj) (obj->position.y+(obj->dimensions.y))*obj->scale.y
+#define OBJ_MAX_Z(obj) (obj->position.z+(obj->dimensions.z))*obj->scale.z
 
 shader_t *shader_bounding = NULL;
 
@@ -15,14 +15,13 @@ physics_collider_t physics_collider_new(physics_collider_type_t type) {
     collider.type = type;
     collider.position = (vector3f_t){0, 0, 0};
     collider.dimensions = (vector3f_t){1, 1, 1};
+    collider.scale = (vector3f_t){1, 1, 1};
     
     if (shader_bounding == NULL) {
         shader_bounding = shader_new("BoundingBox");
         shader_attach(shader_bounding, SHADER_VERTEX, "../shaders/debug/bounding_vert.glsl");
         shader_attach(shader_bounding, SHADER_FRAGMENT, "../shaders/debug/bounding_frag.glsl");
     }
-    
-    collider.debug_mesh = mesh_new();
     return collider;
 }
 
@@ -57,39 +56,34 @@ void physics_collider_stretch_to_vertices(physics_collider_t *collider, buffer_t
         vertex = (((vertex_t *)vertices->data)[i]).position;
         // x
         // find smallest x value in vertex
-        if (vertex.x < 0 && vertex.x < width.x)
+        if (vertex.x < width.x)
             width.x = vertex.x;
         // find largest x value in vertex
-        else if (vertex.x >= 0 && vertex.x > width.y)
+        else if (vertex.x > width.y)
             width.y = vertex.x;
             
         // y
         // find smallest y value in vertex
-        if (vertex.y < 0 && vertex.y < height.x)
+        if (vertex.y < height.x)
             height.x = vertex.y;
         // find largest y value in vertex
-        else if (vertex.y >= 0 && vertex.y > height.y)
+        else if (vertex.y > height.y)
             height.y = vertex.y;
             
         // z
         // find smallest z value in vertex
-        if (vertex.z < 0 && vertex.z < depth.x)
+        if (vertex.z < depth.x)
             depth.x = vertex.z;
         // find largest z value in vertex
-        else if (vertex.z >= 0 && vertex.z > depth.y)
+        else if (vertex.z > depth.y)
             depth.y = vertex.z;
     }
     float pwidth = width.y-width.x;
     float pheight = height.y-height.x;
     float pdepth = depth.y-depth.x;
+    log_msg(LOG_INFO, "%f %f %f || %f %f %f\n", width.x, height.x, depth.x, width.y, height.y, depth.y);
+    collider->position = (vector3f_t){width.x, height.x, depth.y};
     collider->dimensions = (vector3f_t){pwidth, pheight, pdepth};
-    
-    vector3f_t pointsp[] = {
-        (vector3f_t){width.x, width.y, height.x},
-        (vector3f_t){height.y, depth.x, depth.y}
-    };
-    buffer_t points = buffer_from_data(BUFFER_STATIC, pointsp, sizeof(vector3f_t), 6);
-    mesh_set_data(collider->debug_mesh, &points, NULL, NULL);
 }
 
 bool physics_collider_check_collision(physics_collider_t *collider0, physics_collider_t *collider1) {

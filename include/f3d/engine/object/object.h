@@ -26,7 +26,11 @@ enum {
     RENDER_OBJECT_TYPE_MESH,
 };
 
-typedef struct {
+typedef enum {
+    OBJECT_UPDATE_NEARBY,
+} object_update_type_t;
+
+typedef struct render_object_s {
     char name[32];
     hash_t hash;
 
@@ -54,7 +58,7 @@ void object_rotate_v(render_object_t *object, vector3f_t val);
 void object_scale(render_object_t *object, float x, float y, float z);
 void object_scale_v(render_object_t *object, vector3f_t val);
 
-render_object_t *render_object_get(const char *name);
+render_object_t *object_get(const char *name);
 void objects_sort(void);
 void object_attach(render_object_t *object, int type, void *data);
 void objects_draw(shader_t *shader, camera_t *camera, bool render_materials);

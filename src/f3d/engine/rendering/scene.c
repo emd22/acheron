@@ -11,6 +11,7 @@
 
 scene_t scenes[8];
 int scenes_index = 0;
+scene_t *selected_scene = NULL;
 
 scene_t *scene_new(const char *name) {
     scene_t *scene = &scenes[scenes_index++];
@@ -55,8 +56,34 @@ void scene_render_shadows(scene_t *scene, shader_t *shader_main) {
 }
 
 void scene_select(scene_t *scene, shader_t *shader_main) {
-    (void)scene;
-    (void)shader_main;
+    selected_scene = scene;
+    int i;
+    for (i = 0; i < scene->lights_index; i++) {
+        light_init(scene->lights[i], shader_main);
+        light_update(scene->lights[i], shader_main);
+    }
+}
+
+light_t *get_nearest_light(scene_t *scene, object_t *object, shader_t *shader_main) {
+    float obj_dist = (object->position.x+object->position.y+object->position.z)/3.0f;
+    float light_dist = 0;
+    float dist;
+    int i;
+    light_t *light;
+    for (i = 0; i < scene->lights_index; i++) {
+        light = scene->lights[i];
+        light_dist = (light->position.x+light->position.y+light->position.z)/3.0f;
+        dist = +(obj_dist-light_dist);
+        if (dist <= light->radius) {
+            light_shadow_render(light, shader_main);
+            return light;
+        }
+    }
+    return NULL;
+}
+
+void scene_object_update(scene_t *scene, render_object_t *object, shader_t *shader_main) {
+    get_nearest_light(scene, object, shader_main);
 }
 
 void scene_render(shader_t *shader_main, scene_t *scene) {

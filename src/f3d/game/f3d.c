@@ -48,15 +48,14 @@ int init(void) {
     SDL_GetCurrentDisplayMode(0, &mode);
     
     window = window_new("Ethan's 3D Engine", mode.w, mode.h, 0);
-    SDL_SetWindowFullscreen(window.win, SDL_WINDOW_FULLSCREEN); 
-    //SDL_GetWindowSize(window.win, &window.width, &window.height);
+    SDL_SetWindowFullscreen(window.win, SDL_WINDOW_FULLSCREEN_DESKTOP);
     default_window = &window;
 
     render_init();
     camera = camera_new();
     camera.move_speed = 6.0f;
     camera.position = (vector3f_t){0, 3, 4};
-    camera.rotation.x = 3.14;
+    camera.rotation.x = 3.14f;
     // select camera to be default and calculate perspective matrix
     camera_select(&camera);
     log_msg(LOG_INFO, "Camera initialized\n", 0);
@@ -85,24 +84,36 @@ int main() {
     //light->position = (vector3f_t){5, 3, 4};
     //light_shadow_new(light, 800, 800);
     //light_init(light, shader_main);
+    scene = scene_new("Scene");
+    
+    light = light_new(LIGHT_POINT);
+    light->position = (vector3f_t){-1.37f, 3.0f, -6.13f};
+    light->diffuse = (vector3f_t){0.2, 1.0, 0.2};
+    light_shadow_new(light, 800, 800);
+    scene_attach(scene, SCENE_LIGHT, light);
+    
+    light_t *light2 = light_new(LIGHT_POINT);
+    light2->position = (vector3f_t){1.32, 3.00f, 5.20f};
+    light_shadow_new(light2, 800, 800);
+    scene_attach(scene, SCENE_LIGHT, light2);
     
     player_light = light_new(LIGHT_POINT);
     player_light->position = camera.position;
+    player_light->position.x -= 1;
     player_light->radius = 8.0f;
+    player_light->diffuse = (vector3f_t){1.0f, 0.2f, 0.2f};
     light_shadow_new(player_light, 800, 800);
-    light_init(player_light, shader_main);
-    
-    scene = scene_new("Scene");
-    //scene_attach(scene, SCENE_LIGHT, light);
     scene_attach(scene, SCENE_LIGHT, player_light);
-    selected_scene = scene;
-    scene_render_shadows(scene, shader_main);
+    
+    scene_select(scene, shader_main);
 
     engine_setup_signals();
    
     SDL_Event event;
     time_init(); 
    
+    //render_object_t *level = object_get("Level");
+    render_object_t *wall = object_get("Wall");
     while (game_info.flags & GAME_IS_RUNNING) {
         time_tick();
         while (SDL_PollEvent(&event))
@@ -110,10 +121,14 @@ int main() {
             
         shader_use(shader_main);
         if (player_move(&camera)) {
+            object_move_v(box, camera.position);
+            scene_object_update(scene, box, shader_main);
             player_light->position = camera.position;
             player_light->position.x -= 1;
             light_update(player_light, shader_main);
-            light_shadow_render(player_light, shader_main);
+        }
+        if (physics_collider_check_collision(&wall->collider, &box->collider)) {
+            log_msg(LOG_DEBUG, "Collided %lu\n", frames_rendered);
         }
         
         camera_update(selected_camera);
@@ -121,6 +136,7 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
  
         handle_call(HANDLE_DRAW, NULL);
+        //mesh_draw(box->collider.debug_mesh, );
         
         window_buffers_swap(&window);
 
@@ -154,26 +170,22 @@ void load_models() {
         texture_load(NULL, "../images/brick.bmp", IMAGE_BMP),
         NULL,
         texture_load(NULL, "../images/brick_normal.bmp", IMAGE_BMP),
-        50.0f, 0
+        32.0f, 0
     });
     
     render_object_t *level = object_new("Level");
-    object_attach(level, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/conference/conference.obj", MODEL_OBJ, 0));
+    object_attach(level, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/reception/reception.obj", MODEL_OBJ, 0));
     object_attach(level, OBJECT_ATTACH_MATERIAL, brick);
-    object_scale(level, 0.01, 0.01, 0.01);
     object_move(level, 0, 0, 0);
 
-    //render_object_t *wall = object_new("Wall");
-    //object_attach(wall, OBJECT_ATTACH_MESH, level->mesh);
-    //object_attach(wall, OBJECT_ATTACH_MATERIAL, stone);
+    render_object_t *wall = object_new("Wall");
+    object_attach(wall, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/wall.obj", MODEL_OBJ, 0));
+    object_attach(wall, OBJECT_ATTACH_MATERIAL, stone);
 
     box = object_new("Box");
-    object_attach(box, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/cube.obj", MODEL_OBJ, 0));
+    object_attach(box, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/basiccube.obj", MODEL_OBJ, 0));
     object_attach(box, OBJECT_ATTACH_MATERIAL, stone);
     object_move(box, 0, 2, 0);
-    
-    objects_sort();
-    default_framebuffer = NULL;
 }
  
 int on_draw(void *arg) {

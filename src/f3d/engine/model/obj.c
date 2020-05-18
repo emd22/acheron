@@ -77,10 +77,9 @@ obj_model_t obj_load(const char *path) {
             int i;
 
             if (matches != 9) {
-                log_msg(LOG_WARN, "model not using vert 9\n", 0);
-                uv_index[0] = 0;
-                uv_index[1] = 0;
-                uv_index[2] = 0;
+                uv_index[0] = 1;
+                uv_index[1] = 1;
+                uv_index[2] = 1;
                 matches = sscanf(
                     newl, "%u//%u %u//%u %u//%u\n",
                     &vertex_index[0], &normal_index[0],

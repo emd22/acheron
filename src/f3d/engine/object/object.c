@@ -8,9 +8,9 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-
 render_object_t render_objects[MAX_RENDER_OBJECTS];
 int render_objects_index = 0;
+static bool objects_sorted = false;
 
 void objects_sort(void);
 
@@ -46,7 +46,7 @@ void render_set_target(int target, void *ptr) {
     }
 }
 
-render_object_t *render_object_get(const char *name) {
+render_object_t *object_get(const char *name) {
     hash_t hash = util_hash_str(name);
     int i;
     for (i = 0; i < render_objects_index; i++) {
@@ -112,6 +112,8 @@ void object_update(render_object_t *object) {
     object->matrix = mat4_rotate_z(object->matrix, object->rotation.z);
     
     scale_object(object);
+    object->collider.position = object->position;
+    object->collider.scale = object->scale;
 }
 
 void object_attach(render_object_t *object, int type, void *data) {
@@ -125,6 +127,7 @@ void object_attach(render_object_t *object, int type, void *data) {
     else {
         log_msg(LOG_ERROR, "Attach type is not valid\n", 0);
     }
+    objects_sorted = false;
 }
 hash_t get_material_hash(render_object_t *object) {
     if (object->material == NULL)
@@ -144,6 +147,9 @@ void objects_sort(void) {
 }
 
 void objects_draw(shader_t *shader, camera_t *camera, bool render_materials) {
+    if (objects_sorted == false)
+        objects_sort();
+    
     int i;
     hash_t mat_hash = 1;
     render_object_t *object;

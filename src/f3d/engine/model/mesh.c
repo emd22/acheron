@@ -91,7 +91,7 @@ static void generate_indices(mesh_t *mesh) {
     }
     buffer_destroy(&mesh->vertices);
     mesh->vertices = new_verts;
-    log_msg(LOG_INFO, "Generating indices... %.02f%% saved\n", amt_reused/((float)amt_created+amt_reused)*100);
+    log_msg(LOG_INFO, "Saved %.02f KB of VRAM\n", ((float)amt_reused*sizeof(vertex_t))/1024.0f);
 }
 
 static void generate_packed_vertices(mesh_t *mesh, buffer_t *vertices, buffer_t *uvs, buffer_t *normals) {
@@ -171,54 +171,7 @@ void mesh_init(mesh_t *mesh, int flags) {
 void mesh_set_data(mesh_t *mesh, buffer_t *vertices, buffer_t *uvs, buffer_t *normals) {
     generate_packed_vertices(mesh, vertices, uvs, normals);
     generate_indices(mesh);
-/*    if (vertices != NULL) {*/
-/*        buffer->vertices = buffer_duplicate(vertices, BUFFER_STATIC);*/
-/*    }*/
-/*    if (uvs != NULL) {*/
-/*        buffer->uvs = buffer_duplicate(uvs, BUFFER_STATIC);*/
-/*    }*/
-/*    if (normals != NULL) {*/
-/*        buffer->normals = buffer_duplicate(normals, BUFFER_STATIC);*/
-/*    }*/
 }
-
-/*void mesh_set_data(
-    mesh_t *mesh, 
-    vector3f_t *vertices, int verts_size,
-    vector2f_t *uvs,      int uvs_size,
-    vector3f_t *normals,  int norms_size,
-    int flags)
-{
-    if (vertices != NULL) {
-        unsigned data_size = verts_size*sizeof(vector3f_t);
-        mesh->vertices = malloc(sizeof(buffer_t));
-        
-        mesh->vertices->data = malloc(data_size);
-        memcpy(mesh->vertices->data, vertices, data_size);
-        mesh->vertices->index = verts_size;
-        mesh->vertices->obj_sz = sizeof(vector3f_t);
-        mesh->vertices->size = verts_size;
-    }
-    if (uvs != NULL) {
-        unsigned data_size = uvs_size*sizeof(vector2f_t);
-        
-        mesh->uvs->data = malloc(data_size);
-        memcpy(mesh->uvs->data, uvs, data_size);
-        mesh->uvs->index = uvs_size;
-        mesh->uvs->obj_sz = sizeof(vector2f_t);
-        mesh->uvs->size = uvs_size;
-    }
-    if (normals != NULL) {
-        unsigned data_size = norms_size*sizeof(vector3f_t);
-        
-        mesh->normals->data = malloc(data_size);
-        memcpy(mesh->normals->data, normals, data_size);
-        mesh->normals->index = norms_size;
-        mesh->normals->obj_sz = sizeof(vector3f_t);
-        mesh->normals->size = norms_size;
-    }
-    mesh_init(mesh, flags);
-}*/
 
 mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags) {
     if (mesh == NULL)
@@ -234,10 +187,6 @@ mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags) {
     }
     else {
         log_msg(LOG_ERROR, "Cannot load mesh of unknown type\n", 0);
-        /*mesh->vertices = NULL;
-        mesh->normals = NULL;
-        mesh->uvs = NULL;
-        mesh->vertex_indices = NULL;*/
         return NULL;
     }
     
