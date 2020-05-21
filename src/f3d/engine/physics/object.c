@@ -1,6 +1,7 @@
 #include <f3d/engine/physics/object.h>
 #include <f3d/engine/rendering/render.h>
 #include <f3d/engine/core/log.h>
+#include <f3d/engine/core/time.h>
 
 #include <math.h>
 
@@ -15,6 +16,7 @@ physics_collider_t physics_collider_new(physics_collider_type_t type) {
     collider.type = type;
     collider.position = (vector3f_t){0, 0, 0};
     collider.dimensions = (vector3f_t){1, 1, 1};
+    collider.rotation = (vector3f_t){0, 0, 0};
     collider.scale = (vector3f_t){1, 1, 1};
     
     if (shader_bounding == NULL) {
@@ -23,6 +25,14 @@ physics_collider_t physics_collider_new(physics_collider_type_t type) {
         shader_attach(shader_bounding, SHADER_FRAGMENT, "../shaders/debug/bounding_frag.glsl");
     }
     return collider;
+}
+
+physics_object_t physics_object_new(physics_collider_type_t collider_type) {
+    physics_object_t object;
+    object.collider = physics_collider_new(collider_type);
+    object.velocity = (vector3f_t){0, 0, 0};
+    object.locked = false;
+    return object;
 }
 
 static bool collider_check_aabb(physics_collider_t *obj0, physics_collider_t *obj1) {
@@ -81,7 +91,6 @@ void physics_collider_stretch_to_vertices(physics_collider_t *collider, buffer_t
     float pwidth = width.y-width.x;
     float pheight = height.y-height.x;
     float pdepth = depth.y-depth.x;
-    log_msg(LOG_INFO, "%f %f %f || %f %f %f\n", width.x, height.x, depth.x, width.y, height.y, depth.y);
     collider->position = (vector3f_t){width.x, height.x, depth.y};
     collider->dimensions = (vector3f_t){pwidth, pheight, pdepth};
 }
@@ -99,6 +108,19 @@ bool physics_collider_check_collision(physics_collider_t *collider0, physics_col
 void physics_move(physics_object_t *obj, vector3f_t direction) {
     (void)obj;
     (void)direction;
+}
+
+bool physics_check_collision(physics_object_t *object0, physics_object_t *object1) {
+    return physics_collider_check_collision(&object0->collider, &object1->collider);
+}
+
+void physics_update_gravity(physics_object_t *obj) {
+    (void)obj;
+    obj->collider.position.y -= (obj->velocity.y * delta_time)+(0.5*9.81*delta_time*delta_time);
+    obj->velocity.y += (9.81*delta_time);
+    
+    vector3f_t rotvec = (vector3f_t){0.5*delta_time*obj->velocity.x, 0.5*delta_time*obj->velocity.y, 0.5*delta_time*obj->velocity.z};
+    vec3f_add(&obj->collider.rotation, obj->collider.rotation, rotvec);
 }
 
 void physics_update(physics_object_t *obj) {

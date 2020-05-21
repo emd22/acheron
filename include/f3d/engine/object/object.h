@@ -42,7 +42,7 @@ typedef struct render_object_s {
     vector3f_t scale;
     mat4_t matrix;
     
-    physics_collider_t collider;
+    physics_object_t physics;
     
     int flags;
 } render_object_t;
@@ -62,5 +62,6 @@ render_object_t *object_get(const char *name);
 void objects_sort(void);
 void object_attach(render_object_t *object, int type, void *data);
 void objects_draw(shader_t *shader, camera_t *camera, bool render_materials);
+void object_draw(render_object_t *object, shader_t *shader, camera_t *camera);
 
 #endif

@@ -184,6 +184,7 @@ mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags) {
         
         generate_packed_vertices(mesh, &obj.vertices, &obj.uvs, &obj.normals);
         generate_indices(mesh);
+        mesh->type = MODEL_OBJ;
     }
     else {
         log_msg(LOG_ERROR, "Cannot load mesh of unknown type\n", 0);
@@ -196,7 +197,7 @@ mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags) {
 }
 
 void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, shader_t *shader) {
-    if (mesh == NULL/* || mesh->vertices == NULL*/)
+    if (mesh == NULL || mesh->type == MODEL_NONE)
         return;
         
     if (camera != NULL && matrix != NULL && shader != NULL) {
@@ -273,5 +274,6 @@ void mesh_destroy(mesh_t *mesh) {
     if (mesh->type == MODEL_OBJ) {
         obj_destroy(mesh->obj);
     }
+    buffer_destroy(&mesh->vertices);
     mesh->type = MODEL_NONE;
 }

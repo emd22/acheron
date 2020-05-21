@@ -47,8 +47,13 @@ int init(void) {
     SDL_DisplayMode mode;
     SDL_GetCurrentDisplayMode(0, &mode);
     
-    window = window_new("Ethan's 3D Engine", mode.w, mode.h, 0);
-    SDL_SetWindowFullscreen(window.win, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    int width = mode.w;
+    int height = mode.h;
+    width = 500;
+    height = 500;
+    
+    window = window_new("Ethan's 3D Engine", width, height, 0);
+    //SDL_SetWindowFullscreen(window.win, SDL_WINDOW_FULLSCREEN_DESKTOP);
     default_window = &window;
 
     render_init();
@@ -97,13 +102,13 @@ int main() {
     light_shadow_new(light2, 800, 800);
     scene_attach(scene, SCENE_LIGHT, light2);
     
-    player_light = light_new(LIGHT_POINT);
-    player_light->position = camera.position;
-    player_light->position.x -= 1;
-    player_light->radius = 8.0f;
-    player_light->diffuse = (vector3f_t){1.0f, 0.2f, 0.2f};
-    light_shadow_new(player_light, 800, 800);
-    scene_attach(scene, SCENE_LIGHT, player_light);
+    //player_light = light_new(LIGHT_POINT);
+    //player_light->position = camera.position;
+    //player_light->position.x -= 1;
+    //player_light->radius = 8.0f;
+    //player_light->diffuse = (vector3f_t){1.0f, 0.2f, 0.2f};
+    //light_shadow_new(player_light, 800, 800);
+    //scene_attach(scene, SCENE_LIGHT, player_light);
     
     scene_select(scene, shader_main);
 
@@ -113,7 +118,10 @@ int main() {
     time_init(); 
    
     //render_object_t *level = object_get("Level");
-    render_object_t *wall = object_get("Wall");
+    physics_object_t level_physics = physics_object_new(PHYSICS_COLLIDER_AABB);
+    level_physics.collider.dimensions = (vector3f_t){50, 1, 50};
+    level_physics.collider.position = (vector3f_t){0, 0, 0};
+    
     while (game_info.flags & GAME_IS_RUNNING) {
         time_tick();
         while (SDL_PollEvent(&event))
@@ -121,14 +129,15 @@ int main() {
             
         shader_use(shader_main);
         if (player_move(&camera)) {
-            object_move_v(box, camera.position);
-            scene_object_update(scene, box, shader_main);
-            player_light->position = camera.position;
-            player_light->position.x -= 1;
-            light_update(player_light, shader_main);
         }
-        if (physics_collider_check_collision(&wall->collider, &box->collider)) {
-            log_msg(LOG_DEBUG, "Collided %lu\n", frames_rendered);
+        
+        if (!physics_check_collision(&box->physics, &level_physics)) {
+            //box->position.y -= 0.001f;s
+            physics_update_gravity(&box->physics);
+            box->position = box->physics.collider.position;
+            box->rotation = box->physics.collider.rotation;
+            object_update(box);
+            scene_object_update(scene, box, shader_main);
         }
         
         camera_update(selected_camera);
@@ -178,14 +187,14 @@ void load_models() {
     object_attach(level, OBJECT_ATTACH_MATERIAL, brick);
     object_move(level, 0, 0, 0);
 
-    render_object_t *wall = object_new("Wall");
-    object_attach(wall, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/wall.obj", MODEL_OBJ, 0));
-    object_attach(wall, OBJECT_ATTACH_MATERIAL, stone);
+    //render_object_t *wall = object_new("Wall");
+    //object_attach(wall, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/wall.obj", MODEL_OBJ, 0));
+    //object_attach(wall, OBJECT_ATTACH_MATERIAL, stone);
 
     box = object_new("Box");
     object_attach(box, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/basiccube.obj", MODEL_OBJ, 0));
     object_attach(box, OBJECT_ATTACH_MATERIAL, stone);
-    object_move(box, 0, 2, 0);
+    object_move(box, 0, 10, 2);
 }
  
 int on_draw(void *arg) {

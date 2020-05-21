@@ -30,7 +30,7 @@ render_object_t *object_new(const char *name) {
     object->scale = (vector3f_t){1, 1, 1};
     object->material = NULL;
     
-    object->collider = physics_collider_new(PHYSICS_COLLIDER_AABB);
+    object->physics = physics_object_new(PHYSICS_COLLIDER_AABB);
     
     object_update(object);
     
@@ -112,14 +112,14 @@ void object_update(render_object_t *object) {
     object->matrix = mat4_rotate_z(object->matrix, object->rotation.z);
     
     scale_object(object);
-    object->collider.position = object->position;
-    object->collider.scale = object->scale;
+    object->physics.collider.position = object->position;
+    object->physics.collider.scale = object->scale;
 }
 
 void object_attach(render_object_t *object, int type, void *data) {
     if (type == OBJECT_ATTACH_MESH) {
         object->mesh = (mesh_t *)data;
-        physics_collider_stretch_to_vertices(&object->collider, &object->mesh->vertices);
+        physics_collider_stretch_to_vertices(&object->physics.collider, &object->mesh->vertices);
     }
     else if (type == OBJECT_ATTACH_MATERIAL) {
         object->material = (material_t *)data;
@@ -146,6 +146,15 @@ void objects_sort(void) {
     qsort(render_objects, render_objects_index, sizeof(render_object_t), &compare_materials);
 }
 
+void object_draw(render_object_t *object, shader_t *shader, camera_t *camera) {
+    if (object->flags & RENDER_OBJECT_FLAG_UPDATE) {
+        object_update(object);
+    }
+    if (object->mesh != NULL) {
+        mesh_draw(object->mesh, &object->matrix, camera, shader);
+    }
+}
+
 void objects_draw(shader_t *shader, camera_t *camera, bool render_materials) {
     if (objects_sorted == false)
         objects_sort();
@@ -164,11 +173,6 @@ void objects_draw(shader_t *shader, camera_t *camera, bool render_materials) {
                 mat_hash = get_material_hash(object);
             }        
         }
-        if (object->flags & RENDER_OBJECT_FLAG_UPDATE) {
-            object_update(object);
-        }
-        if (object->mesh != NULL) {
-            mesh_draw(object->mesh, &object->matrix, camera, shader);
-        }
+        object_draw(object, shader, camera);
     }
 }
