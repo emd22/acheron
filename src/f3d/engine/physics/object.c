@@ -16,7 +16,7 @@ physics_collider_t physics_collider_new(physics_collider_type_t type) {
     collider.type = type;
     collider.position = (vector3f_t){0, 0, 0};
     collider.dimensions = (vector3f_t){1, 1, 1};
-    collider.rotation = (vector3f_t){0, 0, 0};
+    //collider.rotation = (vector3f_t){0, 0, 0};
     collider.scale = (vector3f_t){1, 1, 1};
     
     if (shader_bounding == NULL) {
@@ -31,7 +31,10 @@ physics_object_t physics_object_new(physics_collider_type_t collider_type) {
     physics_object_t object;
     object.collider = physics_collider_new(collider_type);
     object.velocity = (vector3f_t){0, 0, 0};
+    object.torque = (vector3f_t){0, 0, 0};
     object.locked = false;
+    object.mass = 10.0f;
+    object.friction = 1.0f;
     return object;
 }
 
@@ -45,12 +48,10 @@ static bool collider_check_aabb(physics_collider_t *obj0, physics_collider_t *ob
     const float maxz0 = OBJ_MAX_Z(obj0),  maxz1 = OBJ_MAX_Z(obj1);
     const float minz0 = obj0->position.z, minz1 = obj1->position.z;
     
-    if ((minx0 <= maxx1 && maxx0 >= minx1) &&
-        (miny0 <= maxy1 && maxy0 >= miny1) &&
-        (minz0 <= maxz1 && maxz0 >= minz1)) 
-    {
+    if (minx0 <= maxx1 && maxx0 >= minx1 &&
+        miny0 <= maxy1 && maxy0 >= miny1 &&
+        minz0 <= maxz1 && maxz0 >= minz1) 
         return true;
-    }
     
     return false;
 }
@@ -114,16 +115,71 @@ bool physics_check_collision(physics_object_t *object0, physics_object_t *object
     return physics_collider_check_collision(&object0->collider, &object1->collider);
 }
 
-void physics_update_gravity(physics_object_t *obj) {
-    (void)obj;
-    obj->collider.position.y -= (obj->velocity.y * delta_time)+(0.5*9.81*delta_time*delta_time);
-    obj->velocity.y += (9.81*delta_time);
+void linear_collision_impulse(physics_object_t *obj, physics_object_t *ground) {
+    (void)ground;
+    if (obj->locked)
+        return;
+    /*
+    float mass = obj->mass;
     
-    vector3f_t rotvec = (vector3f_t){0.5*delta_time*obj->velocity.x, 0.5*delta_time*obj->velocity.y, 0.5*delta_time*obj->velocity.z};
-    vec3f_add(&obj->collider.rotation, obj->collider.rotation, rotvec);
+    vec3f_t rv;
+    vec3f_sub(&rv, obj.velocity);
+    float contact_vel = vec3f_dot(rv, normal);
+    float e = fmin(obj->resititution, ground->restitution);
+    
+    float j = -(1.0f+e)*contact_vel;
+    j /= obj->mass+b->mass;
+    */
+    
+    //const float relx = (obj->collider.position.x < ground->collider.position.x) ? -1.0f : 1.0f;
+    //const float rely = (obj->collider.position.y < ground->collider.position.y) ? -1.0f : 1.0f;
+    //const float relz = (obj->collider.position.z < ground->collider.position.z) ? -1.0f : 1.0f;
+    
+    float reflecty = 2*1*(obj->velocity.y);
+    obj->velocity.y -= reflecty*0.8f;
+    //obj->velocity.x *= 0.98f;
+    obj->velocity.z *= 0.98f;
+    
+    //vector3f_t normal;
+    //if (obj->collider.normals[0])
+    //    normal = (vector3f_t){relx, 0, 0};
+    //else if (obj->collider.normals[1])
+    //    normal = (vector3f_t){0, rely, 0};
+    //else if (obj->collider.normals[2])
+    //    normal = (vector3f_t){0, 0, relz};
+    
+    //vector3f_t rv;
+    //vec3f_sub(&rv, obj->velocity, ground->velocity);
+    //float cv = vec3f_dot(rv, normal);
+    
+    //if (cv > 0) {
+    //    log_msg(LOG_INFO, "Contact > 0\n", 0);
+    //    return;
+    //}
+    //float e = fmin(obj->restitution, ground->resititution);
+    //float j = -(1.0f+e)*cv;
+    //j /= ob->
+    
 }
 
-void physics_update(physics_object_t *obj) {
-    (void)obj;
-    return;
+void physics_update_gravity(physics_object_t *obj) {
+    if (obj->locked)
+        return;
+    float velocityy = -(obj->velocity.y * delta_time)+(0.5f*9.81f*delta_time*delta_time);
+    obj->collider.position.x += obj->velocity.x;
+    obj->collider.position.y += velocityy;
+    obj->collider.position.z += obj->velocity.z;
+    obj->velocity.y += (9.81f*delta_time);
+    
+    //vector3f_t rotvec = (vector3f_t){0.5*delta_time*obj->velocity.x, 0.5*delta_time*obj->velocity.y, 0.5*delta_time*obj->velocity.z};
+    //vec3f_add(&obj->collider.rotation, obj->collider.rotation, rotvec);
+}
+
+bool physics_update(physics_object_t *obj, physics_object_t *ground) {
+    physics_update_gravity(obj);
+    if (physics_check_collision(obj, ground)) {
+        linear_collision_impulse(obj, ground);
+    }
+
+    return false;
 }

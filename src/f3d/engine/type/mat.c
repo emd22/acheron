@@ -69,7 +69,7 @@ void mat4_translate_in_place(mat4_t *mat, vector3f_t t) {
     int i;
     for (i = 0; i < 4; i++) {
         mat4_row(&r, mat, i);
-        mat->val[MAT4_INDEX(3, i)] += vec4f_mul_inner(r, new);
+        mat->val[MAT4_INDEX(3, i)] += vec4f_dot(r, new);
     }
 }
 

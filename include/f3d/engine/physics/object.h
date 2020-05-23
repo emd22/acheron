@@ -24,9 +24,11 @@ typedef struct {
     physics_collider_t collider;
     vector3f_t velocity;
     vector3f_t rotation;
-    vector3f_t angular_rotation;
+    vector3f_t torque;
     
+    float restitution;
     float mass;
+    float friction;
     
     bool locked;
 } physics_object_t;
@@ -41,6 +43,5 @@ bool physics_check_collision(physics_object_t *object0, physics_object_t *object
 void physics_update_gravity(physics_object_t *obj);
 
 bool physics_check_collision_aabb(physics_object_t *obj0, physics_object_t *obj1);
-void physics_update(physics_object_t *obj);
-
+bool physics_update(physics_object_t *obj, physics_object_t *ground);
 #endif

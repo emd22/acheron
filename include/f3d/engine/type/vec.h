@@ -25,7 +25,7 @@ enum {
 };
 
 #define VEC_FLOAT_DEFINE_SIMPLE_FUNCTIONS_VEC(n, type) \
-    inline float vec##n##f_mul_inner(type a, type b) { \
+    inline float vec##n##f_dot(type a, type b) { \
         float p = 0.0f; \
         int i; \
         for (i = 0; i < n; i++) \
@@ -62,7 +62,7 @@ enum {
         return loc; \
     } \
     inline float vec##n##f_len(type v) { \
-        return sqrtf(vec##n##f_mul_inner(v, v)); \
+        return sqrtf(vec##n##f_dot(v, v)); \
     } \
     inline void vec##n##f_norm(type *r, type v) { \
         const float k = 1.0f/vec##n##f_len(v); \

@@ -122,23 +122,27 @@ int main() {
     level_physics.collider.dimensions = (vector3f_t){50, 1, 50};
     level_physics.collider.position = (vector3f_t){0, 0, 0};
     
+    box->physics.velocity.x = 5.0f*delta_time;
+    
     while (game_info.flags & GAME_IS_RUNNING) {
         time_tick();
         while (SDL_PollEvent(&event))
             check_event(&event);
             
         shader_use(shader_main);
+        
         if (player_move(&camera)) {
         }
         
-        if (!physics_check_collision(&box->physics, &level_physics)) {
+        physics_update(&box->physics, &level_physics);
+        //if (!physics_check_collision(&box->physics, &level_physics)) {
             //box->position.y -= 0.001f;s
-            physics_update_gravity(&box->physics);
-            box->position = box->physics.collider.position;
-            box->rotation = box->physics.collider.rotation;
-            object_update(box);
-            scene_object_update(scene, box, shader_main);
-        }
+        //physics_update_gravity(&box->physics);
+        box->position = box->physics.collider.position;
+            //box->rotation = box->physics.collider.rotation;
+        object_update(box);
+        scene_object_update(scene, box, shader_main);
+        //}
         
         camera_update(selected_camera);
         shader_set_vec3f(shader_main, "view_pos", selected_camera->position);
