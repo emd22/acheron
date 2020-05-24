@@ -1,5 +1,5 @@
-#ifndef F3D_TYPE_MAT_H
-#define F3D_TYPE_MAT_H
+#ifndef F3D_TYPE_MATRIX4_H
+#define F3D_TYPE_MATRIX4_H
 
 #include <f3d/engine/type/vec.h>
 

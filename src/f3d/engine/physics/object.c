@@ -119,6 +119,7 @@ void linear_collision_impulse(physics_object_t *obj, physics_object_t *ground) {
     (void)ground;
     if (obj->locked)
         return;
+        
     /*
     float mass = obj->mass;
     
@@ -170,6 +171,7 @@ void physics_update_gravity(physics_object_t *obj) {
     obj->collider.position.y += velocityy;
     obj->collider.position.z += obj->velocity.z;
     obj->velocity.y += (9.81f*delta_time);
+    
     
     //vector3f_t rotvec = (vector3f_t){0.5*delta_time*obj->velocity.x, 0.5*delta_time*obj->velocity.y, 0.5*delta_time*obj->velocity.z};
     //vec3f_add(&obj->collider.rotation, obj->collider.rotation, rotvec);

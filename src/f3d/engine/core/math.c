@@ -46,7 +46,8 @@ void math_ortho(mat4_t *mat, float l, float r, float b, float t, float n, float 
 
 mat4_t math_lookat(vector3f_t from, vector3f_t to, vector3f_t upvec) {
     vector3f_t forward, right, up;
-    forward = normalize(vec3f_sub_vec3f(to, from));
+    vec3f_sub(&forward, to, from);
+    forward = normalize(forward);
     right = normalize(math_cross(forward, upvec));
     up = math_cross(right, forward);
     mat4_t res;

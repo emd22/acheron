@@ -1,4 +1,4 @@
-#include <f3d/engine/type/mat.h>
+#include <f3d/engine/type/matrix4.h>
 #include <f3d/engine/type/vec.h>
 #include <f3d/engine/core/log.h>
 
@@ -42,7 +42,7 @@ void mat4_identity(mat4_t *mat) {
 void mat4_row(vector4f_t *vec, mat4_t *mat, int i) {
     int k;
     for (k = 0; k < 4; k++)
-        vecf_set_at(vec, TYPE_VEC4F, k, mat->val[MAT4_INDEX(k, i)]);
+        vecf_set_at(TYPE_VEC4F, vec, k, mat->val[MAT4_INDEX(k, i)]);
 }
 
 void mat4_print(mat4_t *mat) {
@@ -104,7 +104,7 @@ mat4_t mat4_mul_vec4(mat4_t mat, vector4f_t vec) {
     mat4_t res;
     int i;
     for (i = 0; i < 16; i++)
-        res.val[i] = mat.val[i]*vecf_get_at(&vec, TYPE_VEC4F, i % 4);
+        res.val[i] = mat.val[i]*vecf_get_at(TYPE_VEC4F, &vec, i % 4);
         
     return res;
 }
@@ -114,7 +114,7 @@ void mat4_from_vec3_mul_outer(mat4_t *mat, vector3f_t a, vector3f_t b) {
 	for (i = 0; i < 4; i++) 
 	    for (j = 0; j < 4; j++)
 		    mat->val[MAT4_INDEX(i, j)] = (i < 3 && j < 3) 
-		                    ? vecf_get_at(&a, TYPE_VEC3F, i)*vecf_get_at(&b, TYPE_VEC3F, j) 
+		                    ? vecf_get_at(TYPE_VEC3F, &a, i)*vecf_get_at(TYPE_VEC3F, &b, j) 
 		                    : 0.0f;
 }
 

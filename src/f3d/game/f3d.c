@@ -7,6 +7,7 @@
 #include <signal.h>
 
 #include <f3d/engine/engine.h>
+#include <f3d/engine/types.h>
 
 #include <f3d/game/game.h>
 #include <f3d/game/player.h>
@@ -84,6 +85,7 @@ int main() {
     init();
     setup_handles();
     handle_call(HANDLE_INIT, NULL);
+    
     
     //light = light_new(LIGHT_POINT);
     //light->position = (vector3f_t){5, 3, 4};
@@ -166,6 +168,7 @@ int on_end(void *arg){
     window_destroy(&window);
     
     SDL_Quit();
+
     exit(0);
 }
 
