@@ -45,16 +45,21 @@ int init(void) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     
-    SDL_DisplayMode mode;
-    SDL_GetCurrentDisplayMode(0, &mode);
     
-    int width = mode.w;
-    int height = mode.h;
-    width = 500;
-    height = 500;
+    const bool fullscreen = true;
     
+    int width = 500;
+    int height = 500;
+    
+    if (fullscreen) {
+        SDL_DisplayMode mode;
+        SDL_GetCurrentDisplayMode(0, &mode);
+        width = mode.w;
+        height = mode.h;
+    }
     window = window_new("Ethan's 3D Engine", width, height, 0);
-    //SDL_SetWindowFullscreen(window.win, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    if (fullscreen)    
+        SDL_SetWindowFullscreen(window.win, SDL_WINDOW_FULLSCREEN_DESKTOP);
     default_window = &window;
 
     render_init();
@@ -121,10 +126,10 @@ int main() {
    
     //render_object_t *level = object_get("Level");
     physics_object_t level_physics = physics_object_new(PHYSICS_COLLIDER_AABB);
-    level_physics.collider.dimensions = (vector3f_t){50, 1, 50};
-    level_physics.collider.position = (vector3f_t){0, 0, 0};
+    level_physics.collider.dimensions = (vector3f_t){50, 2, 50};
+    level_physics.collider.position = (vector3f_t){0, -1, 0};
     
-    box->physics.velocity.x = 5.0f*delta_time;
+    box->physics.velocity.x = 1.0f;
     
     while (game_info.flags & GAME_IS_RUNNING) {
         time_tick();
