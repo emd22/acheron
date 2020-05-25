@@ -139,10 +139,7 @@ void linear_collision_impulse(physics_object_t *obj, physics_object_t *ground) {
     float reflecty = 2*1*(obj->velocity.y);
     obj->velocity.y -= reflecty*0.8f;
     //obj->velocity.x *= 0.98f;
-    if (obj->velocity.x > 0)
-		obj->velocity.x = obj->velocity.x - 0.01f * obj->mass;
-	else if (obj->velocity.x < 0)
-		obj->velocity.x = obj->velocity.x + 0.01f * obj->mass;
+    obj->velocity.z *= 0.98f;
     
     //vector3f_t normal;
     //if (obj->collider.normals[0])
@@ -163,13 +160,14 @@ void linear_collision_impulse(physics_object_t *obj, physics_object_t *ground) {
     //float e = fmin(obj->restitution, ground->resititution);
     //float j = -(1.0f+e)*cv;
     //j /= ob->
+    
 }
 
 void physics_update_gravity(physics_object_t *obj) {
     if (obj->locked)
         return;
     float velocityy = -(obj->velocity.y * delta_time)+(0.5f*9.81f*delta_time*delta_time);
-    obj->collider.position.x += obj->velocity.x*delta_time;
+    obj->collider.position.x += obj->velocity.x;
     obj->collider.position.y += velocityy;
     obj->collider.position.z += obj->velocity.z;
     obj->velocity.y += (9.81f*delta_time);
@@ -182,7 +180,6 @@ void physics_update_gravity(physics_object_t *obj) {
 bool physics_update(physics_object_t *obj, physics_object_t *ground) {
     physics_update_gravity(obj);
     if (physics_check_collision(obj, ground)) {
-        obj->collider.position.y = ground->collider.position.y+ground->collider.dimensions.y;
         linear_collision_impulse(obj, ground);
     }
 

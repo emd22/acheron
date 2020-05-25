@@ -45,23 +45,23 @@ typedef struct render_object_s {
     physics_object_t physics;
     
     int flags;
-} render_object_t;
+} object_t;
 
-render_object_t *object_new(const char *name);
+object_t *object_new(const char *name);
 void render_set_target(int target, void *ptr);
-void object_update(render_object_t *object);
+void object_update(object_t *object);
 
-void object_move(render_object_t *object, float x, float y, float z);
-void object_move_v(render_object_t *object, vector3f_t val);
-void object_rotate(render_object_t *object, float x, float y, float z);
-void object_rotate_v(render_object_t *object, vector3f_t val);
-void object_scale(render_object_t *object, float x, float y, float z);
-void object_scale_v(render_object_t *object, vector3f_t val);
+void object_move(object_t *object, float x, float y, float z);
+void object_move_v(object_t *object, vector3f_t val);
+void object_rotate(object_t *object, float x, float y, float z);
+void object_rotate_v(object_t *object, vector3f_t val);
+void object_scale(object_t *object, float x, float y, float z);
+void object_scale_v(object_t *object, vector3f_t val);
 
-render_object_t *object_get(const char *name);
+object_t *object_get(const char *name);
 void objects_sort(void);
-void object_attach(render_object_t *object, int type, void *data);
+void object_attach(object_t *object, int type, void *data);
 void objects_draw(shader_t *shader, camera_t *camera, bool render_materials);
-void object_draw(render_object_t *object, shader_t *shader, camera_t *camera);
+void object_draw(object_t *object, shader_t *shader, camera_t *camera);
 
 #endif

@@ -30,7 +30,7 @@ window_t window;
 material_t *brick, *stone;
 light_t *light, *player_light;
 camera_t camera;
-render_object_t *box;
+object_t *box;
 
 scene_t *scene;
 
@@ -45,21 +45,16 @@ int init(void) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     
+    SDL_DisplayMode mode;
+    SDL_GetCurrentDisplayMode(0, &mode);
     
-    const bool fullscreen = true;
+    int width = mode.w;
+    int height = mode.h;
+    width = 500;
+    height = 500;
     
-    int width = 500;
-    int height = 500;
-    
-    if (fullscreen) {
-        SDL_DisplayMode mode;
-        SDL_GetCurrentDisplayMode(0, &mode);
-        width = mode.w;
-        height = mode.h;
-    }
     window = window_new("Ethan's 3D Engine", width, height, 0);
-    if (fullscreen)    
-        SDL_SetWindowFullscreen(window.win, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    //SDL_SetWindowFullscreen(window.win, SDL_WINDOW_FULLSCREEN_DESKTOP);
     default_window = &window;
 
     render_init();
@@ -124,12 +119,12 @@ int main() {
     SDL_Event event;
     time_init(); 
    
-    //render_object_t *level = object_get("Level");
+    //object_t *level = object_get("Level");
     physics_object_t level_physics = physics_object_new(PHYSICS_COLLIDER_AABB);
-    level_physics.collider.dimensions = (vector3f_t){50, 2, 50};
-    level_physics.collider.position = (vector3f_t){0, -1, 0};
+    level_physics.collider.dimensions = (vector3f_t){50, 1, 50};
+    level_physics.collider.position = (vector3f_t){0, 0, 0};
     
-    box->physics.velocity.x = 1.0f;
+    box->physics.velocity.x = 5.0f*delta_time;
     
     while (game_info.flags & GAME_IS_RUNNING) {
         time_tick();
@@ -194,12 +189,12 @@ void load_models() {
         32.0f, 0
     });
     
-    render_object_t *level = object_new("Level");
+    object_t *level = object_new("Level");
     object_attach(level, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/reception/reception.obj", MODEL_OBJ, 0));
     object_attach(level, OBJECT_ATTACH_MATERIAL, brick);
     object_move(level, 0, 0, 0);
 
-    //render_object_t *wall = object_new("Wall");
+    //object_t *wall = object_new("Wall");
     //object_attach(wall, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/wall.obj", MODEL_OBJ, 0));
     //object_attach(wall, OBJECT_ATTACH_MATERIAL, stone);
 

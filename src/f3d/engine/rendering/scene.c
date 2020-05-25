@@ -29,6 +29,9 @@ scene_t *scene_new(const char *name) {
         texture_load_data(NULL, "../images/skybox/back.bmp", IMAGE_BMP)
     };
     scene->skybox = skybox_new(textures);*/
+    
+    buffer_init(&scene->objects, BUFFER_DYNAMIC, sizeof(object_t), SCENE_OBJECTS_START_SIZE);
+    
     return scene;
 }
 
@@ -64,7 +67,7 @@ void scene_select(scene_t *scene, shader_t *shader_main) {
     }
 }
 
-light_t *get_nearest_light(scene_t *scene, render_object_t *object) {
+light_t *get_nearest_light(scene_t *scene, object_t *object) {
     float rx, rz;
     int i;
     light_t *light;
@@ -81,7 +84,7 @@ light_t *get_nearest_light(scene_t *scene, render_object_t *object) {
     return NULL;
 }
 
-void scene_object_update(scene_t *scene, render_object_t *object, shader_t *shader_main) {
+void scene_object_update(scene_t *scene, object_t *object, shader_t *shader_main) {
     light_t *light;
     if ((light = get_nearest_light(scene, object)) != NULL) {
         light_shadow_render(light, shader_main);
