@@ -2,6 +2,7 @@
 #include <f3d/engine/rendering/framebuffer.h>
 #include <f3d/engine/rendering/cubemap.h>
 #include <f3d/engine/rendering/camera.h>
+#include <f3d/engine/rendering/scene.h>
 #include <f3d/engine/core/handles.h>
 #include <f3d/engine/core/math.h>
 #include <f3d/engine/core/log.h>
@@ -124,7 +125,8 @@ void shadows_point_render(shadows_point_t *shadow, vector3f_t position, shader_t
     shader_set_float(shadow->shader, "far_plane", shadow->far_plane);
     shadows_send_uniforms(shadow, position);
     
-    objects_draw(shadow->shader, &shadow_cam, false);
+    //objects_draw(shadow->shader, &shadow_cam, false);
+    scene_objects_render(selected_scene, shadow->shader, &shadow_cam, false);
     
     framebuffer_texture(&shadow->framebuffer, GL_DEPTH_ATTACHMENT);
     shader_use(shader_main);

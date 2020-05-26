@@ -8,9 +8,10 @@
 #define MAX_TEXTURES 256
 
 // scene
+#define MAX_SCENES 8
+
 #define MAX_SCENE_RENDER_VIEWS 8
 #define MAX_SCENE_LIGHTS       8
-#define SCENE_OBJECTS_START_SIZE 64
 
 // shader 
 #define MAX_SHADER_UNIFORMS 128

@@ -12,20 +12,16 @@
 #define SCENE_ENABLE_SHADOWS 0x01
 #define SCENE_ENABLE_SKYBOX  0x02
 
-enum {
+typedef enum {
     SCENE_SKYBOX,
     SCENE_LIGHT,
-};
+    SCENE_OBJECT,
+} scene_attach_type_t;
 
 typedef struct {
     char name[32];
-
-    render_view_t views[MAX_SCENE_RENDER_VIEWS];
-    int views_index;
     
-    //object_t objects[MAX_RENDER_OBJECTS];
-    //int objects_index;
-    buffer_t objects;
+    object_buffer_t objects;
     
     light_t *lights[MAX_SCENE_LIGHTS];
     int lights_index;
@@ -34,16 +30,17 @@ typedef struct {
     int flags;
 } scene_t;
 
-extern scene_t scenes[8];
+extern scene_t scenes[MAX_SCENES];
 extern scene_t *selected_scene;
 extern int scenes_index;
 
 scene_t *scene_new(const char *name);
 void scene_render_shadows(scene_t *scene, shader_t *shader_main);
+void scene_objects_render(scene_t *scene, shader_t *shader, camera_t *camera, bool render_materials);
 void scene_select(scene_t *scene, shader_t *shader_main);
 render_view_t *scene_new_view(scene_t *scene, camera_t *camera, int width, int height, int attachment);
 void scene_object_update(scene_t *scene, object_t *object, shader_t *shader_main);
-void scene_attach(scene_t *scene, int type, void *ptr);
+void scene_attach(scene_t *scene, scene_attach_type_t type, void *ptr);
 void scene_render(shader_t *shader_main, scene_t *scene);
 void scene_destroy(scene_t *scene);
 

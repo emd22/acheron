@@ -9,15 +9,15 @@
 #include <string.h>
 #include <stdio.h>
 
-scene_t scenes[8];
+#define SCENE_OBJECTS_START_SIZE 64
+
+scene_t scenes[MAX_SCENES];
 int scenes_index = 0;
 scene_t *selected_scene = NULL;
 
 scene_t *scene_new(const char *name) {
     scene_t *scene = &scenes[scenes_index++];
     strcpy(scene->name, name);
-    memset(&scene->views[0], 0, sizeof(render_view_t));
-    scene->views_index = 1;
     scene->lights_index = 0;
     scene->flags = 0;
     /*texture_t *textures[] = {
@@ -30,19 +30,9 @@ scene_t *scene_new(const char *name) {
     };
     scene->skybox = skybox_new(textures);*/
     
-    buffer_init(&scene->objects, BUFFER_DYNAMIC, sizeof(object_t), SCENE_OBJECTS_START_SIZE);
+    scene->objects = object_buffer_new(BUFFER_DYNAMIC, SCENE_OBJECTS_START_SIZE);
     
     return scene;
-}
-
-render_view_t *scene_new_view(scene_t *scene, camera_t *camera, int width, int height, int attachment) {
-    render_view_t *view = &scene->views[scene->views_index++];
-    view->framebuffer = framebuffer_new(width, height, attachment, true);
-    framebuffer_generate_texture(&view->framebuffer, GL_RGB, GL_RGB, GL_UNSIGNED_BYTE);
-    view->src_dimensions = (vector2f_t){width, height};
-    view->dest_dimensions = (vector2f_t){width, height};
-    view->camera = camera;
-    return view;
 }
 
 void scene_render_shadows(scene_t *scene, shader_t *shader_main) {
@@ -51,7 +41,6 @@ void scene_render_shadows(scene_t *scene, shader_t *shader_main) {
     for (i = 0; i < scene->lights_index; i++) {
         light = scene->lights[i];
         // if shadows are setup, set shadow map in main shader
-        //shadows_point_render(&scene->shadow, shader_main);
         if (light->use_shadows) {
             light_shadow_render(light, shader_main);   
         }
@@ -91,11 +80,15 @@ void scene_object_update(scene_t *scene, object_t *object, shader_t *shader_main
     }
 }
 
+void scene_objects_render(scene_t *scene, shader_t *shader, camera_t *camera, bool render_materials) {
+    objects_draw(&scene->objects, shader, camera, render_materials);
+}
+
 void scene_render(shader_t *shader_main, scene_t *scene) {
-    int view_count = 0;
+    //int view_count = 0;
     
-    if (scene != NULL)
-        view_count = scene->views_index;
+    //if (scene != NULL)
+    //    view_count = scene->views_index;
     
     // draw main screen
     // set framebuffer to our 'default' framebuffer
@@ -113,7 +106,6 @@ void scene_render(shader_t *shader_main, scene_t *scene) {
         }
         light = scene->lights[i];
         // if shadows are setup, set shadow map in main shader
-        //shadows_point_render(&scene->shadow, shader_main);
         if (light->use_shadows) {
             glActiveTexture(GL_TEXTURE4+light->point_shadow.shadow_map_id);
             //glBindTexture(GL_TEXTURE_CUBE_MAP, light->point_shadow.framebuffer.texture->id);
@@ -125,37 +117,13 @@ void scene_render(shader_t *shader_main, scene_t *scene) {
     handle_call(HANDLE_RENDER_MESHES, selected_camera);
     shader_use(shader_main);
     ui_render();
-    //shader_use(shader_main);    
-    // draw addtional views
-    render_view_t *view;
-    for (i = 1; i < view_count; i++) {
-        view = &scene->views[i];
-        
-        framebuffer_bind(&view->framebuffer);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        handle_call(HANDLE_RENDER_MESHES, view->camera);
-        
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, view->framebuffer.fbo);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-        
-        glBlitFramebuffer(
-            // source framebuffer
-            view->src_position.x, view->src_position.y, // position
-            view->src_dimensions.x+view->src_position.x, // width
-            view->src_dimensions.y+view->src_position.y, // height
-            // destination framebuffer (default fb)
-            view->dest_position.x, view->dest_position.y,  // positions
-            view->dest_dimensions.x+view->dest_position.x, // width
-            view->dest_dimensions.y+view->dest_position.y, // height
-            GL_COLOR_BUFFER_BIT, GL_NEAREST
-        );
-    }
 }
 
-void scene_attach(scene_t *scene, int type, void *ptr) {
+void scene_attach(scene_t *scene, scene_attach_type_t type, void *ptr) {
     if (type == SCENE_SKYBOX) {
         memcpy(&scene->skybox, ptr, sizeof(skybox_t));
         scene->flags |= SCENE_ENABLE_SKYBOX;
+        // TODO: add back
         //skybox_new(&scene->skybox.cubemap);
     }
     else if (type == SCENE_LIGHT) {
@@ -163,11 +131,15 @@ void scene_attach(scene_t *scene, int type, void *ptr) {
             return;
         scene->lights[scene->lights_index++] = (light_t *)ptr;
     }
+    else if (type == SCENE_OBJECT) {
+        buffer_push(&scene->objects.buffer, ptr);
+    }
 }
 
 void scene_destroy(scene_t *scene) {
-    int i;
-    for (i = 1; i < scene->views_index; i++) {
-        framebuffer_destroy(&scene->views[i].framebuffer);
-    }
+    (void)scene;
+    //int i;
+    //for (i = 1; i < scene->views_index; i++) {
+        //framebuffer_destroy(&scene->views[i].framebuffer);
+    //}
 }

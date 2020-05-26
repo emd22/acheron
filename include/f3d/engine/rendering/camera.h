@@ -8,10 +8,16 @@
 #define CAMERA_LEFT      2
 #define CAMERA_RIGHT     3
 
+typedef enum {
+    CAMERA_PERSPECTIVE,
+    CAMERA_ORTHOGRAPHIC,
+} camera_type_t;
 
 typedef struct {
+    camera_type_t type;
+    
     vector3f_t position;
-    vector3f_t rotation;
+    vector3f_t rotation;    
     
     vector3f_t right, direction, up;
     
@@ -21,9 +27,10 @@ typedef struct {
     
     mat4_t mat_view, mat_projection;
 } camera_t;
+
 extern camera_t *selected_camera;
 
-camera_t camera_new(void);
+camera_t camera_new(camera_type_t type);
 void camera_select(camera_t *camera);
 void camera_clamp_rotation(camera_t *camera);
 void camera_move(camera_t *camera, int direction);

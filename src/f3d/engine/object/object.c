@@ -2,37 +2,29 @@
 #include <f3d/engine/object/material.h>
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/util.h>
+#include <f3d/engine/types.h>
 #include <f3d/engine/limits.h>
 
 #include <string.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
-object_t render_objects[MAX_RENDER_OBJECTS];
-int render_objects_index = 0;
-static bool objects_sorted = false;
+void objects_sort(object_buffer_t *objects);
 
-void objects_sort(void);
-
-object_t *object_new(const char *name) {
-    int index = render_objects_index++;
-    if (index > MAX_RENDER_OBJECTS) {
-        log_msg(LOG_WARN, "Render objects index > render objects size (%d > %d)\n", render_objects_index, MAX_RENDER_OBJECTS);
-        render_objects_index = 0;
-        index = 0;
-    }
-    object_t *object = &render_objects[index];
-    strcpy(object->name, name);
-    object->hash = util_hash_str(name);
-    object->mesh = NULL;
-    object->position = (vector3f_t){0, 0, 0};
-    object->rotation = (vector3f_t){0, 0, 0};
-    object->scale = (vector3f_t){1, 1, 1};
-    object->material = NULL;
+object_t object_new(const char *name) {
+    object_t object;
     
-    object->physics = physics_object_new(PHYSICS_COLLIDER_AABB);
+    strcpy(object.name, name);
+    object.hash = util_hash_str(name);
+    object.mesh = NULL;
+    object.position = (vector3f_t){0, 0, 0};
+    object.rotation = (vector3f_t){0, 0, 0};
+    object.scale = (vector3f_t){1, 1, 1};
+    object.material = NULL;
     
-    object_update(object);
+    object.physics = physics_object_new(PHYSICS_COLLIDER_AABB);
+    
+    object_update(&object);
     
     return object;
 }
@@ -46,18 +38,13 @@ void render_set_target(int target, void *ptr) {
     }
 }
 
-object_t *object_get(const char *name) {
-    hash_t hash = util_hash_str(name);
-    int i;
-    for (i = 0; i < render_objects_index; i++) {
-        if (render_objects[i].hash == hash)
-            return &render_objects[i];
-    }
-    return NULL;
+object_buffer_t object_buffer_new(buffer_type_t buffer_type, int buffer_start_size) {
+    object_buffer_t buffer;
+    buffer_init(&buffer.buffer, buffer_type, sizeof(object_t), buffer_start_size);
+    return buffer;
 }
 
 void scale_object(object_t *object) {
-    //int i;
     mat4_t *mat = &object->matrix;
     // x
     mat->val[0] *= object->scale.x;
@@ -127,8 +114,8 @@ void object_attach(object_t *object, int type, void *data) {
     else {
         log_msg(LOG_ERROR, "Attach type is not valid\n", 0);
     }
-    objects_sorted = false;
 }
+
 hash_t get_material_hash(object_t *object) {
     if (object->material == NULL)
         return 0;
@@ -142,8 +129,9 @@ int compare_materials(const void *v1, const void *v2) {
     return get_material_hash(obj1)-get_material_hash(obj2);
 }
 
-void objects_sort(void) {
-    qsort(render_objects, render_objects_index, sizeof(object_t), &compare_materials);
+void objects_sort(object_buffer_t *objects) {
+    object_t *obj_buffer = (object_t *)objects->buffer.data;
+    qsort(obj_buffer, objects->buffer.index, sizeof(object_t), &compare_materials);
 }
 
 void object_draw(object_t *object, shader_t *shader, camera_t *camera) {
@@ -155,15 +143,15 @@ void object_draw(object_t *object, shader_t *shader, camera_t *camera) {
     }
 }
 
-void objects_draw(shader_t *shader, camera_t *camera, bool render_materials) {
-    if (objects_sorted == false)
-        objects_sort();
+void objects_draw(object_buffer_t *objects, shader_t *shader, camera_t *camera, bool render_materials) {
+    if (objects->sorted == false)
+        objects_sort(objects);
     
-    int i;
+    unsigned i;
     hash_t mat_hash = 1;
     object_t *object;
-    for (i = 0; i < render_objects_index; i++) {
-        object = &render_objects[i];
+    for (i = 0; i < objects->buffer.index; i++) {
+        object = &(((object_t *)objects->buffer.data)[i]);
         if (render_materials == false) {
             material_update(NULL, shader);
         }

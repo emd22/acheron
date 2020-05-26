@@ -15,10 +15,11 @@
 
 camera_t *selected_camera = NULL;
 
-camera_t camera_new(void) {
+camera_t camera_new(camera_type_t type) {
     camera_t camera;
     memset(&camera, 0, sizeof(camera_t));
     camera.direction = (vector3f_t){0, 0, 0};
+    camera.type = type;
     
     // NOTE: FOV is stored in degrees, converted to radians when creating
     // perspective matrix
@@ -77,7 +78,7 @@ void camera_move(camera_t *camera, int direction) {
     }    
 }
 
-void camera_select(camera_t *camera) {
+void generate_perspective_matrix(camera_t *camera) {
     const float aspect = (float)default_window->width/(float)default_window->height;
     log_msg(LOG_INFO, "Aspect ratio is %.02f\n", aspect);
     math_perspective(
@@ -87,7 +88,19 @@ void camera_select(camera_t *camera) {
         0.01f,
         1000.0f
     );
+}
 
+void generate_ortho_matrix(camera_t *camera) {
+    math_ortho(&camera->mat_projection, -10, 10, -10, 10, -10, 10);
+}
+
+void camera_select(camera_t *camera) {
+    // generate projection matrix
+    if (camera->type == CAMERA_PERSPECTIVE)
+        generate_perspective_matrix(camera);
+    else if (camera->type == CAMERA_ORTHOGRAPHIC)
+        generate_ortho_matrix(camera);
+        
     selected_camera = camera;
 }
   
@@ -116,5 +129,6 @@ void camera_update(camera_t *camera) {
     lookto.x = camera->position.x+camera->direction.x;
     lookto.y = camera->position.y+camera->direction.y;
     lookto.z = camera->position.z+camera->direction.z;
+    
     camera->mat_view = math_lookat(camera->position, lookto, camera->up);
 }

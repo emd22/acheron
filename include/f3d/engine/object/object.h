@@ -10,6 +10,8 @@
 #include <f3d/engine/object/material.h>
 #include <f3d/engine/physics/object.h>
 
+#include <stdbool.h>
+
 #define RENDER_OBJECT_FLAG_UPDATE 0x01
 
 enum {
@@ -30,7 +32,12 @@ typedef enum {
     OBJECT_UPDATE_NEARBY,
 } object_update_type_t;
 
-typedef struct render_object_s {
+typedef struct {
+    buffer_t buffer;
+    bool sorted;
+} object_buffer_t;
+
+typedef struct object_s {
     char name[32];
     hash_t hash;
 
@@ -47,7 +54,8 @@ typedef struct render_object_s {
     int flags;
 } object_t;
 
-object_t *object_new(const char *name);
+object_t object_new(const char *name);
+object_buffer_t object_buffer_new(buffer_type_t buffer_type, int buffer_start_size);
 void render_set_target(int target, void *ptr);
 void object_update(object_t *object);
 
@@ -59,9 +67,9 @@ void object_scale(object_t *object, float x, float y, float z);
 void object_scale_v(object_t *object, vector3f_t val);
 
 object_t *object_get(const char *name);
-void objects_sort(void);
+void objects_sort(object_buffer_t *objects);
 void object_attach(object_t *object, int type, void *data);
-void objects_draw(shader_t *shader, camera_t *camera, bool render_materials);
+void objects_draw(object_buffer_t *objects, shader_t *shader, camera_t *camera, bool render_materials);
 void object_draw(object_t *object, shader_t *shader, camera_t *camera);
 
 #endif

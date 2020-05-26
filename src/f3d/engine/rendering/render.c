@@ -1,5 +1,6 @@
 #include <f3d/engine/rendering/render.h>
 #include <f3d/engine/rendering/render_view.h>
+#include <f3d/engine/rendering/scene.h>
 #include <f3d/engine/engine.h>
 
 #include <string.h>
@@ -40,7 +41,7 @@ int render_all_objects(void *arg) {
     camera_t *cam = (camera_t *)arg;
     
     //skybox_render(&scenes[0].skybox, cam);
-    objects_draw(shader_main, cam, true);
+    scene_objects_render(selected_scene, shader_main, cam, true);
     
     return 0;
 }
