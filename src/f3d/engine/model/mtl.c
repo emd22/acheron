@@ -80,4 +80,6 @@ void mtl_load(const char *path) {
             log_msg(LOG_INFO, "opdensity [%f,%f,%f]\n", opdensity.x, opdensity.y, opdensity.z);
         }
     }
+
+    fclose(fp);
 }
