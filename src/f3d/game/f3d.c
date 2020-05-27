@@ -38,13 +38,6 @@ int init(void) {
     game_init();
     game_info.flags |= GAME_IS_RUNNING;
     
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        log_msg(LOG_FATAL, "Could not start SDL\n", 0);
-        return 1;
-    }
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-    
     bool fullscreen = false;
     int width = 500;
     int height = 500;

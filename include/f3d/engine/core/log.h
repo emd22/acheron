@@ -3,7 +3,11 @@
 
 #include <stdarg.h>
 
-#define log_msg(errlvl, str, ...) _log_msg(__func__, errlvl, str, ##__VA_ARGS__)
+
+// TODO: remove log_msg
+#define log_msg(errlvl, str, ...) _sb_log(__func__, errlvl, str, ##__VA_ARGS__)
+
+#define sb_log(errlvl, str, ...) _sb_log(__func__, errlvl, str, ##__VA_ARGS__)
 
 enum {
     LOG_INFO,
@@ -14,6 +18,6 @@ enum {
 };
 
 
-void _log_msg(const char *function, int errlvl, const char *str, ...);
+void _sb_log(const char *function, int errlvl, const char *str, ...);
 
 #endif
