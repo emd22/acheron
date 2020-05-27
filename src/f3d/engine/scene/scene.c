@@ -1,4 +1,4 @@
-#include <f3d/engine/rendering/scene.h>
+#include <f3d/engine/scene/scene.h>
 
 #include <f3d/engine/rendering/shadows.h>
 #include <f3d/engine/rendering/ui.h>
@@ -18,7 +18,7 @@ scene_t *selected_scene = NULL;
 scene_t *scene_new(const char *name) {
     scene_t *scene = &scenes[scenes_index++];
     strcpy(scene->name, name);
-    scene->lights_index = 0;
+    buffer_init(&scene->lights, BUFFER_STATIC, sizeof(light_t), MAX_SCENE_LIGHTS);
     scene->flags = 0;
     /*texture_t *textures[] = {
         texture_load_data(NULL, "../images/skybox/right.bmp", IMAGE_BMP),
@@ -36,10 +36,10 @@ scene_t *scene_new(const char *name) {
 }
 
 void scene_render_shadows(scene_t *scene, shader_t *shader_main) {
-    int i;
+    unsigned i;
     light_t *light;
-    for (i = 0; i < scene->lights_index; i++) {
-        light = scene->lights[i];
+    for (i = 0; i < scene->lights.index; i++) {
+        light = buffer_get(&scene->lights, i);
         // if shadows are setup, set shadow map in main shader
         if (light->use_shadows) {
             light_shadow_render(light, shader_main);   
@@ -49,19 +49,21 @@ void scene_render_shadows(scene_t *scene, shader_t *shader_main) {
 
 void scene_select(scene_t *scene, shader_t *shader_main) {
     selected_scene = scene;
-    int i;
-    for (i = 0; i < scene->lights_index; i++) {
-        light_init(scene->lights[i], shader_main);
-        light_update(scene->lights[i], shader_main);
+    unsigned i;
+    light_t *light;
+    for (i = 0; i < scene->lights.index; i++) {
+        light = buffer_get(&scene->lights, i);
+        light_init(light, shader_main);
+        light_update(light, shader_main);
     }
 }
 
 light_t *get_nearest_light(scene_t *scene, object_t *object) {
     float rx, rz;
-    int i;
+    unsigned i;
     light_t *light;
-    for (i = 0; i < scene->lights_index; i++) {
-        light = scene->lights[i];
+    for (i = 0; i < scene->lights.index; i++) {
+        light = buffer_get(&scene->lights, i);
         rx = object->position.x-light->position.x;
         rz = object->position.z-light->position.z;
         float radius = light->radius/2;
@@ -95,16 +97,16 @@ void scene_render(shader_t *shader_main, scene_t *scene) {
     framebuffer_bind(NULL);
     
     //if (shader_depth != NULL) {
-    int i;
+    unsigned i;
     light_t *light;
     char str[48];
     for (i = 0; i < MAX_LIGHTS; i++) {
-        if (i >= scene->lights_index) {
+        if (i >= scene->lights.index) {
             sprintf(str, "pointLights[%d].shadow_map", i);
             shader_set_int(shader_main, str, 4);
             continue;
         }
-        light = scene->lights[i];
+        light = buffer_get(&scene->lights, i);
         // if shadows are setup, set shadow map in main shader
         if (light->use_shadows) {
             glActiveTexture(GL_TEXTURE4+light->point_shadow.shadow_map_id);
@@ -119,7 +121,8 @@ void scene_render(shader_t *shader_main, scene_t *scene) {
     ui_render();
 }
 
-void scene_attach(scene_t *scene, scene_attach_type_t type, void *ptr) {
+void *scene_attach(scene_t *scene, scene_attach_type_t type, void *ptr) {
+    void *scene_object = NULL;
     if (type == SCENE_SKYBOX) {
         memcpy(&scene->skybox, ptr, sizeof(skybox_t));
         scene->flags |= SCENE_ENABLE_SKYBOX;
@@ -127,13 +130,14 @@ void scene_attach(scene_t *scene, scene_attach_type_t type, void *ptr) {
         //skybox_new(&scene->skybox.cubemap);
     }
     else if (type == SCENE_LIGHT) {
-        if (scene->lights_index == MAX_LIGHTS)
-            return;
-        scene->lights[scene->lights_index++] = (light_t *)ptr;
+        if (scene->lights.index == MAX_LIGHTS)
+            return NULL;
+        scene_object = buffer_push(&scene->lights, ptr);
     }
     else if (type == SCENE_OBJECT) {
-        buffer_push(&scene->objects.buffer, ptr);
+        scene_object = buffer_push(&scene->objects.buffer, ptr);
     }
+    return scene_object;
 }
 
 void scene_destroy(scene_t *scene) {

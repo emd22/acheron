@@ -120,6 +120,9 @@ void linear_collision_impulse(physics_object_t *obj, physics_object_t *ground) {
     if (obj->locked)
         return;
         
+    // TODO: replace
+    // set position to be above ground
+    obj->collider.position.y = ground->collider.position.y+ground->collider.dimensions.y;
     /*
     float mass = obj->mass;
     
@@ -140,6 +143,9 @@ void linear_collision_impulse(physics_object_t *obj, physics_object_t *ground) {
     obj->velocity.y -= reflecty*0.8f;
     //obj->velocity.x *= 0.98f;
     obj->velocity.z *= 0.98f;
+    
+    if (reflecty-2.0f < 0.4f)
+        obj->locked = true;
     
     //vector3f_t normal;
     //if (obj->collider.normals[0])

@@ -1,4 +1,4 @@
-#include <f3d/engine/object/object.h>
+#include <f3d/engine/scene/object.h>
 #include <f3d/engine/object/material.h>
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/util.h>
@@ -41,6 +41,7 @@ void render_set_target(int target, void *ptr) {
 object_buffer_t object_buffer_new(buffer_type_t buffer_type, int buffer_start_size) {
     object_buffer_t buffer;
     buffer_init(&buffer.buffer, buffer_type, sizeof(object_t), buffer_start_size);
+    buffer.sorted = false;
     return buffer;
 }
 

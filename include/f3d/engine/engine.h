@@ -10,18 +10,19 @@
 
 #include <f3d/engine/image/texture.h>
 
+#include <f3d/engine/rendering/render.h>
 #include <f3d/engine/rendering/camera.h>
 #include <f3d/engine/rendering/shader.h>
-#include <f3d/engine/rendering/light.h>
 #include <f3d/engine/rendering/shadows.h>
 #include <f3d/engine/rendering/cubemap.h>
-#include <f3d/engine/rendering/skybox.h>
-#include <f3d/engine/rendering/scene.h>
-#include <f3d/engine/rendering/render.h>
 #include <f3d/engine/rendering/ui.h>
 
+#include <f3d/engine/scene/scene.h>
+#include <f3d/engine/scene/light.h>
+#include <f3d/engine/scene/skybox.h>
+#include <f3d/engine/scene/object.h>
+
 #include <f3d/engine/object/material.h>
-#include <f3d/engine/object/object.h>
 
 #include <stdbool.h>
 

@@ -1,4 +1,4 @@
-#include <f3d/engine/rendering/light.h>
+#include <f3d/engine/scene/light.h>
 #include <f3d/engine/rendering/shader.h>
 #include <f3d/engine/core/log.h>
 
@@ -20,11 +20,13 @@ int count_light_types(int type) {
     return amt;
 }
 
-light_t *light_get(light_t **lights, light_t *next, int type, int max) {
-    int i;
-    for (i = 0; i < max; i++) {
-        if (lights[i] != next && lights[i]->type == type) {
-            return lights[i];
+light_t *light_get(buffer_t *lights, light_t *next, int type) {
+    unsigned i;
+    light_t *light;
+    for (i = 0; i < lights->index; i++) {
+        light = buffer_get(lights, i);
+        if (light != next && light->type == type) {
+            return light;
         }
     }
     return NULL;

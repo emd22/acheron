@@ -2,9 +2,9 @@
 #define F3D_RENDER_H
 
 
-#include <f3d/engine/object/object.h>
 #include <f3d/engine/rendering/shader.h>
-#include <f3d/engine/rendering/scene.h>
+#include <f3d/engine/scene/object.h>
+#include <f3d/engine/scene/scene.h>
 
 extern shader_t *shader_main;
 

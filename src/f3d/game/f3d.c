@@ -30,7 +30,7 @@ window_t window;
 material_t *brick, *stone;
 light_t *light, *player_light;
 camera_t camera;
-object_t box;
+object_t *box;
 
 scene_t *scene;
 
@@ -45,7 +45,7 @@ int init(void) {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
     
-    bool fullscreen = true;
+    bool fullscreen = false;
     int width = 500;
     int height = 500;
     
@@ -116,7 +116,7 @@ int main() {
     level_physics.collider.dimensions = (vector3f_t){50, 1, 50};
     level_physics.collider.position = (vector3f_t){0, 0, 0};
     
-    box.physics.velocity.x = 5.0f*delta_time;
+    box->physics.velocity.x = 5.0f*delta_time;
     
     while (game_info.flags & GAME_IS_RUNNING) {
         time_tick();
@@ -125,17 +125,14 @@ int main() {
             
         shader_use(shader_main);
         
-        if (player_move(&camera)) {
-        }
+        player_move(&camera);
         
-        physics_update(&box.physics, &level_physics);
-        //if (!physics_check_collision(&box->physics, &level_physics)) {
-            //box->position.y -= 0.001f;s
+        physics_update(&box->physics, &level_physics);
         //physics_update_gravity(&box->physics);
-        box.position = box.physics.collider.position;
+        box->position = box->physics.collider.position;
             //box->rotation = box->physics.collider.rotation;
-        object_update(&box);
-        scene_object_update(scene, &box, shader_main);
+        object_update(box);
+        scene_object_update(scene, box, shader_main);
         //}
         
         camera_update(selected_camera);
@@ -187,11 +184,11 @@ void load_models() {
     object_move(&level, 0, 0, 0);
     scene_attach(scene, SCENE_OBJECT, &level);
 
-    box = object_new("Box");
-    object_attach(&box, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/basiccube.obj", MODEL_OBJ, 0));
-    object_attach(&box, OBJECT_ATTACH_MATERIAL, stone);
-    object_move(&box, 0, 10, 2);
-    scene_attach(scene, SCENE_OBJECT, &box);
+    object_t obj_box = object_new("Box");
+    object_attach(&obj_box, OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/basiccube.obj", MODEL_OBJ, 0));
+    object_attach(&obj_box, OBJECT_ATTACH_MATERIAL, stone);
+    object_move(&obj_box, 0, 10, 2);
+    box = scene_attach(scene, SCENE_OBJECT, &obj_box);
 }
  
 int on_draw(void *arg) {

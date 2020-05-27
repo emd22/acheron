@@ -1,13 +1,13 @@
 #ifndef F3D_SCENE_H
 #define F3D_SCENE_H
 
-#include <f3d/engine/rendering/render_view.h>
-#include <f3d/engine/rendering/skybox.h>
-#include <f3d/engine/rendering/camera.h>
-#include <f3d/engine/rendering/light.h>
-#include <f3d/engine/rendering/shadows.h>
-#include <f3d/engine/object/object.h>
 #include <f3d/engine/limits.h>
+#include <f3d/engine/rendering/render_view.h>
+#include <f3d/engine/rendering/camera.h>
+#include <f3d/engine/rendering/shadows.h>
+#include <f3d/engine/scene/light.h>
+#include <f3d/engine/scene/skybox.h>
+#include <f3d/engine/scene/object.h>
 
 #define SCENE_ENABLE_SHADOWS 0x01
 #define SCENE_ENABLE_SKYBOX  0x02
@@ -22,9 +22,7 @@ typedef struct {
     char name[32];
     
     object_buffer_t objects;
-    
-    light_t *lights[MAX_SCENE_LIGHTS];
-    int lights_index;
+    buffer_t lights;
     
     skybox_t skybox;
     int flags;
@@ -40,7 +38,7 @@ void scene_objects_render(scene_t *scene, shader_t *shader, camera_t *camera, bo
 void scene_select(scene_t *scene, shader_t *shader_main);
 render_view_t *scene_new_view(scene_t *scene, camera_t *camera, int width, int height, int attachment);
 void scene_object_update(scene_t *scene, object_t *object, shader_t *shader_main);
-void scene_attach(scene_t *scene, scene_attach_type_t type, void *ptr);
+void *scene_attach(scene_t *scene, scene_attach_type_t type, void *ptr);
 void scene_render(shader_t *shader_main, scene_t *scene);
 void scene_destroy(scene_t *scene);
 

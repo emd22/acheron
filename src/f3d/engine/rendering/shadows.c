@@ -2,11 +2,13 @@
 #include <f3d/engine/rendering/framebuffer.h>
 #include <f3d/engine/rendering/cubemap.h>
 #include <f3d/engine/rendering/camera.h>
-#include <f3d/engine/rendering/scene.h>
+
 #include <f3d/engine/core/handles.h>
 #include <f3d/engine/core/math.h>
 #include <f3d/engine/core/log.h>
-#include <f3d/engine/object/object.h>
+
+#include <f3d/engine/scene/scene.h>
+#include <f3d/engine/scene/object.h>
 #include <f3d/engine/types.h>
 
 #include <stdio.h>

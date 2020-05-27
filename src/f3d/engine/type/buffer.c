@@ -22,6 +22,7 @@ int buffer_init(buffer_t *buffer, buffer_type_t type, unsigned obj_sz, unsigned 
     
     unsigned long bytes_sz = (unsigned long)obj_sz*(unsigned long)start_size;
     buffer->data = malloc(bytes_sz);
+    buffer->resize_func = &buffer_resize_func_double;
     
     if (buffer->data == NULL) {
         log_msg(
@@ -36,17 +37,26 @@ int buffer_init(buffer_t *buffer, buffer_type_t type, unsigned obj_sz, unsigned 
     return 0;
 }
 
-void buffer_push(buffer_t *buffer, void *obj) {
+void *buffer_push(buffer_t *buffer, void *obj) {
     if (buffer->index >= buffer->size) {
         if (buffer->type != BUFFER_DYNAMIC) {
             log_msg(LOG_ERROR, "Hit end of non-dynamic buffer\n", 0);
-            return;
+            return NULL;
         }
         buffer_resize(buffer, BUFFER_RESIZE_AUTO);
     }
     const unsigned long index = (buffer->index)*(buffer->obj_sz);
-    memcpy(((uint8_t *)buffer->data)+(index), obj, buffer->obj_sz);
+    uint8_t *mem = ((uint8_t *)buffer->data)+(index);
+    memcpy(mem, obj, buffer->obj_sz);
     buffer->index++;
+    return mem;
+}
+
+void *buffer_get(buffer_t *buffer, unsigned index) {
+    if (index > buffer->obj_sz)
+        return NULL;
+    void *ptr = ((uint8_t *)buffer->data)+(buffer->obj_sz*index);
+    return ptr;
 }
 
 buffer_t buffer_duplicate(buffer_t *buffer, buffer_type_t type) {
@@ -78,7 +88,7 @@ void buffer_copy_data(buffer_t *buffer, void *data, int data_size) {
     buffer->index += block_size;
 }
 
-void buffer_resize(buffer_t *buffer, int set) {
+void buffer_resize(buffer_t *buffer, int size) {
     if (buffer->type != BUFFER_DYNAMIC)
         return;
         
@@ -96,23 +106,23 @@ void buffer_resize(buffer_t *buffer, int set) {
     // debug message
     //log_msg(LOG_INFO, "Resizing buffer from %luKB to %luKB\n", buffer->size/1024, buffer->size*2/1024);
     buffer_total_used -= buffer->size*buffer->obj_sz;
-    int obj_sz = buffer->obj_sz;
-    if (set == -1) {
-        buffer->size *= 2;
-    }
-    else {
-        obj_sz = 1;
-        buffer->size = set;
-    }
+    if (size != -1)
+        buffer->size = buffer->resize_func(buffer);
+    else
+        buffer->size = size;
     
-    buffer->data = realloc(buffer->data, buffer->size*obj_sz);
+    buffer->data = realloc(buffer->data, buffer->size*buffer->obj_sz);
 
     // error in realloc, probably ran out of memory
     if (buffer->data == NULL) {
-        log_msg(LOG_ERROR, "Error resizing buffer (size:%lu, obj_sz: %lu)\n", buffer->size, obj_sz);
+        log_msg(LOG_ERROR, "Error resizing buffer (size:%lu, obj_sz: %lu)\n", buffer->size, buffer->obj_sz);
     }
     
     buffer_total_used += buffer->size*buffer->obj_sz;
+}
+
+size_t buffer_resize_func_double(buffer_t *buffer) {
+    return buffer->size*2;
 }
 
 void buffer_destroy(buffer_t *buffer) {

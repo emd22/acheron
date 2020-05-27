@@ -1,6 +1,6 @@
 #include <f3d/engine/rendering/render.h>
 #include <f3d/engine/rendering/render_view.h>
-#include <f3d/engine/rendering/scene.h>
+#include <f3d/engine/scene/scene.h>
 #include <f3d/engine/engine.h>
 
 #include <string.h>
@@ -59,7 +59,7 @@ void render_init() {
 
 void render_init_shadows(scene_t *scene, int width, int height) {
     light_t *point;
-    point = light_get(scene->lights, NULL, LIGHT_POINT, scene->lights_index);
+    point = light_get(&scene->lights, NULL, LIGHT_POINT);
     if (point == NULL)
         return;
     //shadows_init(point, width, height);

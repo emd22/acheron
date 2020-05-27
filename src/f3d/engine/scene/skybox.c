@@ -1,4 +1,4 @@
-#include <f3d/engine/rendering/skybox.h>
+#include <f3d/engine/scene/skybox.h>
 #include <f3d/engine/rendering/cubemap.h>
 #include <f3d/engine/core/log.h>
 
