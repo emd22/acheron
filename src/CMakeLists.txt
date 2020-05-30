@@ -21,7 +21,7 @@ else()
 endif()
 
 set(C_WARNING_FLAGS "-Wall -Wextra -Wpedantic -Werror")
-set(C_FLAGS "${C_DEBUG_FLAGS} -O2 -std=c99 ${C_WARNING_FLAGS} -Wno-implicit-fallthrough -DSB_USE_OPENGL")
+set(C_FLAGS "${C_DEBUG_FLAGS} -O2 -std=c99 ${C_WARNING_FLAGS} -Wno-implicit-fallthrough -DAR_USE_OPENGL")
 set(LINKER_FLAGS "-m64 ${LINKER_DEBUG_FLAGS}")
 
 file(GLOB_RECURSE SOURCES "${BUILD_NAME}/*.c")

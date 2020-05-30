@@ -1,16 +1,10 @@
 #include <f3d/engine/renderer/opengl/opengl.h>
+#include <f3d/engine/renderer/renderer.h>
 
-typedef enum {
-    SB_RENDERER_BLEND,
-    SB_RENDERER_CULL_FACE,
-    SB_RENDERER_DEPTH_TEST,
-    SB_RENDERER_FRAMEBUFFER_SRGB,
-    SB_RENDERER_MULTISAMPLE,
-    SB_RENDERER_LINE_SMOOTH,
-    SB_RENDERER_POLYGON_SMOOTH,
-} sb_renderer_enable_t;
+#ifdef SB_USE_OPENGL
 
-
+#include <GL/glew.h>
+#include <GL/gl.h>
 
 static int get_option_code_gl(sb_render_enable_t code) {
     switch (code) {
@@ -52,7 +46,7 @@ void sb_renderer_disable(sb_renderer_enable_t code) {
         glDisable(glcode);
 }
 
-static void opengl_renderer_init() {
+void sb_renderer_opengl_init(void) {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glViewport(0, 0, default_window.width, default_window.height);
     sb_renderer_enable(SB_RENDERER_FRAMEBUFFER_SRGB);
@@ -60,3 +54,5 @@ static void opengl_renderer_init() {
     sb_renderer_enable(SB_RENDERER_CULL_FACE);
     glDepthFunc(GL_LESS);
 }
+
+#endif

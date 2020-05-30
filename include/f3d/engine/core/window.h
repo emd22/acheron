@@ -13,12 +13,10 @@ typedef struct {
     SDL_GLContext context;
     int width, height;
     int flags;
-} window_t;
+} sb_window_t;
 
-extern window_t *default_window;
-
-window_t window_new(const char *title, int width, int height, int flags);
-void window_buffers_swap(window_t *window);
+sb_window_t window_new(const char *title, int width, int height, int flags);
+void window_buffers_swap(sb_window_t *window);
 void window_set_mouse_mode(int mode);
 void window_destroy(window_t *window);
 

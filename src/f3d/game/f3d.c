@@ -149,7 +149,7 @@ int on_end(void *arg){
     render_destroy();
     window_destroy(&window);
     
-    SDL_Quit();
+    
 
     exit(0);
 }
@@ -199,17 +199,4 @@ void check_mouse(double xrel, double yrel) {
     selected_camera->rotation.y -= delta_time*(MOUSE_SPEED*yrel);
 }
 
-void check_event(SDL_Event *event) {
-    if (event->type == SDL_QUIT) {
-        game_info.flags &= ~GAME_IS_RUNNING;
-    }
-    else if (event->type == SDL_KEYDOWN) {
-        controls_handle_keydown(event->key.keysym.sym);
-    }
-    else if (event->type == SDL_KEYUP) {
-        controls_handle_keyup(event->key.keysym.sym);
-    }
-    else if (event->type == SDL_MOUSEMOTION) {
-        check_mouse(event->motion.xrel, event->motion.yrel);
-    }
-}
+
