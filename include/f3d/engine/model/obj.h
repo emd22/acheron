@@ -6,11 +6,11 @@
 typedef struct {
     int inited;
     // vec3f buffer
-    buffer_t vertices;
+    ar_buffer_t vertices;
     // vec2f buffer
-    buffer_t uvs;
+    ar_buffer_t uvs;
     // vec3f buffer
-    buffer_t normals;
+    ar_buffer_t normals;
 } obj_model_t;
 
 obj_model_t obj_load(const char *path);

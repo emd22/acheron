@@ -6,10 +6,13 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 
-window_t *default_window = NULL;
+static ar_buffer_t window_buffer;
 
-window_t window_new(const char *title, int width, int height, int flags) {
-    (void)flags;
+ar_window_t *ar_window_new(const char *title, int width, int height, int flags) {
+    if (window_buffer.initialized == false) {
+        buffer_init(&window_buffer, BUFFER_DYNAMIC, sizeof(ar_window_t), 1);
+    }
+    
     window_t window;
     log_msg(LOG_INFO, "Creating window '%s' with size %dx%d\n", title, width, height);
     window.win = SDL_CreateWindow(
@@ -20,32 +23,45 @@ window_t window_new(const char *title, int width, int height, int flags) {
         SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL
     );
     if (window.win == NULL) {
-        log_msg(LOG_ERROR, "Could not create SDL Window. Error: %s\n", SDL_GetError());
+        ar_log(AR_LOG_ERROR, "Could not create SDL Window. Error: %s\n", SDL_GetError());
         exit(EXIT_FAILURE);
     }
     window.width = width;
     window.height = height;
     window.context = SDL_GL_CreateContext(window.win);
     if (window.context == NULL) {
-        log_msg(LOG_ERROR, "window.context == NULL!\n", 0);
+        ar_log(AR_LOG_ERROR, "window.context == NULL!\n", 0);
     }
-    window.flags = WINDOW_INITED;
-    return window;
+    
+    return ar_buffer_push(&window_buffer, &window);
 }
 
-void window_buffers_swap(window_t *window) {
+void ar_window_buffers_swap(window_t *window) {
     SDL_GL_SwapWindow(window->win);
 }
 
-void window_set_mouse_mode(int mode) {
-    SDL_SetRelativeMouseMode(mode);
+void ar_window_option_set(ar_window_t *window, int option, int value) {
+    if (option == AR_WINDOW_OPTION_FULLSCREEN) {
+        if (fullscreen)
+            SDL_SetWindowFullscreen(window.win, SDL_WINDOW_FULLSCREEN_DESKTOP);
+        const int mode = (value) ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0;
+        int width = window.width;
+        int height = window.height;
+        if (value) {
+            SDL_DisplayMode mode;
+            SDL_GetCurrentDisplayMode(0, &mode);
+            width = mode.w;
+            height = mode.h;
+            SDL_SetWindowSize(window.win, width, height);
+        }
+        SDL_SetWindowFullscreen(window.win, mode);
+    }
+    else if (option == AR_WINDOW_OPTION_MOUSE_VISIBLE) {
+        SDL_SetRelativeMouseMode(value);
+    }
 }
 
-void window_destroy(window_t *window) {
-    if (!(window->flags & WINDOW_INITED)) {
-        printf("WARN: Window not init'd\n");
-        return;    
-    }
+void ar_window_destroy(ar_window_t *window) {
     SDL_GL_DeleteContext(window->context);
     SDL_DestroyWindow(window->win);
 }

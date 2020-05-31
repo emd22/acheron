@@ -53,7 +53,7 @@ int vertcmp(const void *a, const void *b) {
     }
 }
 
-int check_vertex_matches(buffer_t *vertices, vertex_t *vertex1) {
+int check_vertex_matches(ar_buffer_t *vertices, vertex_t *vertex1) {
     vertex_t *vertex = bsearch(vertex1, (vertex_t *)vertices->data, vertices->index, sizeof(vertex_t), &vertcmp);
     
     if (vertex == NULL)
@@ -65,9 +65,9 @@ int check_vertex_matches(buffer_t *vertices, vertex_t *vertex1) {
 
 static void generate_indices(mesh_t *mesh) {
     unsigned i;
-    buffer_init(&mesh->indices, BUFFER_STATIC, sizeof(unsigned), mesh->vertices.index);
-    buffer_t new_verts;
-    buffer_init(&new_verts, BUFFER_STATIC, sizeof(vertex_t), mesh->vertices.index);
+    ar_buffer_init(&mesh->indices, AR_BUFFER_STATIC, sizeof(unsigned), mesh->vertices.index);
+    ar_buffer_t new_verts;
+    ar_buffer_init(&new_verts, AR_BUFFER_STATIC, sizeof(vertex_t), mesh->vertices.index);
     vertex_t *vertex;
     
     //int index;
@@ -94,9 +94,9 @@ static void generate_indices(mesh_t *mesh) {
     log_msg(LOG_INFO, "Saved %.02f KB of VRAM\n", ((float)amt_reused*sizeof(vertex_t))/1024.0f);
 }
 
-static void generate_packed_vertices(mesh_t *mesh, buffer_t *vertices, buffer_t *uvs, buffer_t *normals) {
+static void generate_packed_vertices(mesh_t *mesh, ar_buffer_t *vertices, buffer_t *uvs, buffer_t *normals) {
     unsigned i;
-    buffer_init(&mesh->vertices, BUFFER_DYNAMIC, sizeof(vertex_t), vertices->index+1);
+    buffer_init(&mesh->vertices, AR_BUFFER_DYNAMIC, sizeof(vertex_t), vertices->index+1);
     vertex_t vertex;
     for (i = 0; i < vertices->index; i++) {
         if (vertices != NULL)
@@ -114,7 +114,7 @@ static void generate_packed_vertices(mesh_t *mesh, buffer_t *vertices, buffer_t 
         else
             vertex.normal = (vector3f_t){0, 0, 0};
             
-        buffer_push(&mesh->vertices, &vertex);
+        ar_buffer_push(&mesh->vertices, &vertex);
     }
 }
 
@@ -168,7 +168,7 @@ void mesh_init(mesh_t *mesh, int flags) {
     glVertexAttribPointer(4, 3, GL_FLOAT, 0, stride, (void *)offsetof(vertex_t, bitangent));
 }
 
-void mesh_set_data(mesh_t *mesh, buffer_t *vertices, buffer_t *uvs, buffer_t *normals) {
+void mesh_set_data(mesh_t *mesh, ar_buffer_t *vertices, buffer_t *uvs, buffer_t *normals) {
     generate_packed_vertices(mesh, vertices, uvs, normals);
     generate_indices(mesh);
 }

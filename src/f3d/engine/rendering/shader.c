@@ -37,8 +37,8 @@ void check_status(unsigned id, int type) {
 	if (info_log_length > 0) {
 	    char info_log[info_log_length];
 	    glGetShaderInfoLog(id, info_log_length, NULL, info_log);
-	    log_msg(LOG_ERROR, "Error in %s shader! (%d)\n", get_shader_type_name(type), info_log_length);
-	    log_msg(LOG_ERROR, "Error log:\n%s\n", info_log);
+	    ar_log(AR_LOG_ERROR, "Error in %s shader! (%d)\n", get_shader_type_name(type), info_log_length);
+	    ar_log(AR_LOG_ERROR, "Error log:\n%s\n", info_log);
 	}
 }
 
@@ -112,7 +112,7 @@ static long load_shader(const char *path, int type) {
     unsigned shader_id = glCreateShader(type);
     FILE *fp = fopen(path, "rb");
     if (fp == NULL) {
-        log_msg(LOG_ERROR, "%s shader could not be opened\n", get_shader_type_name(type));
+        ar_log(AR_LOG_ERROR, "%s shader could not be opened\n", get_shader_type_name(type));
         return SHADER_NONE;
     }
     // seek file pointer to end of file, get pointer location
@@ -171,7 +171,7 @@ void shader_attach(shader_t *shader, int type, const char *path) {
         shader->geometry = load_shader(path, type);
     }
     else {
-        log_msg(LOG_ERROR, "Unsupported shader type\n", 0);
+        ar_log(AR_LOG_ERROR, "Unsupported shader type\n", 0);
     }
 }
 

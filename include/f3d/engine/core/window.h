@@ -3,21 +3,24 @@
 
 #include <SDL2/SDL.h>
 
-#define WINDOW_INITED 0x01
+typedef enum {
+    AR_WINDOW_OPTION_FULLSCREEN,
+    AR_WINDOW_OPTION_MOUSE_VISIBLE,
+} ar_window_option_t;
 
-#define WINDOW_MOUSE_DISABLED 1
-#define WINDOW_MOUSE_ENABLED  0
+#define WINDOW_OPTION_MOUSE_VISIBLE 0x01
 
 typedef struct {
     SDL_Window *win;
     SDL_GLContext context;
+    
     int width, height;
     int flags;
-} sb_window_t;
+} ar_window_t;
 
-sb_window_t window_new(const char *title, int width, int height, int flags);
-void window_buffers_swap(sb_window_t *window);
-void window_set_mouse_mode(int mode);
-void window_destroy(window_t *window);
+ar_window_t ar_window_new(const char *title, int width, int height, int flags);
+void ar_window_option_set(ar_window_t *window, int option, int value);
+void ar_window_buffers_swap(ar_window_t *window);
+void ar_window_destroy(ar_window_t *window);
 
 #endif

@@ -15,27 +15,27 @@
 #define RENDER_OBJECT_FLAG_UPDATE 0x01
 
 enum {
-    RENDER_TARGET_FRAMEBUFFER,
-    RENDER_TARGET_CUBEMAP,
+    AR_RENDER_TARGET_FRAMEBUFFER,
+    AR_RENDER_TARGET_CUBEMAP,
 };
 
 enum {
-    OBJECT_ATTACH_MESH,
-    OBJECT_ATTACH_MATERIAL,
+    AR_OBJECT_ATTACH_MESH,
+    AR_OBJECT_ATTACH_MATERIAL,
 };
 
 enum {
-    RENDER_OBJECT_TYPE_MESH,
+    AR_RENDER_OBJECT_TYPE_MESH,
 };
 
 typedef enum {
-    OBJECT_UPDATE_NEARBY,
-} object_update_type_t;
+    AR_OBJECT_UPDATE_NEARBY,
+} ar_object_update_type_t;
 
 typedef struct {
-    buffer_t buffer;
+    ar_buffer_t buffer;
     bool sorted;
-} object_buffer_t;
+} ar_object_buffer_t;
 
 typedef struct object_s {
     char name[32];
@@ -55,7 +55,7 @@ typedef struct object_s {
 } object_t;
 
 object_t object_new(const char *name);
-object_buffer_t object_buffer_new(buffer_type_t buffer_type, int buffer_start_size);
+object_buffer_t object_buffer_new(ar_buffer_type_t buffer_type, int buffer_start_size);
 void render_set_target(int target, void *ptr);
 void object_update(object_t *object);
 
@@ -69,7 +69,7 @@ void object_scale_v(object_t *object, vector3f_t val);
 object_t *object_get(const char *name);
 void objects_sort(object_buffer_t *objects);
 void object_attach(object_t *object, int type, void *data);
-void objects_draw(object_buffer_t *objects, shader_t *shader, camera_t *camera, bool render_materials);
+void objects_draw(ar_object_buffer_t *objects, shader_t *shader, camera_t *camera, bool render_materials);
 void object_draw(object_t *object, shader_t *shader, camera_t *camera);
 
 #endif

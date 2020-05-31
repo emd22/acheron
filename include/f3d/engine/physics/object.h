@@ -37,7 +37,7 @@ extern shader_t *shader_bounding;
 
 physics_object_t physics_object_new(physics_collider_type_t collider_type);
 physics_collider_t physics_collider_new(physics_collider_type_t collider_type);
-void physics_collider_stretch_to_vertices(physics_collider_t *collider, buffer_t *vertices);
+void physics_collider_stretch_to_vertices(physics_collider_t *collider, ar_buffer_t *vertices);
 bool physics_collider_check_collision(physics_collider_t *collider0, physics_collider_t *collider1);
 bool physics_check_collision(physics_object_t *object0, physics_object_t *object1);
 void physics_update_gravity(physics_object_t *obj);

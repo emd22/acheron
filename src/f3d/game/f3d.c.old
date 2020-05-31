@@ -39,20 +39,11 @@ int init(void) {
     game_info.flags |= GAME_IS_RUNNING;
     
     bool fullscreen = false;
-    int width = 500;
-    int height = 500;
-    
-    if (fullscreen) {
-        SDL_DisplayMode mode;
-        SDL_GetCurrentDisplayMode(0, &mode);    
-        width = mode.w;
-        height = mode.h;
-    }
     
     window = window_new("Ethan's 3D Engine", width, height, 0);
-    if (fullscreen)
-        SDL_SetWindowFullscreen(window.win, SDL_WINDOW_FULLSCREEN_DESKTOP);
     default_window = &window;
+    
+    
 
     render_init();
     camera = camera_new(CAMERA_PERSPECTIVE);
@@ -61,7 +52,7 @@ int init(void) {
     camera.rotation.x = 3.14f;
     // select camera to be default and calculate perspective matrix
     camera_select(&camera);
-    log_msg(LOG_INFO, "Camera initialized\n", 0);
+    ar_log(AR_LOG_INFO, "Camera initialized\n", 0);
     
     ui_init();
     

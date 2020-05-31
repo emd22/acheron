@@ -17,21 +17,21 @@ obj_model_t obj_load(const char *path) {
     obj_model_t model;
     model.inited = 0;
     
-    buffer_init(&model.vertices, BUFFER_DYNAMIC, sizeof(vector3f_t), 4096);
-    buffer_init(&model.uvs,      BUFFER_DYNAMIC, sizeof(vector2f_t), 4096);
-    buffer_init(&model.normals,  BUFFER_DYNAMIC, sizeof(vector3f_t), 4096);
+    ar_buffer_init(&model.vertices, AR_BUFFER_DYNAMIC, sizeof(vector3f_t), 4096);
+    ar_buffer_init(&model.uvs,      AR_BUFFER_DYNAMIC, sizeof(vector2f_t), 4096);
+    ar_buffer_init(&model.normals,  AR_BUFFER_DYNAMIC, sizeof(vector3f_t), 4096);
     
-    buffer_t temp_vertices;
-    buffer_t temp_uvs;
-    buffer_t temp_normals;
-    buffer_init(&temp_vertices, BUFFER_DYNAMIC, sizeof(vector3f_t), 4096);
-    buffer_init(&temp_uvs,      BUFFER_DYNAMIC, sizeof(vector2f_t), 4096);
-    buffer_init(&temp_normals,  BUFFER_DYNAMIC, sizeof(vector3f_t), 4096);
+    ar_buffer_t temp_vertices;
+    ar_buffer_t temp_uvs;
+    ar_buffer_t temp_normals;
+    ar_buffer_init(&temp_vertices, AR_BUFFER_DYNAMIC, sizeof(vector3f_t), 4096);
+    ar_buffer_init(&temp_uvs,      AR_BUFFER_DYNAMIC, sizeof(vector2f_t), 4096);
+    ar_buffer_init(&temp_normals,  AR_BUFFER_DYNAMIC, sizeof(vector3f_t), 4096);
     
-    buffer_t vertex_indices, uv_indices, normal_indices;
-    buffer_init(&vertex_indices, BUFFER_DYNAMIC, sizeof(unsigned), 8192);
-    buffer_init(&uv_indices,     BUFFER_DYNAMIC, sizeof(unsigned), 8192);
-    buffer_init(&normal_indices, BUFFER_DYNAMIC, sizeof(unsigned), 8192);
+    ar_buffer_t vertex_indices, uv_indices, normal_indices;
+    ar_buffer_init(&vertex_indices, AR_BUFFER_DYNAMIC, sizeof(unsigned), 8192);
+    ar_buffer_init(&uv_indices,     AR_BUFFER_DYNAMIC, sizeof(unsigned), 8192);
+    ar_buffer_init(&normal_indices, AR_BUFFER_DYNAMIC, sizeof(unsigned), 8192);
 
     FILE *fp = fopen(path, "r");
     if (fp == NULL) {
@@ -93,9 +93,9 @@ obj_model_t obj_load(const char *path) {
                 }
             }
             for (i = 0; i < 3; i++) {
-                buffer_push(&vertex_indices, &vertex_index[i]);
-                buffer_push(&uv_indices,     &uv_index[i]);
-                buffer_push(&normal_indices, &normal_index[i]);
+                ar_buffer_push(&vertex_indices, &vertex_index[i]);
+                ar_buffer_push(&uv_indices,     &uv_index[i]);
+                ar_buffer_push(&normal_indices, &normal_index[i]);
             }
         }
         else if (!strcmp(line, "mtllib")) {
@@ -121,17 +121,17 @@ obj_model_t obj_load(const char *path) {
         vector3f_t vertex = ((vector3f_t *)temp_vertices.data)[vert_index-1];
         vector2f_t uv     = ((vector2f_t *)temp_uvs.data)[uv_index-1];
         vector3f_t normal = ((vector3f_t *)temp_normals.data)[norm_index-1];
-        buffer_push(&model.vertices, &vertex);
-        buffer_push(&model.uvs, &uv);
-        buffer_push(&model.normals, &normal);    
+        ar_buffer_push(&model.vertices, &vertex);
+        ar_buffer_push(&model.uvs, &uv);
+        ar_buffer_push(&model.normals, &normal);    
     }
     
-    buffer_destroy(&temp_vertices);
-    buffer_destroy(&temp_normals);
-    buffer_destroy(&temp_uvs);  
-    buffer_destroy(&normal_indices);
-    buffer_destroy(&vertex_indices);
-    buffer_destroy(&uv_indices);
+    ar_buffer_destroy(&temp_vertices);
+    ar_buffer_destroy(&temp_normals);
+    ar_buffer_destroy(&temp_uvs);  
+    ar_buffer_destroy(&normal_indices);
+    ar_buffer_destroy(&vertex_indices);
+    ar_buffer_destroy(&uv_indices);
     
     fclose(fp);
     model.inited = 1;
@@ -141,9 +141,8 @@ obj_model_t obj_load(const char *path) {
 void obj_destroy(obj_model_t *model) {
     if (!model->inited)
         return;
-    // vertex
-    buffer_destroy(&model->vertices);
-    
-    buffer_destroy(&model->uvs);
-    buffer_destroy(&model->normals);
+    // vertex    
+    ar_buffer_destroy(&model->vertices);
+    ar_buffer_destroy(&model->uvs);
+    ar_buffer_destroy(&model->normals);
 }

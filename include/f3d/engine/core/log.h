@@ -7,17 +7,16 @@
 // TODO: remove log_msg
 #define log_msg(errlvl, str, ...) _sb_log(__func__, errlvl, str, ##__VA_ARGS__)
 
-#define sb_log(errlvl, str, ...) _sb_log(__func__, errlvl, str, ##__VA_ARGS__)
+#define ar_log(errlvl, str, ...) _ar_log(__func__, errlvl, str, ##__VA_ARGS__)
 
-enum {
-    LOG_INFO,
-    LOG_WARN,
-    LOG_ERROR,
-    LOG_FATAL,
-    LOG_DEBUG,
-};
+typedef enum {
+    AR_LOG_INFO,
+    AR_LOG_WARN,
+    AR_LOG_ERROR,
+    AR_LOG_FATAL,
+    AR_LOG_DEBUG,
+} ar_log_error_level_t;
 
-
-void _sb_log(const char *function, int errlvl, const char *str, ...);
+void _ar_log(const char *function, ar_log_error_level_t level, const char *str, ...);
 
 #endif

@@ -1,17 +1,20 @@
 #ifndef F3D_BUFFER_H
 #define F3D_BUFFER_H
 
+#include <stdbool.h>
 #include <stddef.h>
 
-#define BUFFER_RESIZE_AUTO -1
+#define AR_BUFFER_RESIZE_AUTO -1
 
 typedef enum {
-    BUFFER_STATIC,
-    BUFFER_DYNAMIC,
-} buffer_type_t;
+    AR_BUFFER_STATIC,
+    AR_BUFFER_DYNAMIC,
+} ar_buffer_type_t;
 
-typedef struct buffer_s {
-    buffer_type_t type;
+typedef struct ar_buffer_s {
+    bool initialized;
+
+    ar_buffer_type_t type;
 
     void *data;
     // object size in bytes
@@ -20,20 +23,20 @@ typedef struct buffer_s {
     // allocated size in objects
     unsigned size;
     
-    size_t (*resize_func)(struct buffer_s *);
-} buffer_t;
+    size_t (*resize_func)(struct ar_buffer_s *);
+} ar_buffer_t;
 
-extern unsigned long long buffer_total_used;
+extern unsigned long long ar_buffer_total_used;
 
-int  buffer_init(buffer_t *buffer, buffer_type_t type, unsigned obj_sz, unsigned start_size);
-void *buffer_push(buffer_t *buffer, void *obj);
-void *buffer_get(buffer_t *buffer, unsigned index);
-buffer_t buffer_duplicate(buffer_t *buffer, buffer_type_t type);
-buffer_t buffer_from_data(buffer_type_t type, void *data, unsigned obj_sz, unsigned data_size);
-void buffer_copy_data(buffer_t *buffer, void *data, int data_size);
-void buffer_resize(buffer_t *buffer, int size);
-void buffer_destroy(buffer_t *buffer);
+int  ar_buffer_init(ar_buffer_t *buffer, ar_buffer_type_t type, unsigned obj_sz, unsigned start_size);
+void *ar_buffer_push(ar_buffer_t *buffer, void *obj);
+void *ar_buffer_get(ar_buffer_t *buffer, unsigned index);
+ar_buffer_t ar_buffer_duplicate(ar_buffer_t *buffer, ar_buffer_type_t type);
+ar_buffer_t ar_buffer_from_data(ar_buffer_type_t type, void *data, unsigned obj_sz, unsigned data_size);
+void ar_buffer_copy_data(ar_buffer_t *buffer, void *data, int data_size);
+void ar_buffer_resize(ar_buffer_t *buffer, int size);
+void ar_buffer_destroy(ar_buffer_t *buffer);
 
-size_t buffer_resize_func_double(buffer_t *buffer);
+size_t ar_buffer_resize_func_double(ar_buffer_t *buffer);
 
 #endif

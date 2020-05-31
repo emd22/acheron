@@ -20,7 +20,7 @@ int count_light_types(int type) {
     return amt;
 }
 
-light_t *light_get(buffer_t *lights, light_t *next, int type) {
+light_t *light_get(ar_buffer_t *lights, light_t *next, int type) {
     unsigned i;
     light_t *light;
     for (i = 0; i < lights->index; i++) {
@@ -88,7 +88,7 @@ void light_init(light_t *light, shader_t *shader) {
         
     char lightstr[48];
     if (light->type == LIGHT_DIRECTIONAL) {
-        log_msg(LOG_INFO, "Initializing directional light (id: %d)\n", light->index);
+        ar_log(AR_LOG_INFO, "Initializing directional light (id: %d)\n", light->index);
         sprintf(lightstr, "dirLights[%d].direction", light->index);
         shader_set_vec3f(shader, lightstr, light->direction);
 
@@ -102,7 +102,7 @@ void light_init(light_t *light, shader_t *shader) {
         shader_set_vec3f(shader, lightstr, light->specular);
     }
     else if (light->type == LIGHT_POINT) {
-        log_msg(LOG_INFO, "Initializing point light (id: %d)\n", light->index);
+        ar_log(AR_LOG_INFO, "Initializing point light (id: %d)\n", light->index);
         
         sprintf(lightstr, "pointLights[%d].position", light->index);
         shader_set_vec3f(shader, lightstr, light->position);
@@ -130,7 +130,7 @@ void light_init(light_t *light, shader_t *shader) {
         shader_set_float(shader, lightstr, light->use_shadows);
     }
     else {
-        log_msg(LOG_ERROR, "light type #%d not implemented\n", light->type);
+        ar_log(AR_LOG_ERROR, "light type #%d not implemented\n", light->type);
     }
 }
 

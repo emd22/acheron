@@ -3,11 +3,9 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-void _sb_log(const char *function, int errlvl, const char *str, ...) {
-    #ifndef DEBUG
-    if (errlvl == LOG_INFO || errlvl == LOG_DEBUG) {
-        (void)function;
-        (void)str;
+void _ar_log(const char *function, ar_log_error_level_t level, const char *str, ...) {
+    #ifndef AR_DEBUG
+    if (level == AR_LOG_INFO || level == AR_LOG_DEBUG) {
         return;
     }
     #endif
@@ -19,7 +17,7 @@ void _sb_log(const char *function, int errlvl, const char *str, ...) {
         "\033[91mFATAL\033[m",
         "\033[32mDEBUG\033[m"
     };
-    printf("[%s] %s: ", levels[errlvl], function);
+    printf("[%s] %s: ", levels[level], function);
     va_list args;
     va_start(args, str);
     vprintf(str, args);

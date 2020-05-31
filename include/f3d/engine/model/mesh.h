@@ -33,8 +33,8 @@ typedef struct {
 
     obj_model_t *obj;
     
-    buffer_t vertices;
-    buffer_t indices;
+    ar_buffer_t vertices;
+    ar_buffer_t indices;
 
     /*buffer_t *vertices;
     buffer_t *vertex_indices;
@@ -56,7 +56,7 @@ typedef struct {
 
 void meshes_init(void);
 mesh_t *mesh_new(void);
-void mesh_set_data(mesh_t *mesh, buffer_t *vertices, buffer_t *uvs, buffer_t *normals);
+void mesh_set_data(mesh_t *mesh, ar_buffer_t *vertices, ar_buffer_t *uvs, ar_buffer_t *normals);
 mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags);
 void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, shader_t *shader);
 void meshes_cleanup(void);

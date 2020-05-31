@@ -20,7 +20,7 @@ skybox_t skybox_new(texture_t **textures) {
 
 void skybox_render(skybox_t *skybox, camera_t *camera) {
     if (shader_skybox == NULL) {
-        log_msg(LOG_ERROR, "shader null\n", 0);
+        ar_log(AR_LOG_ERROR, "shader null\n", 0);
     }
     //glDepthMask(0);
     glDisable(GL_CULL_FACE);

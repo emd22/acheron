@@ -34,7 +34,7 @@ void render_set_target(int target, void *ptr) {
         framebuffer_bind((framebuffer_t *)ptr);
     }
     else {
-        log_msg(LOG_WARN, "Target is not a valid type\n", 0);
+        ar_log(AR_LOG_WARN, "Target is not a valid type\n", 0);
     }
 }
 
@@ -113,7 +113,7 @@ void object_attach(object_t *object, int type, void *data) {
         object->material = (material_t *)data;
     }
     else {
-        log_msg(LOG_ERROR, "Attach type is not valid\n", 0);
+        ar_log(AR_LOG_ERROR, "Attach type is not valid\n", 0);
     }
 }
 
@@ -130,7 +130,7 @@ int compare_materials(const void *v1, const void *v2) {
     return get_material_hash(obj1)-get_material_hash(obj2);
 }
 
-void objects_sort(object_buffer_t *objects) {
+void objects_sort(ar_object_buffer_t *objects) {
     object_t *obj_buffer = (object_t *)objects->buffer.data;
     qsort(obj_buffer, objects->buffer.index, sizeof(object_t), &compare_materials);
 }

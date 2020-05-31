@@ -11,14 +11,14 @@
 
 #define SCENE_OBJECTS_START_SIZE 64
 
-scene_t scenes[MAX_SCENES];
+ar_scene_t scenes[MAX_SCENES];
 int scenes_index = 0;
-scene_t *selected_scene = NULL;
+ar_scene_t *selected_scene = NULL;
 
-scene_t *scene_new(const char *name) {
-    scene_t *scene = &scenes[scenes_index++];
+ar_scene_t *ar_scene_new(const char *name) {
+    ar_scene_t *scene = &scenes[scenes_index++];
     strcpy(scene->name, name);
-    buffer_init(&scene->lights, BUFFER_STATIC, sizeof(light_t), MAX_SCENE_LIGHTS);
+    ar_buffer_init(&scene->lights, AR_BUFFER_STATIC, sizeof(light_t), AR_MAX_SCENE_LIGHTS);
     scene->flags = 0;
     /*texture_t *textures[] = {
         texture_load_data(NULL, "../images/skybox/right.bmp", IMAGE_BMP),
@@ -30,7 +30,7 @@ scene_t *scene_new(const char *name) {
     };
     scene->skybox = skybox_new(textures);*/
     
-    scene->objects = object_buffer_new(BUFFER_DYNAMIC, SCENE_OBJECTS_START_SIZE);
+    scene->objects = ar_object_buffer_new(AR_BUFFER_DYNAMIC, SCENE_OBJECTS_START_SIZE);
     
     return scene;
 }

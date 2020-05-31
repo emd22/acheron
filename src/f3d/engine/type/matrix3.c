@@ -75,7 +75,7 @@ mat3_t mat3_inverse(mat3_t *m) {
     float t16 = (t4*m->val[6] - t6*m->val[7] - t8*m->val[8] +
                  t10*m->val[7] + t12*m->val[5] - t14*m->val[4]);
     if (t16 == 0.0f)
-        log_msg(LOG_ERROR, "determinant == 0\n", 0);
+        ar_log(AR_LOG_ERROR, "determinant == 0\n", 0);
     
     float t17 = 1/t16;
     

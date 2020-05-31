@@ -56,7 +56,7 @@ static bool collider_check_aabb(physics_collider_t *obj0, physics_collider_t *ob
     return false;
 }
 
-void physics_collider_stretch_to_vertices(physics_collider_t *collider, buffer_t *vertices) {
+void physics_collider_stretch_to_vertices(physics_collider_t *collider, ar_buffer_t *vertices) {
     vector2f_t width, height, depth;
     width =  (vector2f_t){0.0f, 0.0f};
     height = (vector2f_t){0.0f, 0.0f};

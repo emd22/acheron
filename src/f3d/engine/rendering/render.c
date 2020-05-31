@@ -13,7 +13,7 @@ shader_t *shader_main;
 void init_gl() {
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK) {
-        log_msg(LOG_FATAL, "Could not initialize GLEW\n", 0);
+        ar_log(AR_LOG_FATAL, "Could not initialize GLEW\n", 0);
         exit(1);
     }
     

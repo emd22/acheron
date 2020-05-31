@@ -31,7 +31,7 @@ int player_move(camera_t *camera) {
         new_light->diffuse   = VEC3F(1.0f);
         light_shadow_new(new_light, 800, 800);
         light_init(new_light, shader_main);
-        log_msg(LOG_INFO, "New light created at (%.02f, %.02f, %.02f)\n", camera->position.x, camera->position.y, camera->position.z);
+        ar_log(AR_LOG_INFO, "New light created at (%.02f, %.02f, %.02f)\n", camera->position.x, camera->position.y, camera->position.z);
         scene_attach(selected_scene, SCENE_LIGHT, new_light);
         light_shadow_render(new_light, shader_main);
     }
