@@ -12,13 +12,13 @@
 
 // TODO: add custom memory_alloc/free functions to count the total memory used in the engine
 // and detect if there are any leaks. This number should only be used for debugging.
-static size_t ar_buffer_total_used = 0;
+size_t ar_buffer_total_used = 0;
 
 int ar_buffer_init(ar_buffer_t *buffer, ar_buffer_type_t type, unsigned obj_sz, unsigned start_size) {
-    if (buffer->initialized) {
-        ar_log(AR_LOG_WARN, "Buffer already initialized\n", 0);
-        return 1;
-    }
+    //if (buffer->initialized) {
+    //    ar_log(AR_LOG_WARN, "Buffer already initialized\n", 0);
+    //    return 1;
+    //}
     buffer->index = 0;
     buffer->obj_sz = obj_sz;
     buffer->size = start_size;
@@ -26,7 +26,7 @@ int ar_buffer_init(ar_buffer_t *buffer, ar_buffer_type_t type, unsigned obj_sz, 
     
     unsigned long bytes_sz = (unsigned long)obj_sz*(unsigned long)start_size;
     buffer->data = malloc(bytes_sz);
-    buffer->resize_func = &buffer_resize_func_double;
+    buffer->resize_func = &ar_buffer_resize_func_double;
     
     if (buffer->data == NULL) {
         ar_log(
@@ -48,7 +48,7 @@ void *ar_buffer_push(ar_buffer_t *buffer, void *obj) {
             ar_log(AR_LOG_ERROR, "Hit end of non-dynamic buffer\n", 0);
             return NULL;
         }
-        buffer_resize(buffer, AR_BUFFER_RESIZE_AUTO);
+        ar_buffer_resize(buffer, AR_BUFFER_RESIZE_AUTO);
     }
     const unsigned long index = (buffer->index)*(buffer->obj_sz);
     uint8_t *mem = ((uint8_t *)buffer->data)+(index);
@@ -66,14 +66,14 @@ void *ar_buffer_get(ar_buffer_t *buffer, unsigned index) {
 
 ar_buffer_t ar_buffer_duplicate(ar_buffer_t *buffer, ar_buffer_type_t type) {
     ar_buffer_t buf;
-    buf = buffer_from_data(type, buffer->data, buffer->obj_sz, buffer->index);
+    buf = ar_buffer_from_data(type, buffer->data, buffer->obj_sz, buffer->index);
     return buf;
 }
 
 ar_buffer_t ar_buffer_from_data(ar_buffer_type_t type, void *data, unsigned obj_sz, unsigned data_size) {
     ar_buffer_t buffer;
-    buffer_init(&buffer, type, obj_sz, data_size);
-    buffer_copy_data(&buffer, data, data_size);
+    ar_buffer_init(&buffer, type, obj_sz, data_size);
+    ar_buffer_copy_data(&buffer, data, data_size);
     buffer.index = data_size;
     return buffer;
 }
@@ -87,7 +87,7 @@ void ar_buffer_copy_data(ar_buffer_t *buffer, void *data, int data_size) {
             ar_log(AR_LOG_ERROR, "Hit end of non-dynamic buffer\n", 0);
             return;
         }
-        buffer_resize(buffer, buffer_start+block_size);
+        ar_buffer_resize(buffer, buffer_start+block_size);
     }
     memcpy((uint8_t *)buffer->data+buffer_start, (uint8_t *)data, block_size);
     buffer->index += block_size;
@@ -120,7 +120,7 @@ void ar_buffer_resize(ar_buffer_t *buffer, int size) {
 
     // error in realloc, probably ran out of memory
     if (buffer->data == NULL) {
-        ar_log(LOG_ERROR, "Error resizing buffer (size:%lu, obj_sz: %lu)\n", buffer->size, buffer->obj_sz);
+        ar_log(AR_LOG_ERROR, "Error resizing buffer (size:%lu, obj_sz: %lu)\n", buffer->size, buffer->obj_sz);
     }
     
     ar_buffer_total_used += buffer->size*buffer->obj_sz;

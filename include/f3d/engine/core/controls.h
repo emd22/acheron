@@ -21,9 +21,9 @@
 #define AR_CONTROL_MOD_MODE   0x4000
 
 #define AR_CONTROL_MOD_SHIFT (AR_CONTROL_MOD_LSHIFT | AR_CONTROL_MOD_RSHIFT)
-#define AR_CONTROL_MOD_CTRL  (AR_CONTROL_MOD_LCTRL | AR_CONTROL_MOD_RCTRL)
-#define AR_CONTROL_MOD_ALT   (AR_CONTROL_MOD_LALT | AR_CONTROL_MOD_RALT)
-#define AR_CONTROL_MOD_META  (AR_CONTROL_MOD_LMETA | AR_CONTROL_MOD_RMETA)
+#define AR_CONTROL_MOD_CTRL  (AR_CONTROL_MOD_LCTRL  | AR_CONTROL_MOD_RCTRL)
+#define AR_CONTROL_MOD_ALT   (AR_CONTROL_MOD_LALT   | AR_CONTROL_MOD_RALT)
+#define AR_CONTROL_MOD_META  (AR_CONTROL_MOD_LMETA  | AR_CONTROL_MOD_RMETA)
 
 typedef enum {
     AR_CONTROL_MODE_NORMAL,
@@ -44,6 +44,8 @@ typedef struct {
 } ar_controls_t;
 
 void ar_controls_init(void);
-void controls_update(void);
+void ar_controls_poll_events(void);
+ar_control_t *ar_control_get(int controln);
+bool ar_control_check(int controln);
 
 #endif

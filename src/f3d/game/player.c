@@ -1,30 +1,84 @@
 #include <f3d/game/player.h>
 
 #include <f3d/engine/engine.h>
-#include <f3d/game/game.h>
+#include <f3d/engine/acheron.h>
+#include <f3d/engine/core/controls.h>
 
-int player_move(camera_t *camera) {   
+#include <SDL2/SDL.h>
+
+int player_move(camera_t *camera) {
     int moved = 0;
     
     static vector3f_t velocity;
     const float max_velocity = 1.0f;
     
-    if (keys[CONTROL_FORWARD].pressed) {
+    if (ar_control_check(SDLK_w)) {
+        ar_log(AR_LOG_INFO, "w pressed\n", 0);
         velocity.z = max_velocity;
         moved = 1;
     }
-    if (keys[CONTROL_BACKWARD].pressed) {
-        velocity.z = -max_velocity;
-        moved = 1;
-    }
-    if (keys[CONTROL_LEFT].pressed) {
+    else if (ar_control_check(SDLK_a)) {
+        ar_log(AR_LOG_INFO, "a pressed\n", 0);
         velocity.x = -max_velocity;
         moved = 1;
     }
-    if (keys[CONTROL_RIGHT].pressed) {
+    else if (ar_control_check(SDLK_s)) {
+        velocity.z = -max_velocity;
+        moved = 1;
+    }
+    else if (ar_control_check(SDLK_d)) {
         velocity.x = max_velocity;
         moved = 1;
     }
+    if (camera == NULL)
+        return moved;
+    const float friction = 0.08;
+    if (velocity.x) {
+        if (velocity.x > 0.0f) {
+            camera_move(selected_camera, CAMERA_RIGHT);
+            velocity.x -= friction;
+            if (velocity.x < 0.0)
+                velocity.x = 0;
+        }
+        else {
+            camera_move(selected_camera, CAMERA_LEFT);
+            velocity.x += friction; 
+            if (velocity.x > 0.0)
+                velocity.x = 0;      
+        }
+        camera->move_mul.x = fabs(velocity.x);
+        moved = 1;
+    
+    }
+    if (velocity.z) {
+        if (velocity.z > 0.0f) {
+            camera_move(selected_camera, CAMERA_FORWARD);
+            velocity.z -= friction;
+            if (velocity.z < 0.0)
+                velocity.z = 0;
+        }
+        else {
+            camera_move(selected_camera, CAMERA_BACKWARD);
+            velocity.z += friction;
+            if (velocity.z > 0.0)
+                velocity.z = 0;
+        }
+        camera->move_mul.z = fabs(velocity.z);
+        moved = 1;
+    }
+    // if we move two directions at the same time, half the speed
+    // so we don't move faster than normal.
+    if ((camera->move_mul.x == max_velocity || camera->move_mul.x == -max_velocity) &&
+        (camera->move_mul.z == max_velocity || camera->move_mul.z == -max_velocity))
+    {
+        camera->move_mul.x /= 2;
+        camera->move_mul.z /= 2;
+    }
+    return moved;
+}
+
+/*
+int player_move(camera_t *camera) {   
     if (controls_check_toggle(CONTROL_1)) {
         light_t *new_light = light_new(LIGHT_POINT);
         new_light->position = camera->position;
@@ -86,3 +140,4 @@ int player_move(camera_t *camera) {
     
     return moved;
 }
+*/

@@ -26,7 +26,7 @@ typedef struct ar_buffer_s {
     size_t (*resize_func)(struct ar_buffer_s *);
 } ar_buffer_t;
 
-extern unsigned long long ar_buffer_total_used;
+extern size_t ar_buffer_total_used;
 
 int  ar_buffer_init(ar_buffer_t *buffer, ar_buffer_type_t type, unsigned obj_sz, unsigned start_size);
 void *ar_buffer_push(ar_buffer_t *buffer, void *obj);

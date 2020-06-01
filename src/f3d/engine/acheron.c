@@ -1,7 +1,13 @@
 #include <f3d/engine/acheron.h>
 #include <f3d/engine/core/controls.h>
 #include <f3d/engine/renderer/renderer.h>
+#include <f3d/engine/core/log.h>
 #include <f3d/engine/types.h>
+
+#define AR_GL_VERSION_MAJOR 4
+#define AR_GL_VERSION_MINOR 2
+
+#include <SDL2/SDL.h>
 
 #include <stdlib.h>
 #include <stdbool.h>
@@ -11,11 +17,13 @@ ar_instance_t *ar_instance_selected = NULL;
 
 ar_instance_t *ar_instance_new(int flags) {
     ar_instance.flags = flags;
-     
-    if (ar_instance.flags & AR_INSTANCE_GRAPHICS) {
-        ar_instance.renderer = ar_renderer_init();
-    }
     
+    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+        ar_log(AR_LOG_FATAL, "GL: Could not start SDL\n", 0);
+        return NULL;
+    }
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, AR_GL_VERSION_MAJOR);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, AR_GL_VERSION_MINOR);
     if (ar_instance_selected == NULL)
         ar_instance_selected = &ar_instance;
 
@@ -31,6 +39,13 @@ void ar_instance_attach(ar_instance_t *instance, ar_instance_attach_type_t attac
     }
 }
 
+void ar_init(ar_instance_t *instance) {
+    instance->running = true;
+    if (instance->flags & AR_INSTANCE_GRAPHICS) {
+        instance->renderer = ar_renderer_init();
+    }
+}
+
 ar_instance_t *ar_instance_get_selected(void) {
     return ar_instance_selected;
 }
@@ -41,6 +56,6 @@ void ar_instance_destroy(void) {
 
     if (ar_instance.flags & AR_INSTANCE_GRAPHICS)
         ar_renderer_destroy(&ar_instance.renderer);
-
+        
     ar_instance.flags = 0;
 }

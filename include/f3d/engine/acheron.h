@@ -5,6 +5,7 @@
 
 #include <f3d/engine/renderer/renderer.h>
 #include <f3d/engine/core/window.h>
+#include <f3d/engine/core/controls.h>
 
 typedef enum {
     AR_INSTANCE_ATTACH_WINDOW,
@@ -28,6 +29,7 @@ extern ar_instance_t *ar_instance_selected;
 ar_instance_t *ar_instance_new(int flags);
 void ar_instance_attach(ar_instance_t *instance, ar_instance_attach_type_t attach_type, void *ptr);
 ar_instance_t *ar_instance_get_selected(void);
+void ar_init(ar_instance_t *instance);
 void ar_instance_destroy(void);
 
 #endif

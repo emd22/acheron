@@ -7,7 +7,7 @@
 
 #include <SDL2/SDL.h>
 
-#define AR_CONTROL_COOLDOWN_SPEED (0.8f)
+#define AR_CONTROL_COOLDOWN_SPEED (0.6f)
 #define AR_CONTROL_COOLDOWN_LENGTH (5.0f)
 
 #define KEYDOWN 1
@@ -19,8 +19,13 @@ void mouse_move_dummy(SDL_Event *event) {
     (void)event;
 }
 
-void controls_init(void) {
+void ar_controls_init(void) {
     memset(&controls, 0, sizeof(ar_controls_t));
+    controls.mouse_move_func = &mouse_move_dummy;
+}
+
+ar_control_t *ar_control_get(int controln) {
+    return &controls.controls[controln];
 }
 
 static void check_event(SDL_Event *event) {
@@ -32,12 +37,12 @@ static void check_event(SDL_Event *event) {
         ar_instance_selected->running = false;
     }
     else if (event->type == SDL_KEYDOWN) {
-        ar_control_t *control = &controls.controls[event->key.keysym.sym];
+        ar_control_t *control = ar_control_get(event->key.keysym.sym);
         control->pressed = true;
         control->modifiers = event->key.keysym.mod; 
     }
     else if (event->type == SDL_KEYUP) {
-        ar_control_t *control = &controls.controls[event->key.keysym.sym];
+        ar_control_t *control = ar_control_get(event->key.keysym.sym);
         control->pressed = false;
         control->modifiers = event->key.keysym.mod;
     }
@@ -52,8 +57,9 @@ void ar_controls_poll_events(void) {
         check_event(&event);
 }
 
+
 bool ar_control_check(int controln) {
-    ar_control_t *control = &controls.controls[controln];
+    ar_control_t *control = ar_control_get(controln);
     if (control->cooldown > 0.0f) {
         // key was just pressed, so we return pressed value
         if (control->pressed) {

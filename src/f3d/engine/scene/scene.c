@@ -18,7 +18,7 @@ ar_scene_t *selected_scene = NULL;
 ar_scene_t *ar_scene_new(const char *name) {
     ar_scene_t *scene = &scenes[scenes_index++];
     strcpy(scene->name, name);
-    ar_buffer_init(&scene->lights, AR_BUFFER_STATIC, sizeof(light_t), AR_MAX_SCENE_LIGHTS);
+    ar_buffer_init(&scene->lights, AR_BUFFER_STATIC, sizeof(light_t), MAX_SCENE_LIGHTS);
     scene->flags = 0;
     /*texture_t *textures[] = {
         texture_load_data(NULL, "../images/skybox/right.bmp", IMAGE_BMP),
@@ -30,16 +30,16 @@ ar_scene_t *ar_scene_new(const char *name) {
     };
     scene->skybox = skybox_new(textures);*/
     
-    scene->objects = ar_object_buffer_new(AR_BUFFER_DYNAMIC, SCENE_OBJECTS_START_SIZE);
+    scene->objects = object_buffer_new(AR_BUFFER_DYNAMIC, SCENE_OBJECTS_START_SIZE);
     
     return scene;
 }
 
-void scene_render_shadows(scene_t *scene, shader_t *shader_main) {
+void scene_render_shadows(ar_scene_t *scene, shader_t *shader_main) {
     unsigned i;
     light_t *light;
     for (i = 0; i < scene->lights.index; i++) {
-        light = buffer_get(&scene->lights, i);
+        light = ar_buffer_get(&scene->lights, i);
         // if shadows are setup, set shadow map in main shader
         if (light->use_shadows) {
             light_shadow_render(light, shader_main);   
@@ -47,23 +47,23 @@ void scene_render_shadows(scene_t *scene, shader_t *shader_main) {
     }
 }
 
-void scene_select(scene_t *scene, shader_t *shader_main) {
+void scene_select(ar_scene_t *scene, shader_t *shader_main) {
     selected_scene = scene;
     unsigned i;
     light_t *light;
     for (i = 0; i < scene->lights.index; i++) {
-        light = buffer_get(&scene->lights, i);
+        light = ar_buffer_get(&scene->lights, i);
         light_init(light, shader_main);
         light_update(light, shader_main);
     }
 }
 
-light_t *get_nearest_light(scene_t *scene, object_t *object) {
+light_t *get_nearest_light(ar_scene_t *scene, object_t *object) {
     float rx, rz;
     unsigned i;
     light_t *light;
     for (i = 0; i < scene->lights.index; i++) {
-        light = buffer_get(&scene->lights, i);
+        light = ar_buffer_get(&scene->lights, i);
         rx = object->position.x-light->position.x;
         rz = object->position.z-light->position.z;
         float radius = light->radius/2;
@@ -75,18 +75,18 @@ light_t *get_nearest_light(scene_t *scene, object_t *object) {
     return NULL;
 }
 
-void scene_object_update(scene_t *scene, object_t *object, shader_t *shader_main) {
+void scene_object_update(ar_scene_t *scene, object_t *object, shader_t *shader_main) {
     light_t *light;
     if ((light = get_nearest_light(scene, object)) != NULL) {
         light_shadow_render(light, shader_main);
     }
 }
 
-void scene_objects_render(scene_t *scene, shader_t *shader, camera_t *camera, bool render_materials) {
+void scene_objects_render(ar_scene_t *scene, shader_t *shader, camera_t *camera, bool render_materials) {
     objects_draw(&scene->objects, shader, camera, render_materials);
 }
 
-void scene_render(shader_t *shader_main, scene_t *scene) {
+void scene_render(shader_t *shader_main, ar_scene_t *scene) {
     //int view_count = 0;
     
     //if (scene != NULL)
@@ -106,7 +106,7 @@ void scene_render(shader_t *shader_main, scene_t *scene) {
             shader_set_int(shader_main, str, 4);
             continue;
         }
-        light = buffer_get(&scene->lights, i);
+        light = ar_buffer_get(&scene->lights, i);
         // if shadows are setup, set shadow map in main shader
         if (light->use_shadows) {
             glActiveTexture(GL_TEXTURE4+light->point_shadow.shadow_map_id);
@@ -121,26 +121,26 @@ void scene_render(shader_t *shader_main, scene_t *scene) {
     ui_render();
 }
 
-void *scene_attach(scene_t *scene, scene_attach_type_t type, void *ptr) {
+void *scene_attach(ar_scene_t *scene, ar_scene_attach_type_t type, void *ptr) {
     void *scene_object = NULL;
     if (type == SCENE_SKYBOX) {
-        memcpy(&scene->skybox, ptr, sizeof(skybox_t));
-        scene->flags |= SCENE_ENABLE_SKYBOX;
+        //memcpy(&scene->skybox, ptr, sizeof(skybox_t));
+        //scene->flags |= SCENE_ENABLE_SKYBOX;
         // TODO: add back
         //skybox_new(&scene->skybox.cubemap);
     }
     else if (type == SCENE_LIGHT) {
         if (scene->lights.index == MAX_LIGHTS)
             return NULL;
-        scene_object = buffer_push(&scene->lights, ptr);
+        scene_object = ar_buffer_push(&scene->lights, ptr);
     }
     else if (type == SCENE_OBJECT) {
-        scene_object = buffer_push(&scene->objects.buffer, ptr);
+        scene_object = ar_buffer_push(&scene->objects.buffer, ptr);
     }
     return scene_object;
 }
 
-void scene_destroy(scene_t *scene) {
+void scene_destroy(ar_scene_t *scene) {
     (void)scene;
     //int i;
     //for (i = 1; i < scene->views_index; i++) {
