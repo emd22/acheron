@@ -13,7 +13,7 @@ material_t *material_new(material_t material) {
     material_t *mat = &materials[materials_index++];
     memcpy(mat, &material, sizeof(material_t));
     mat->hash = util_hash_str(mat->name);
-    log_msg(LOG_INFO, "Creating new material '%s'\n", mat->name);
+    ar_log(AR_LOG_INFO, "Creating new material '%s'\n", mat->name);
     
     handle_call(HANDLE_ON_MATERIAL_LOAD, mat);
     return mat;
@@ -77,7 +77,7 @@ material_t *material_get(const char *name) {
 }
 
 void material_destroy(material_t *material) {
-    log_msg(LOG_INFO, "Deleting material '%s'\n", material->name);
+    ar_log(AR_LOG_INFO, "Deleting material '%s'\n", material->name);
         
     texture_destroy(material->diffuse);
     texture_destroy(material->specular);

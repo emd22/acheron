@@ -32,7 +32,7 @@ image_bmp_t bmp_load(const char *filename) {
     file_header.offset    = read_dword(fp);
 
     if (file_header.type[0] != 'B' || file_header.type[1] != 'M') {
-        log_msg(LOG_ERROR, "malformed BMP signature (0x%02X,0x%02X != 0x42,0x4D)", file_header.type[0], file_header.type[1]);
+        ar_log(AR_LOG_ERROR, "malformed BMP signature (0x%02X,0x%02X != 0x42,0x4D)", file_header.type[0], file_header.type[1]);
         goto error;
     }
 

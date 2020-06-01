@@ -20,5 +20,9 @@ void time_tick(void) {
     frames_rendered++;
 }
 
+float ar_time_get_delta(void) {
+    return delta_time;
+}
+
 void time_end(void) {
 }

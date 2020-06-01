@@ -9,7 +9,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-void objects_sort(object_buffer_t *objects);
+void objects_sort(ar_object_buffer_t *objects);
 
 object_t object_new(const char *name) {
     object_t object;
@@ -30,7 +30,7 @@ object_t object_new(const char *name) {
 }
 
 void render_set_target(int target, void *ptr) {
-    if (target == RENDER_TARGET_FRAMEBUFFER) {
+    if (target == AR_RENDER_TARGET_FRAMEBUFFER) {
         framebuffer_bind((framebuffer_t *)ptr);
     }
     else {
@@ -38,9 +38,9 @@ void render_set_target(int target, void *ptr) {
     }
 }
 
-object_buffer_t object_buffer_new(buffer_type_t buffer_type, int buffer_start_size) {
-    object_buffer_t buffer;
-    buffer_init(&buffer.buffer, buffer_type, sizeof(object_t), buffer_start_size);
+ar_object_buffer_t object_buffer_new(ar_buffer_type_t buffer_type, int buffer_start_size) {
+    ar_object_buffer_t buffer;
+    ar_buffer_init(&buffer.buffer, buffer_type, sizeof(object_t), buffer_start_size);
     buffer.sorted = false;
     return buffer;
 }
@@ -105,11 +105,11 @@ void object_update(object_t *object) {
 }
 
 void object_attach(object_t *object, int type, void *data) {
-    if (type == OBJECT_ATTACH_MESH) {
+    if (type == AR_OBJECT_ATTACH_MESH) {
         object->mesh = (mesh_t *)data;
         physics_collider_stretch_to_vertices(&object->physics.collider, &object->mesh->vertices);
     }
-    else if (type == OBJECT_ATTACH_MATERIAL) {
+    else if (type == AR_OBJECT_ATTACH_MATERIAL) {
         object->material = (material_t *)data;
     }
     else {
@@ -144,7 +144,7 @@ void object_draw(object_t *object, shader_t *shader, camera_t *camera) {
     }
 }
 
-void objects_draw(object_buffer_t *objects, shader_t *shader, camera_t *camera, bool render_materials) {
+void objects_draw(ar_object_buffer_t *objects, shader_t *shader, camera_t *camera, bool render_materials) {
     if (objects->sorted == false)
         objects_sort(objects);
     

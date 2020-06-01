@@ -21,7 +21,7 @@ texture_t *texture_new(void) {
     texture_t *texture = &textures[index];
     
     if (textures_index > MAX_TEXTURES) {
-        log_msg(LOG_WARN, "Maximum textures reached(%d > %d), resetting texture_index\n", textures_index, MAX_TEXTURES);
+        ar_log(AR_LOG_WARN, "Maximum textures reached(%d > %d), resetting texture_index\n", textures_index, MAX_TEXTURES);
         // TODO: find a better way around this. we need a proper way to avoid
         // overwriting textures
         
@@ -73,7 +73,7 @@ texture_t *texture_load(texture_t *texture, const char *path, int type) {
     texture->image = image_load(path, type);
 
     if (texture->image.data == NULL) {
-        log_msg(LOG_ERROR, "Error loading image\n", 0);
+        ar_log(AR_LOG_ERROR, "Error loading image\n", 0);
         return texture;
     }
     
@@ -107,7 +107,7 @@ texture_t *texture_load_data(texture_t *texture, const char *path, int type) {
     texture->image = image_load(path, type);
 
     if (texture->image.data == NULL) {
-        log_msg(LOG_ERROR, "Error loading image\n", 0);
+        ar_log(AR_LOG_ERROR, "Error loading image\n", 0);
         return texture;
     }
     

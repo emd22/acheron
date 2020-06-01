@@ -1,5 +1,6 @@
 #include <f3d/engine/core/window.h>
 #include <f3d/engine/core/log.h>
+#include <f3d/engine/types.h>
 
 #include <stdlib.h>
 
@@ -10,11 +11,11 @@ static ar_buffer_t window_buffer;
 
 ar_window_t *ar_window_new(const char *title, int width, int height, int flags) {
     if (window_buffer.initialized == false) {
-        buffer_init(&window_buffer, BUFFER_DYNAMIC, sizeof(ar_window_t), 1);
+        ar_buffer_init(&window_buffer, AR_BUFFER_DYNAMIC, sizeof(ar_window_t), 1);
     }
     
-    window_t window;
-    log_msg(LOG_INFO, "Creating window '%s' with size %dx%d\n", title, width, height);
+    ar_window_t window;
+    ar_log(AR_LOG_INFO, "Creating window '%s' with size %dx%d\n", title, width, height);
     window.win = SDL_CreateWindow(
         title,
         SDL_WINDOWPOS_UNDEFINED,
@@ -33,28 +34,29 @@ ar_window_t *ar_window_new(const char *title, int width, int height, int flags) 
         ar_log(AR_LOG_ERROR, "window.context == NULL!\n", 0);
     }
     
+    // TODO: remove flags argument
+    (void)flags;
+    
     return ar_buffer_push(&window_buffer, &window);
 }
 
-void ar_window_buffers_swap(window_t *window) {
+void ar_window_buffers_swap(ar_window_t *window) {
     SDL_GL_SwapWindow(window->win);
 }
 
 void ar_window_option_set(ar_window_t *window, int option, int value) {
     if (option == AR_WINDOW_OPTION_FULLSCREEN) {
-        if (fullscreen)
-            SDL_SetWindowFullscreen(window.win, SDL_WINDOW_FULLSCREEN_DESKTOP);
         const int mode = (value) ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0;
-        int width = window.width;
-        int height = window.height;
+        int width = window->width;
+        int height = window->height;
         if (value) {
             SDL_DisplayMode mode;
             SDL_GetCurrentDisplayMode(0, &mode);
             width = mode.w;
             height = mode.h;
-            SDL_SetWindowSize(window.win, width, height);
+            SDL_SetWindowSize(window->win, width, height);
         }
-        SDL_SetWindowFullscreen(window.win, mode);
+        SDL_SetWindowFullscreen(window->win, mode);
     }
     else if (option == AR_WINDOW_OPTION_MOUSE_VISIBLE) {
         SDL_SetRelativeMouseMode(value);

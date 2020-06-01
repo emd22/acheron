@@ -24,7 +24,7 @@ light_t *light_get(ar_buffer_t *lights, light_t *next, int type) {
     unsigned i;
     light_t *light;
     for (i = 0; i < lights->index; i++) {
-        light = buffer_get(lights, i);
+        light = ar_buffer_get(lights, i);
         if (light != next && light->type == type) {
             return light;
         }

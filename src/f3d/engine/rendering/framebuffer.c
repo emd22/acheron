@@ -1,6 +1,7 @@
 #include <f3d/engine/rendering/framebuffer.h>
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/core/window.h>
+#include <f3d/engine/acheron.h>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -58,6 +59,7 @@ void framebuffer_generate_texture(framebuffer_t *fb, int draw_type, int data_typ
 void framebuffer_bind(framebuffer_t *fb) {
     if (fb == NULL) {
         int fbo = 0;
+        ar_window_t *default_window = ar_instance_get_selected()->window;
         int width = default_window->width;
         int height = default_window->height;
         if (default_framebuffer != NULL) {

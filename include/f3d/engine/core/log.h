@@ -5,7 +5,7 @@
 
 
 // TODO: remove log_msg
-#define log_msg(errlvl, str, ...) _sb_log(__func__, errlvl, str, ##__VA_ARGS__)
+#define log_msg(errlvl, str, ...) _ar_log(__func__, errlvl, str, ##__VA_ARGS__)
 
 #define ar_log(errlvl, str, ...) _ar_log(__func__, errlvl, str, ##__VA_ARGS__)
 

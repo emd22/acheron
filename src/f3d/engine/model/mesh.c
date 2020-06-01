@@ -71,7 +71,7 @@ static void generate_indices(mesh_t *mesh) {
     vertex_t *vertex;
     
     //int index;
-    log_msg(LOG_DEBUG, "%u\n", mesh->vertices.index);
+    ar_log(AR_LOG_DEBUG, "%u\n", mesh->vertices.index);
     int amt_created = 0;
     int index;
     int amt_reused = 0;
@@ -80,23 +80,23 @@ static void generate_indices(mesh_t *mesh) {
     for (i = 0; i < mesh->vertices.index; i++) {
         vertex = &((vertex_t *)mesh->vertices.data)[i];
         if ((index = check_vertex_matches(&new_verts, vertex)) != -1) {
-            buffer_push(&mesh->indices, &index);
+            ar_buffer_push(&mesh->indices, &index);
             amt_reused++;
         }
         else {
-            buffer_push(&mesh->indices, &new_verts.index);
-            buffer_push(&new_verts, vertex);
+            ar_buffer_push(&mesh->indices, &new_verts.index);
+            ar_buffer_push(&new_verts, vertex);
             amt_created++;
         }
     }
-    buffer_destroy(&mesh->vertices);
+    ar_buffer_destroy(&mesh->vertices);
     mesh->vertices = new_verts;
-    log_msg(LOG_INFO, "Saved %.02f KB of VRAM\n", ((float)amt_reused*sizeof(vertex_t))/1024.0f);
+    ar_log(AR_LOG_INFO, "Saved %.02f KB of VRAM\n", ((float)amt_reused*sizeof(vertex_t))/1024.0f);
 }
 
-static void generate_packed_vertices(mesh_t *mesh, ar_buffer_t *vertices, buffer_t *uvs, buffer_t *normals) {
+static void generate_packed_vertices(mesh_t *mesh, ar_buffer_t *vertices, ar_buffer_t *uvs, ar_buffer_t *normals) {
     unsigned i;
-    buffer_init(&mesh->vertices, AR_BUFFER_DYNAMIC, sizeof(vertex_t), vertices->index+1);
+    ar_buffer_init(&mesh->vertices, AR_BUFFER_DYNAMIC, sizeof(vertex_t), vertices->index+1);
     vertex_t vertex;
     for (i = 0; i < vertices->index; i++) {
         if (vertices != NULL)
@@ -168,7 +168,7 @@ void mesh_init(mesh_t *mesh, int flags) {
     glVertexAttribPointer(4, 3, GL_FLOAT, 0, stride, (void *)offsetof(vertex_t, bitangent));
 }
 
-void mesh_set_data(mesh_t *mesh, ar_buffer_t *vertices, buffer_t *uvs, buffer_t *normals) {
+void mesh_set_data(mesh_t *mesh, ar_buffer_t *vertices, ar_buffer_t *uvs, ar_buffer_t *normals) {
     generate_packed_vertices(mesh, vertices, uvs, normals);
     generate_indices(mesh);
 }
@@ -187,7 +187,7 @@ mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags) {
         mesh->type = MODEL_OBJ;
     }
     else {
-        log_msg(LOG_ERROR, "Cannot load mesh of unknown type\n", 0);
+        ar_log(AR_LOG_ERROR, "Cannot load mesh of unknown type\n", 0);
         return NULL;
     }
     
@@ -274,6 +274,6 @@ void mesh_destroy(mesh_t *mesh) {
     if (mesh->type == MODEL_OBJ) {
         obj_destroy(mesh->obj);
     }
-    buffer_destroy(&mesh->vertices);
+    ar_buffer_destroy(&mesh->vertices);
     mesh->type = MODEL_NONE;
 }

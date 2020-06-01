@@ -4,6 +4,7 @@
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/core/math.h>
 #include <f3d/engine/core/time.h>
+#include <f3d/engine/acheron.h>
 #include <f3d/engine/types.h>
 
 #include <math.h>
@@ -79,6 +80,7 @@ void camera_move(camera_t *camera, int direction) {
 }
 
 void generate_perspective_matrix(camera_t *camera) {
+    ar_window_t *default_window = ar_instance_get_selected()->window;
     const float aspect = (float)default_window->width/(float)default_window->height;
     ar_log(AR_LOG_INFO, "Aspect ratio is %.02f\n", aspect);
     math_perspective(

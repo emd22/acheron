@@ -35,7 +35,7 @@ obj_model_t obj_load(const char *path) {
 
     FILE *fp = fopen(path, "r");
     if (fp == NULL) {
-        log_msg(LOG_ERROR, "Could not load '%s'\n", path);
+        ar_log(AR_LOG_ERROR, "Could not load '%s'\n", path);
         return model;
     }
     // TODO: up line buffer size, use non infinite loop
@@ -50,17 +50,17 @@ obj_model_t obj_load(const char *path) {
         if (!strcmp(line, "v")) {
             vector3f_t vertex;
             fscanf(fp, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
-            buffer_push(&temp_vertices, &vertex);
+            ar_buffer_push(&temp_vertices, &vertex);
         }
         else if (!strcmp(line, "vt")) {
             vector2f_t uv;
             fscanf(fp, "%f %f\n", &uv.x, &uv.y);
-            buffer_push(&temp_uvs, &uv);
+            ar_buffer_push(&temp_uvs, &uv);
         }
         else if (!strcmp(line, "vn")) {
             vector3f_t normal;
             fscanf(fp, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
-            buffer_push(&temp_normals, &normal);
+            ar_buffer_push(&temp_normals, &normal);
         }
         else if (!strcmp(line, "f")) {
             unsigned vertex_index[4] = { 0 },
@@ -87,7 +87,7 @@ obj_model_t obj_load(const char *path) {
                     &vertex_index[2], &normal_index[2]
                 );
                 if (matches != 6) {
-                    log_msg(LOG_ERROR, "Model not supported\n", 0);
+                    ar_log(AR_LOG_ERROR, "Model not supported\n", 0);
                     // TODO: fail gracefully
                     exit(1);                
                 }

@@ -33,10 +33,10 @@ void debug_print_backtrace(void) {
     #ifndef BACKTRACE_NO_FUNCTION_NAMES
     char *end;
     int size;
-    log_msg(LOG_DEBUG, "Retrieving function names...\n", 0);
+    ar_log(AR_LOG_DEBUG, "Retrieving function names...\n", 0);
     Dl_info bt_info;
     #endif
-    log_msg(LOG_DEBUG, "Printing Backtrace\n", 0);
+    ar_log(AR_LOG_DEBUG, "Printing Backtrace\n", 0);
     int i;
     for (i = 0; i < trace_size; i++) {
         #ifndef BACKTRACE_NO_FUNCTION_NAMES
@@ -51,7 +51,7 @@ void debug_print_backtrace(void) {
         printf("%s\n", symbols[i]);
         #endif
     }
-    log_msg(LOG_DEBUG, "Backtrace end\n", 0);
+    ar_log(AR_LOG_DEBUG, "Backtrace end\n", 0);
     free(symbols);
     #endif //__linux__
 }

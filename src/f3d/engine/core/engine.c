@@ -25,7 +25,7 @@ const char *engine_get_opengl_error(void) {
         case GL_OUT_OF_MEMORY:
             return "Out of memory";
         default:
-            log_msg(LOG_WARN, "Unknown 0x%x\n", error);
+            ar_log(AR_LOG_WARN, "Unknown 0x%x\n", error);
             return "Unknown error";
     };
     return NULL;
@@ -39,18 +39,18 @@ void signal_handler(int sig) {
     }
     // Segmentation fault
     else if (sig == SIGSEGV) {
-        log_msg(LOG_WARN, "Segmentation Fault occurred... attempting to exit gracefully\n", 0);
+        ar_log(AR_LOG_WARN, "Segmentation Fault occurred... attempting to exit gracefully\n", 0);
         debug_print_backtrace();
         static int segv_count = 0;
         segv_count++;
         if (segv_count > 2) {
-            log_msg(LOG_WARN, "Forcefully exiting...\n", 0);
+            ar_log(AR_LOG_WARN, "Forcefully exiting...\n", 0);
             exit(1);
         }
         handle_call(HANDLE_END, NULL);
     }
     else {
-        log_msg(LOG_WARN, "Unknown signal caught: %d\n", sig);
+        ar_log(AR_LOG_WARN, "Unknown signal caught: %d\n", sig);
     }
 }
 

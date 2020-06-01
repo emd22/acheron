@@ -1,4 +1,5 @@
 #include <f3d/engine/acheron.h>
+#include <f3d/engine/core/controls.h>
 #include <f3d/engine/renderer/renderer.h>
 #include <f3d/engine/types.h>
 
@@ -17,7 +18,9 @@ ar_instance_t *ar_instance_new(int flags) {
     
     if (ar_instance_selected == NULL)
         ar_instance_selected = &ar_instance;
-        
+
+    ar_controls_init();
+
     return &ar_instance;
 }
 
@@ -26,6 +29,10 @@ void ar_instance_attach(ar_instance_t *instance, ar_instance_attach_type_t attac
         ar_window_t *window = (ar_window_t *)ptr;
         instance->window = window;
     }
+}
+
+ar_instance_t *ar_instance_get_selected(void) {
+    return ar_instance_selected;
 }
 
 void ar_instance_destroy(void) {

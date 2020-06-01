@@ -2,6 +2,7 @@
 #include <f3d/engine/rendering/render_view.h>
 #include <f3d/engine/scene/scene.h>
 #include <f3d/engine/engine.h>
+#include <f3d/engine/acheron.h>
 
 #include <string.h>
 #include <stdlib.h>
@@ -23,6 +24,8 @@ void init_gl() {
     //glEnable(GL_MULTISAMPLE);
 
     glClearColor(0.0, 0.0, 0.0, 1);
+    
+    ar_window_t *default_window = ar_instance_get_selected()->window;
     glViewport(0, 0, default_window->width, default_window->height);
     
     handles_init();
@@ -57,7 +60,7 @@ void render_init() {
     handle_set(HANDLE_RENDER_MESHES, &render_all_objects);
 }
 
-void render_init_shadows(scene_t *scene, int width, int height) {
+void render_init_shadows(ar_scene_t *scene, int width, int height) {
     light_t *point;
     point = light_get(&scene->lights, NULL, LIGHT_POINT);
     if (point == NULL)

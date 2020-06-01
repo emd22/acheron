@@ -55,7 +55,7 @@ typedef struct object_s {
 } object_t;
 
 object_t object_new(const char *name);
-object_buffer_t object_buffer_new(ar_buffer_type_t buffer_type, int buffer_start_size);
+ar_object_buffer_t object_buffer_new(ar_buffer_type_t buffer_type, int buffer_start_size);
 void render_set_target(int target, void *ptr);
 void object_update(object_t *object);
 
@@ -67,7 +67,7 @@ void object_scale(object_t *object, float x, float y, float z);
 void object_scale_v(object_t *object, vector3f_t val);
 
 object_t *object_get(const char *name);
-void objects_sort(object_buffer_t *objects);
+void objects_sort(ar_object_buffer_t *objects);
 void object_attach(object_t *object, int type, void *data);
 void objects_draw(ar_object_buffer_t *objects, shader_t *shader, camera_t *camera, bool render_materials);
 void object_draw(object_t *object, shader_t *shader, camera_t *camera);

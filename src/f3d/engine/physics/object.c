@@ -101,7 +101,7 @@ bool physics_collider_check_collision(physics_collider_t *collider0, physics_col
         return collider_check_aabb(collider0, collider1);
     }
     else {
-        log_msg(LOG_WARN, "Not implemented\n", 0);
+        ar_log(AR_LOG_WARN, "Not implemented\n", 0);
     }
     return false;
 }
