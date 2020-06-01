@@ -57,6 +57,9 @@ void ar_controls_poll_events(void) {
         check_event(&event);
 }
 
+void ar_control_set_mode(int controln, ar_control_mode_t mode) {
+    ar_control_get(controln)->mode = mode;
+}
 
 bool ar_control_check(int controln) {
     ar_control_t *control = ar_control_get(controln);

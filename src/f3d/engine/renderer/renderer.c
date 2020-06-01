@@ -28,6 +28,12 @@ ar_renderer_instance_t ar_renderer_init(void) {
     ar_renderer_opengl_init();
     
     instance.renderer_type = AR_RENDERER_OPENGL;
+    
+    const char *renderer_type_strs[] = {
+        "OpenGL"
+    };
+    ar_log(AR_LOG_INFO, "Initializing %s renderer\n", renderer_type_strs[instance.renderer_type]);
+    
     return instance;
 }
 

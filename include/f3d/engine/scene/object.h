@@ -69,7 +69,7 @@ void object_scale_v(object_t *object, vector3f_t val);
 object_t *object_get(const char *name);
 void objects_sort(ar_object_buffer_t *objects);
 void object_attach(object_t *object, int type, void *data);
-void objects_draw(ar_object_buffer_t *objects, shader_t *shader, camera_t *camera, bool render_materials);
-void object_draw(object_t *object, shader_t *shader, camera_t *camera);
+void objects_draw(ar_object_buffer_t *objects, ar_shader_t *shader, camera_t *camera, bool render_materials);
+void object_draw(object_t *object, ar_shader_t *shader, camera_t *camera);
 
 #endif

@@ -30,6 +30,7 @@ extern size_t ar_buffer_total_used;
 
 int  ar_buffer_init(ar_buffer_t *buffer, ar_buffer_type_t type, unsigned obj_sz, unsigned start_size);
 void *ar_buffer_push(ar_buffer_t *buffer, void *obj);
+void *ar_buffer_new_item(ar_buffer_t *buffer);
 void *ar_buffer_get(ar_buffer_t *buffer, unsigned index);
 ar_buffer_t ar_buffer_duplicate(ar_buffer_t *buffer, ar_buffer_type_t type);
 ar_buffer_t ar_buffer_from_data(ar_buffer_type_t type, void *data, unsigned obj_sz, unsigned data_size);

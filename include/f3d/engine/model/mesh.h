@@ -35,21 +35,8 @@ typedef struct {
     
     ar_buffer_t vertices;
     ar_buffer_t indices;
-
-    /*buffer_t *vertices;
-    buffer_t *vertex_indices;
-    buffer_t *uvs;
-    buffer_t *normals;
-    
-    unsigned vertex_id;
-    unsigned uv_id;
-    unsigned normal_id;
-    unsigned indices_id;*/
     
     unsigned vao, vbo, ibo;
-    
-    vector3f_t *tangents, *bitangents;
-    unsigned tangent_id, bitangent_id;
     
     bool initialized;
 } mesh_t;
@@ -58,7 +45,7 @@ void meshes_init(void);
 mesh_t *mesh_new(void);
 void mesh_set_data(mesh_t *mesh, ar_buffer_t *vertices, ar_buffer_t *uvs, ar_buffer_t *normals);
 mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags);
-void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, shader_t *shader);
+void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, ar_shader_t *shader);
 void meshes_cleanup(void);
 void mesh_destroy(mesh_t *mesh);
 

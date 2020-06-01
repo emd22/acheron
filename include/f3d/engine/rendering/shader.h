@@ -29,19 +29,19 @@ typedef struct {
     
     long vertex, fragment, geometry;
     long program;
-} shader_t;
+} ar_shader_t;
 
-shader_t *shader_new(const char *name);
-void shader_attach(shader_t *shader, int type, const char *path);
-shader_t *shader_get(const char *name);
-void shader_use(shader_t *shader);
-void shader_link(shader_t *shader);
-bool shader_check_linked(shader_t *shader);
-void shader_destroy(shader_t *shader);
+ar_shader_t *ar_shader_new(const char *name);
+void ar_shader_attach(ar_shader_t *shader, int type, const char *path);
+ar_shader_t *ar_shader_get(const char *name);
+void ar_shader_use(ar_shader_t *shader);
+void ar_shader_link(ar_shader_t *shader);
+bool ar_shader_check_linked(ar_shader_t *shader);
+void ar_shader_destroy(ar_shader_t *shader);
 
-void shader_set_int(shader_t *shader, const char *var, int val);
-void shader_set_float(shader_t *shader, const char *var, float val);
-void shader_set_mat4(shader_t *shader, const char *var, mat4_t *mat);
-void shader_set_vec3f(shader_t *shader, const char *var, vector3f_t vec);
+void ar_shader_set_int(ar_shader_t *shader, const char *var, int val);
+void ar_shader_set_float(ar_shader_t *shader, const char *var, float val);
+void ar_shader_set_mat4(ar_shader_t *shader, const char *var, mat4_t *mat);
+void ar_shader_set_vec3f(ar_shader_t *shader, const char *var, vector3f_t vec);
 
 #endif

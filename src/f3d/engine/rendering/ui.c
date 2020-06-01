@@ -12,15 +12,15 @@ typedef struct {
 } ui_node_t;
 
 static ui_node_t node;
-shader_t *shader_ui;
+ar_shader_t *shader_ui;
 //static mat4_t matrix;
 //static camera_t ui_cam;
 //static texture_t *tex;
 
 void ui_init() {
-    shader_ui = shader_new("UI");
-    shader_attach(shader_ui, SHADER_VERTEX, "../shaders/ui/ui_vert.glsl");
-    shader_attach(shader_ui, SHADER_FRAGMENT, "../shaders/ui/ui_frag.glsl");
+    shader_ui = ar_shader_new("UI");
+    ar_shader_attach(shader_ui, SHADER_VERTEX, "../shaders/ui/ui_vert.glsl");
+    ar_shader_attach(shader_ui, SHADER_FRAGMENT, "../shaders/ui/ui_frag.glsl");
     
     //node.mesh = mesh_load(NULL, "../models/cube.obj", MODEL_OBJ, 0);
     node.mesh = mesh_new();

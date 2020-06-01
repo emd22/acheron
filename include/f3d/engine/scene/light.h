@@ -35,10 +35,10 @@ typedef struct {
 
 light_t *light_new(int type);
 light_t *light_get(ar_buffer_t *lights, light_t *next, int type);
-void light_init(light_t *light, shader_t *shader);
-void light_update(light_t *light, shader_t *shader);
+void light_init(light_t *light, ar_shader_t *shader);
+void light_update(light_t *light, ar_shader_t *shader);
 
 void light_shadow_new(light_t *light, int width, int height);
-void light_shadow_render(light_t *light, shader_t *shader_main);
+void light_shadow_render(light_t *light, ar_shader_t *shader_main);
 
 #endif

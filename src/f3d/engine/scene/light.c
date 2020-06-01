@@ -73,14 +73,14 @@ void light_shadow_new(light_t *light, int width, int height) {
     light->point_shadow.shadow_map_id = ++shadow_map_id;
 }
 
-void light_shadow_render(light_t *light, shader_t *shader_main) {
+void light_shadow_render(light_t *light, ar_shader_t *shader_main) {
     if (light->use_shadows == false)
         return;
     shadows_point_render(&light->point_shadow, light->position, shader_main);
 }
 
 // TODO: replace this with something better
-void light_init(light_t *light, shader_t *shader) {
+void light_init(light_t *light, ar_shader_t *shader) {
     if (light == NULL || shader == NULL)
         return;
     if (light->type == LIGHT_DUMMY)
@@ -90,73 +90,73 @@ void light_init(light_t *light, shader_t *shader) {
     if (light->type == LIGHT_DIRECTIONAL) {
         ar_log(AR_LOG_INFO, "Initializing directional light (id: %d)\n", light->index);
         sprintf(lightstr, "dirLights[%d].direction", light->index);
-        shader_set_vec3f(shader, lightstr, light->direction);
+        ar_shader_set_vec3f(shader, lightstr, light->direction);
 
         sprintf(lightstr, "dirLights[%d].ambient", light->index);
-        shader_set_vec3f(shader, lightstr, light->ambient);
+        ar_shader_set_vec3f(shader, lightstr, light->ambient);
 
         sprintf(lightstr, "dirLights[%d].diffuse", light->index);
-        shader_set_vec3f(shader, lightstr, light->diffuse);
+        ar_shader_set_vec3f(shader, lightstr, light->diffuse);
 
         sprintf(lightstr, "dirLights[%d].specular", light->index);
-        shader_set_vec3f(shader, lightstr, light->specular);
+        ar_shader_set_vec3f(shader, lightstr, light->specular);
     }
     else if (light->type == LIGHT_POINT) {
         ar_log(AR_LOG_INFO, "Initializing point light (id: %d)\n", light->index);
         
         sprintf(lightstr, "pointLights[%d].position", light->index);
-        shader_set_vec3f(shader, lightstr, light->position);
+        ar_shader_set_vec3f(shader, lightstr, light->position);
 
         sprintf(lightstr, "pointLights[%d].ambient", light->index);
-        shader_set_vec3f(shader, lightstr, light->ambient);
+        ar_shader_set_vec3f(shader, lightstr, light->ambient);
 
         sprintf(lightstr, "pointLights[%d].diffuse", light->index);
-        shader_set_vec3f(shader, lightstr, light->diffuse);
+        ar_shader_set_vec3f(shader, lightstr, light->diffuse);
 
         sprintf(lightstr, "pointLights[%d].specular", light->index);
-        shader_set_vec3f(shader, lightstr, light->specular);
+        ar_shader_set_vec3f(shader, lightstr, light->specular);
 
         sprintf(lightstr, "pointLights[%d].radius", light->index);
-        shader_set_float(shader, lightstr, light->radius);
+        ar_shader_set_float(shader, lightstr, light->radius);
         
         // Shadows
         sprintf(lightstr, "pointLights[%d].shadow_map", light->index);
-        shader_set_int(shader, lightstr, 4+light->point_shadow.shadow_map_id);
+        ar_shader_set_int(shader, lightstr, 4+light->point_shadow.shadow_map_id);
         
         sprintf(lightstr, "pointLights[%d].shadow_far_plane", light->index);
-        shader_set_float(shader, lightstr, light->point_shadow.far_plane);
+        ar_shader_set_float(shader, lightstr, light->point_shadow.far_plane);
         
         sprintf(lightstr, "pointLights[%d].shadows_enabled", light->index);
-        shader_set_float(shader, lightstr, light->use_shadows);
+        ar_shader_set_float(shader, lightstr, light->use_shadows);
     }
     else {
         ar_log(AR_LOG_ERROR, "light type #%d not implemented\n", light->type);
     }
 }
 
-void light_update(light_t *light, shader_t *shader) {
+void light_update(light_t *light, ar_shader_t *shader) {
     if (light == NULL || shader == NULL)
         return;
         
     char lightstr[32];
     if (light->type == LIGHT_DIRECTIONAL) {
         sprintf(lightstr, "dirLights[%d].direction", light->index);
-        shader_set_vec3f(shader, lightstr, light->direction);
+        ar_shader_set_vec3f(shader, lightstr, light->direction);
     }
     else if (light->type == LIGHT_POINT) {
         light->point_shadow.far_plane = light->radius;
         sprintf(lightstr, "pointLights[%d].position", light->index);
-        shader_set_vec3f(shader, lightstr, light->position);
+        ar_shader_set_vec3f(shader, lightstr, light->position);
         
         if (light->use_shadows) {
             sprintf(lightstr, "pointLights[%d].shadow_map", light->index);
-            shader_set_int(shader, lightstr, 4+light->point_shadow.shadow_map_id);
+            ar_shader_set_int(shader, lightstr, 4+light->point_shadow.shadow_map_id);
             
             sprintf(lightstr, "pointLights[%d].shadow_far_plane", light->index);
-            shader_set_float(shader, lightstr, light->point_shadow.far_plane);
+            ar_shader_set_float(shader, lightstr, light->point_shadow.far_plane);
             
             sprintf(lightstr, "pointLights[%d].shadows_enabled", light->index);
-            shader_set_float(shader, lightstr, light->use_shadows);
+            ar_shader_set_float(shader, lightstr, light->use_shadows);
             
             shadows_point_update(&light->point_shadow, light->position);
             light_shadow_render(light, shader);

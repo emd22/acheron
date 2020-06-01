@@ -33,7 +33,7 @@ typedef struct {
 } material_t;
 
 material_t *material_new(material_t material);
-void material_update(material_t *mat, shader_t *shader);
+void material_update(material_t *mat, ar_shader_t *shader);
 material_t *material_get(const char *name);
 void material_destroy(material_t *material);
 

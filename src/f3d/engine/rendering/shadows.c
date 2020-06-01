@@ -17,7 +17,7 @@
 //static mat4_t shadow_mat_bias;
 //framebuffer_t shadow_fb;
 camera_t shadow_cam;
-static shader_t *shader_point_shadow = NULL;
+static ar_shader_t *shader_point_shadow = NULL;
 
 /*
 void generate_vp(vector3f_t direction, vector3f_t center) {
@@ -57,10 +57,10 @@ void shadows_point_update(shadows_point_t *shadow, vector3f_t position) {
 shadows_point_t shadows_point_init(vector3f_t position, int width, int height, float far_plane) {
     shadows_point_t shadow;
     if (shader_point_shadow == NULL) {
-        shader_point_shadow = shader_new("Point Shadow");
-        shader_attach(shader_point_shadow, SHADER_VERTEX, "../shaders/shadows/point_vert.glsl");
-        shader_attach(shader_point_shadow, SHADER_FRAGMENT, "../shaders/shadows/point_frag.glsl");
-        shader_attach(shader_point_shadow, SHADER_GEOMETRY, "../shaders/shadows/point_geom.glsl");
+        shader_point_shadow = ar_shader_new("Point Shadow");
+        ar_shader_attach(shader_point_shadow, SHADER_VERTEX, "../shaders/shadows/point_vert.glsl");
+        ar_shader_attach(shader_point_shadow, SHADER_FRAGMENT, "../shaders/shadows/point_frag.glsl");
+        ar_shader_attach(shader_point_shadow, SHADER_GEOMETRY, "../shaders/shadows/point_geom.glsl");
     }
     shadow.shader = shader_point_shadow;
     
@@ -97,12 +97,12 @@ void shadows_send_uniforms(shadows_point_t *shadow, vector3f_t position) {
     int i;
     for (i = 0; i < 6; i++) {
         sprintf(str, "shadow_matrices[%d]", i);
-        shader_set_mat4(shadow->shader, str, &shadow->point_vps[i]);
+        ar_shader_set_mat4(shadow->shader, str, &shadow->point_vps[i]);
     }
-    shader_set_vec3f(shadow->shader, "light_pos", position);
+    ar_shader_set_vec3f(shadow->shader, "light_pos", position);
 }
 
-void shadows_point_render(shadows_point_t *shadow, vector3f_t position, shader_t *shader_main) {
+void shadows_point_render(shadows_point_t *shadow, vector3f_t position, ar_shader_t *shader_main) {
     if (shadow->shader == NULL)
         return;
         
@@ -121,17 +121,17 @@ void shadows_point_render(shadows_point_t *shadow, vector3f_t position, shader_t
     framebuffer_bind(&shadow->framebuffer);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    shader_use(shader_main);
-    shader_set_mat4(shader_main, "shadow_bias", &shadow_mat_bias);
-    shader_use(shadow->shader);
-    shader_set_float(shadow->shader, "far_plane", shadow->far_plane);
+    ar_shader_use(shader_main);
+    ar_shader_set_mat4(shader_main, "shadow_bias", &shadow_mat_bias);
+    ar_shader_use(shadow->shader);
+    ar_shader_set_float(shadow->shader, "far_plane", shadow->far_plane);
     shadows_send_uniforms(shadow, position);
     
     //objects_draw(shadow->shader, &shadow_cam, false);
-    scene_objects_render(selected_scene, shadow->shader, &shadow_cam, false);
+    ar_scene_objects_render(ar_scene_get_selected(), shadow->shader, &shadow_cam, false);
     
     framebuffer_texture(&shadow->framebuffer, GL_DEPTH_ATTACHMENT);
-    shader_use(shader_main);
+    ar_shader_use(shader_main);
     
     framebuffer_bind(NULL);
 }
@@ -170,5 +170,5 @@ void shadows_destroy(shadows_point_t *shadow) {
     if (shadow->shader == NULL)
         return;
     framebuffer_destroy(&shadow->framebuffer);
-    shader_destroy(shadow->shader);
+    ar_shader_destroy(shadow->shader);
 }

@@ -9,7 +9,7 @@
 
 int render_all_objects(void *ptr);
 
-shader_t *shader_main;
+ar_shader_t *shader_main;
 
 void init_gl() {
     glewExperimental = GL_TRUE;
@@ -44,18 +44,18 @@ int render_all_objects(void *arg) {
     camera_t *cam = (camera_t *)arg;
     
     //skybox_render(&scenes[0].skybox, cam);
-    scene_objects_render(selected_scene, shader_main, cam, true);
+    ar_scene_objects_render(ar_scene_get_selected(), shader_main, cam, true);
     
     return 0;
 }
 
 void render_init() {
     init_gl();
-    shader_main = shader_new("Main");
-    shader_attach(shader_main, SHADER_VERTEX, "../shaders/m_vert.glsl");
-    shader_attach(shader_main, SHADER_FRAGMENT, "../shaders/m_frag.glsl");
+    shader_main = ar_shader_new("Main");
+    ar_shader_attach(shader_main, SHADER_VERTEX, "../shaders/m_vert.glsl");
+    ar_shader_attach(shader_main, SHADER_FRAGMENT, "../shaders/m_frag.glsl");
     
-    shader_use(shader_main);
+    ar_shader_use(shader_main);
     
     handle_set(HANDLE_RENDER_MESHES, &render_all_objects);
 }
@@ -71,19 +71,19 @@ void render_init_shadows(ar_scene_t *scene, int width, int height) {
 }
 
 void render_all() {
-    int i;
-    for (i = 0; i < scenes_index; i++) {
-        scene_render(shader_main, &scenes[i]);
+    unsigned i;
+    for (i = 0; i < scenes.index; i++) {
+        ar_scene_render(shader_main, (ar_scene_t *)ar_buffer_get(&scenes, i));
     }
 }
 
 void render_destroy(void) {
-    int i;
-    for (i = 0; i < scenes_index; i++) {
-        scene_destroy(&scenes[i]);
+    unsigned i;
+    for (i = 0; i < scenes.index; i++) {
+        ar_scene_destroy((ar_scene_t *)ar_buffer_get(&scenes, i));
     }
     meshes_cleanup();
     textures_cleanup();
-    shader_destroy(shader_main);
+    ar_shader_destroy(shader_main);
     //shadows_destroy();
 }

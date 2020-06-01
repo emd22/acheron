@@ -11,31 +11,26 @@
 
 #define SCENE_OBJECTS_START_SIZE 64
 
-ar_scene_t scenes[MAX_SCENES];
-int scenes_index = 0;
-ar_scene_t *selected_scene = NULL;
+ar_buffer_t scenes;
+static ar_scene_t *selected_scene = NULL;
 
 ar_scene_t *ar_scene_new(const char *name) {
-    ar_scene_t *scene = &scenes[scenes_index++];
+    if (scenes.initialized == false) {
+        ar_buffer_init(&scenes, AR_BUFFER_DYNAMIC, sizeof(ar_scene_t), 4);
+        ar_log(AR_LOG_INFO, "Init\n", 0);
+    }
+    
+    ar_scene_t *scene = ar_buffer_new_item(&scenes);
     strcpy(scene->name, name);
     ar_buffer_init(&scene->lights, AR_BUFFER_STATIC, sizeof(light_t), MAX_SCENE_LIGHTS);
     scene->flags = 0;
-    /*texture_t *textures[] = {
-        texture_load_data(NULL, "../images/skybox/right.bmp", IMAGE_BMP),
-        texture_load_data(NULL, "../images/skybox/left.bmp", IMAGE_BMP),
-        texture_load_data(NULL, "../images/skybox/down.bmp", IMAGE_BMP),
-        texture_load_data(NULL, "../images/skybox/up.bmp", IMAGE_BMP),
-        texture_load_data(NULL, "../images/skybox/front.bmp", IMAGE_BMP),
-        texture_load_data(NULL, "../images/skybox/back.bmp", IMAGE_BMP)
-    };
-    scene->skybox = skybox_new(textures);*/
     
     scene->objects = object_buffer_new(AR_BUFFER_DYNAMIC, SCENE_OBJECTS_START_SIZE);
     
     return scene;
 }
 
-void scene_render_shadows(ar_scene_t *scene, shader_t *shader_main) {
+void ar_scene_render_shadows(ar_scene_t *scene, ar_shader_t *shader_main) {
     unsigned i;
     light_t *light;
     for (i = 0; i < scene->lights.index; i++) {
@@ -47,7 +42,7 @@ void scene_render_shadows(ar_scene_t *scene, shader_t *shader_main) {
     }
 }
 
-void scene_select(ar_scene_t *scene, shader_t *shader_main) {
+void ar_scene_select(ar_scene_t *scene, ar_shader_t *shader_main) {
     selected_scene = scene;
     unsigned i;
     light_t *light;
@@ -56,6 +51,10 @@ void scene_select(ar_scene_t *scene, shader_t *shader_main) {
         light_init(light, shader_main);
         light_update(light, shader_main);
     }
+}
+
+ar_scene_t *ar_scene_get_selected(void) {
+    return selected_scene;
 }
 
 light_t *get_nearest_light(ar_scene_t *scene, object_t *object) {
@@ -75,18 +74,18 @@ light_t *get_nearest_light(ar_scene_t *scene, object_t *object) {
     return NULL;
 }
 
-void scene_object_update(ar_scene_t *scene, object_t *object, shader_t *shader_main) {
+void ar_scene_object_update(ar_scene_t *scene, object_t *object, ar_shader_t *shader_main) {
     light_t *light;
     if ((light = get_nearest_light(scene, object)) != NULL) {
         light_shadow_render(light, shader_main);
     }
 }
 
-void scene_objects_render(ar_scene_t *scene, shader_t *shader, camera_t *camera, bool render_materials) {
+void ar_scene_objects_render(ar_scene_t *scene, ar_shader_t *shader, camera_t *camera, bool render_materials) {
     objects_draw(&scene->objects, shader, camera, render_materials);
 }
 
-void scene_render(shader_t *shader_main, ar_scene_t *scene) {
+void ar_scene_render(ar_shader_t *shader_main, ar_scene_t *scene) {
     //int view_count = 0;
     
     //if (scene != NULL)
@@ -103,7 +102,7 @@ void scene_render(shader_t *shader_main, ar_scene_t *scene) {
     for (i = 0; i < MAX_LIGHTS; i++) {
         if (i >= scene->lights.index) {
             sprintf(str, "pointLights[%d].shadow_map", i);
-            shader_set_int(shader_main, str, 4);
+            ar_shader_set_int(shader_main, str, 4);
             continue;
         }
         light = ar_buffer_get(&scene->lights, i);
@@ -117,11 +116,11 @@ void scene_render(shader_t *shader_main, ar_scene_t *scene) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     handle_call(HANDLE_RENDER_MESHES, selected_camera);
-    shader_use(shader_main);
+    ar_shader_use(shader_main);
     ui_render();
 }
 
-void *scene_attach(ar_scene_t *scene, ar_scene_attach_type_t type, void *ptr) {
+void *ar_scene_attach(ar_scene_t *scene, ar_scene_attach_type_t type, void *ptr) {
     void *scene_object = NULL;
     if (type == SCENE_SKYBOX) {
         //memcpy(&scene->skybox, ptr, sizeof(skybox_t));
@@ -140,7 +139,7 @@ void *scene_attach(ar_scene_t *scene, ar_scene_attach_type_t type, void *ptr) {
     return scene_object;
 }
 
-void scene_destroy(ar_scene_t *scene) {
+void ar_scene_destroy(ar_scene_t *scene) {
     (void)scene;
     //int i;
     //for (i = 1; i < scene->views_index; i++) {

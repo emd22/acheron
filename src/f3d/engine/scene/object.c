@@ -135,7 +135,7 @@ void objects_sort(ar_object_buffer_t *objects) {
     qsort(obj_buffer, objects->buffer.index, sizeof(object_t), &compare_materials);
 }
 
-void object_draw(object_t *object, shader_t *shader, camera_t *camera) {
+void object_draw(object_t *object, ar_shader_t *shader, camera_t *camera) {
     if (object->flags & RENDER_OBJECT_FLAG_UPDATE) {
         object_update(object);
     }
@@ -144,7 +144,7 @@ void object_draw(object_t *object, shader_t *shader, camera_t *camera) {
     }
 }
 
-void objects_draw(ar_object_buffer_t *objects, shader_t *shader, camera_t *camera, bool render_materials) {
+void objects_draw(ar_object_buffer_t *objects, ar_shader_t *shader, camera_t *camera, bool render_materials) {
     if (objects->sorted == false)
         objects_sort(objects);
     

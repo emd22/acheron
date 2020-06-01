@@ -59,7 +59,7 @@ void ar_window_option_set(ar_window_t *window, int option, int value) {
         SDL_SetWindowFullscreen(window->win, mode);
     }
     else if (option == AR_WINDOW_OPTION_MOUSE_VISIBLE) {
-        SDL_SetRelativeMouseMode(value);
+        SDL_SetRelativeMouseMode(!value);
     }
 }
 

@@ -15,10 +15,6 @@
 size_t ar_buffer_total_used = 0;
 
 int ar_buffer_init(ar_buffer_t *buffer, ar_buffer_type_t type, unsigned obj_sz, unsigned start_size) {
-    //if (buffer->initialized) {
-    //    ar_log(AR_LOG_WARN, "Buffer already initialized\n", 0);
-    //    return 1;
-    //}
     buffer->index = 0;
     buffer->obj_sz = obj_sz;
     buffer->size = start_size;
@@ -42,7 +38,7 @@ int ar_buffer_init(ar_buffer_t *buffer, ar_buffer_type_t type, unsigned obj_sz, 
     return 0;
 }
 
-void *ar_buffer_push(ar_buffer_t *buffer, void *obj) {
+void *ar_buffer_new_item(ar_buffer_t *buffer) {
     if (buffer->index >= buffer->size) {
         if (buffer->type != AR_BUFFER_DYNAMIC) {
             ar_log(AR_LOG_ERROR, "Hit end of non-dynamic buffer\n", 0);
@@ -52,8 +48,13 @@ void *ar_buffer_push(ar_buffer_t *buffer, void *obj) {
     }
     const unsigned long index = (buffer->index)*(buffer->obj_sz);
     uint8_t *mem = ((uint8_t *)buffer->data)+(index);
-    memcpy(mem, obj, buffer->obj_sz);
     buffer->index++;
+    return mem;
+}
+
+void *ar_buffer_push(ar_buffer_t *buffer, void *obj) {
+    void *mem = ar_buffer_new_item(buffer);
+    memcpy(mem, obj, buffer->obj_sz);
     return mem;
 }
 

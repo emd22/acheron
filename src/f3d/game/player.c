@@ -13,12 +13,10 @@ int player_move(camera_t *camera) {
     const float max_velocity = 1.0f;
     
     if (ar_control_check(SDLK_w)) {
-        ar_log(AR_LOG_INFO, "w pressed\n", 0);
         velocity.z = max_velocity;
         moved = 1;
     }
     else if (ar_control_check(SDLK_a)) {
-        ar_log(AR_LOG_INFO, "a pressed\n", 0);
         velocity.x = -max_velocity;
         moved = 1;
     }

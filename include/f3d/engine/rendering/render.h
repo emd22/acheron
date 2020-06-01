@@ -6,7 +6,7 @@
 #include <f3d/engine/scene/object.h>
 #include <f3d/engine/scene/scene.h>
 
-extern shader_t *shader_main;
+extern ar_shader_t *shader_main;
 
 void render_init_shadows(ar_scene_t *scene, int width, int height);
 void render_init();

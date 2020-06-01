@@ -46,6 +46,7 @@ typedef struct {
 void ar_controls_init(void);
 void ar_controls_poll_events(void);
 ar_control_t *ar_control_get(int controln);
+void ar_control_set_mode(int controln, ar_control_mode_t mode);
 bool ar_control_check(int controln);
 
 #endif

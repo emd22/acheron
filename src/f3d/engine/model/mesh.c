@@ -196,14 +196,14 @@ mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags) {
     return mesh;
 }
 
-void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, shader_t *shader) {
+void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, ar_shader_t *shader) {
     if (mesh == NULL || mesh->type == MODEL_NONE)
         return;
         
     if (camera != NULL && matrix != NULL && shader != NULL) {
-        shader_set_mat4(shader, "m", matrix);
-        shader_set_mat4(shader, "v", &camera->mat_view);
-        shader_set_mat4(shader, "p", &camera->mat_projection);    
+        ar_shader_set_mat4(shader, "m", matrix);
+        ar_shader_set_mat4(shader, "v", &camera->mat_view);
+        ar_shader_set_mat4(shader, "p", &camera->mat_projection);    
     }
     
     glBindVertexArray(mesh->vao);

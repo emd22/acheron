@@ -9,7 +9,7 @@
 #define OBJ_MAX_Y(obj) (obj->position.y+(obj->dimensions.y))*obj->scale.y
 #define OBJ_MAX_Z(obj) (obj->position.z+(obj->dimensions.z))*obj->scale.z
 
-shader_t *shader_bounding = NULL;
+ar_shader_t *shader_bounding = NULL;
 
 physics_collider_t physics_collider_new(physics_collider_type_t type) {
     physics_collider_t collider;
@@ -20,9 +20,9 @@ physics_collider_t physics_collider_new(physics_collider_type_t type) {
     collider.scale = (vector3f_t){1, 1, 1};
     
     if (shader_bounding == NULL) {
-        shader_bounding = shader_new("BoundingBox");
-        shader_attach(shader_bounding, SHADER_VERTEX, "../shaders/debug/bounding_vert.glsl");
-        shader_attach(shader_bounding, SHADER_FRAGMENT, "../shaders/debug/bounding_frag.glsl");
+        shader_bounding = ar_shader_new("BoundingBox");
+        ar_shader_attach(shader_bounding, SHADER_VERTEX, "../shaders/debug/bounding_vert.glsl");
+        ar_shader_attach(shader_bounding, SHADER_FRAGMENT, "../shaders/debug/bounding_frag.glsl");
     }
     return collider;
 }

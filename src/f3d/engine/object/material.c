@@ -23,7 +23,7 @@ void material_attach() {
 
 }
 
-void material_update(material_t *mat, shader_t *shader) {
+void material_update(material_t *mat, ar_shader_t *shader) {
     material_t dummy;
     // TODO: flat colours, etc.
     if (mat == NULL) {
@@ -57,13 +57,13 @@ void material_update(material_t *mat, shader_t *shader) {
         mat->flags |= MATERIAL_NO_NORMALMAP;
     
 setup_material:;
-    shader_set_int(shader, "material.use_normalmap",   !(mat->flags & MATERIAL_NO_NORMALMAP));
-    shader_set_int(shader, "material.use_specularmap", !(mat->flags & MATERIAL_NO_SPECULARMAP));
-    shader_set_int(shader, "material.use_diffuse",     !(mat->flags & MATERIAL_NO_DIFFUSE));
-    shader_set_int(shader, "material.diffuse",  0);
-    shader_set_int(shader, "material.specular", 1);
-    shader_set_int(shader, "material.normal",   2);
-    shader_set_float(shader, "material.shininess", mat->shininess);
+    ar_shader_set_int(shader, "material.use_normalmap",   !(mat->flags & MATERIAL_NO_NORMALMAP));
+    ar_shader_set_int(shader, "material.use_specularmap", !(mat->flags & MATERIAL_NO_SPECULARMAP));
+    ar_shader_set_int(shader, "material.use_diffuse",     !(mat->flags & MATERIAL_NO_DIFFUSE));
+    ar_shader_set_int(shader, "material.diffuse",  0);
+    ar_shader_set_int(shader, "material.specular", 1);
+    ar_shader_set_int(shader, "material.normal",   2);
+    ar_shader_set_float(shader, "material.shininess", mat->shininess);
 }
 
 material_t *material_get(const char *name) {

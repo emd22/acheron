@@ -33,7 +33,7 @@ typedef struct {
     bool locked;
 } physics_object_t;
 
-extern shader_t *shader_bounding;
+extern ar_shader_t *shader_bounding;
 
 physics_object_t physics_object_new(physics_collider_type_t collider_type);
 physics_collider_t physics_collider_new(physics_collider_type_t collider_type);

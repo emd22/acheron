@@ -10,6 +10,7 @@
 #include <f3d/engine/scene/light.h>
 #include <f3d/engine/scene/skybox.h>
 #include <f3d/engine/scene/object.h>
+#include <f3d/engine/types.h>
 
 #define SCENE_ENABLE_SHADOWS 0x01
 #define SCENE_ENABLE_SKYBOX  0x02
@@ -37,18 +38,17 @@ typedef struct {
     ar_buffer_t lights;
 } ar_scene_t;*/
 
-extern ar_scene_t scenes[MAX_SCENES];
-extern ar_scene_t *selected_scene;
-extern int scenes_index;
+extern ar_buffer_t scenes;
 
-ar_scene_t *scene_new(const char *name);
-void scene_render_shadows(ar_scene_t *scene, shader_t *shader_main);
-void scene_objects_render(ar_scene_t *scene, shader_t *shader, camera_t *camera, bool render_materials);
-void scene_select(ar_scene_t *scene, shader_t *shader_main);
-render_view_t *scene_new_view(ar_scene_t *scene, camera_t *camera, int width, int height, int attachment);
-void scene_object_update(ar_scene_t *scene, object_t *object, shader_t *shader_main);
-void *scene_attach(ar_scene_t *scene, ar_scene_attach_type_t type, void *ptr);
-void scene_render(shader_t *shader_main, ar_scene_t *scene);
-void scene_destroy(ar_scene_t *scene);
+ar_scene_t *ar_scene_new(const char *name);
+void ar_scene_render_shadows(ar_scene_t *scene, ar_shader_t *shader_main);
+void ar_scene_objects_render(ar_scene_t *scene, ar_shader_t *shader, camera_t *camera, bool render_materials);
+void ar_scene_select(ar_scene_t *scene, ar_shader_t *shader_main);
+ar_scene_t *ar_scene_get_selected(void);
+render_view_t *ar_scene_new_view(ar_scene_t *scene, camera_t *camera, int width, int height, int attachment);
+void ar_scene_object_update(ar_scene_t *scene, object_t *object, ar_shader_t *shader_main);
+void *ar_scene_attach(ar_scene_t *scene, ar_scene_attach_type_t type, void *ptr);
+void ar_scene_render(ar_shader_t *shader_main, ar_scene_t *scene);
+void ar_scene_destroy(ar_scene_t *scene);
 
 #endif
