@@ -24,6 +24,10 @@ void ar_controls_init(void) {
     controls.mouse_move_func = &mouse_move_dummy;
 }
 
+void ar_controls_set_mouse_func(void (*mouse_move_func)(SDL_Event *)) {
+    controls.mouse_move_func = mouse_move_func;
+}
+
 ar_control_t *ar_control_get(int controln) {
     return &controls.controls[controln];
 }

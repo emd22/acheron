@@ -61,8 +61,8 @@ void render_init() {
 }
 
 void render_init_shadows(ar_scene_t *scene, int width, int height) {
-    light_t *point;
-    point = light_get(&scene->lights, NULL, LIGHT_POINT);
+    ar_light_t *point;
+    point = ar_light_get(&scene->lights, NULL, AR_LIGHT_POINT);
     if (point == NULL)
         return;
     //shadows_init(point, width, height);

@@ -22,22 +22,22 @@ ar_scene_t *ar_scene_new(const char *name) {
     
     ar_scene_t *scene = ar_buffer_new_item(&scenes);
     strcpy(scene->name, name);
-    ar_buffer_init(&scene->lights, AR_BUFFER_STATIC, sizeof(light_t), MAX_SCENE_LIGHTS);
+    ar_buffer_init(&scene->lights, AR_BUFFER_STATIC, sizeof(ar_light_t), MAX_SCENE_LIGHTS);
     scene->flags = 0;
     
-    scene->objects = object_buffer_new(AR_BUFFER_DYNAMIC, SCENE_OBJECTS_START_SIZE);
+    ar_buffer_init(&scene->objects, AR_BUFFER_DYNAMIC, sizeof(ar_object_t *), SCENE_OBJECTS_START_SIZE);
     
     return scene;
 }
 
 void ar_scene_render_shadows(ar_scene_t *scene, ar_shader_t *shader_main) {
     unsigned i;
-    light_t *light;
+    ar_light_t *light;
     for (i = 0; i < scene->lights.index; i++) {
         light = ar_buffer_get(&scene->lights, i);
         // if shadows are setup, set shadow map in main shader
         if (light->use_shadows) {
-            light_shadow_render(light, shader_main);   
+            ar_light_shadow_render(light, shader_main);   
         }
     }
 }
@@ -45,11 +45,11 @@ void ar_scene_render_shadows(ar_scene_t *scene, ar_shader_t *shader_main) {
 void ar_scene_select(ar_scene_t *scene, ar_shader_t *shader_main) {
     selected_scene = scene;
     unsigned i;
-    light_t *light;
+    ar_light_t *light;
     for (i = 0; i < scene->lights.index; i++) {
         light = ar_buffer_get(&scene->lights, i);
-        light_init(light, shader_main);
-        light_update(light, shader_main);
+        ar_light_init(light, shader_main);
+        ar_light_update(light, shader_main);
     }
 }
 
@@ -57,10 +57,10 @@ ar_scene_t *ar_scene_get_selected(void) {
     return selected_scene;
 }
 
-light_t *get_nearest_light(ar_scene_t *scene, object_t *object) {
+ar_light_t *get_nearest_light(ar_scene_t *scene, ar_object_t *object) {
     float rx, rz;
     unsigned i;
-    light_t *light;
+    ar_light_t *light;
     for (i = 0; i < scene->lights.index; i++) {
         light = ar_buffer_get(&scene->lights, i);
         rx = object->position.x-light->position.x;
@@ -74,15 +74,16 @@ light_t *get_nearest_light(ar_scene_t *scene, object_t *object) {
     return NULL;
 }
 
-void ar_scene_object_update(ar_scene_t *scene, object_t *object, ar_shader_t *shader_main) {
-    light_t *light;
+void ar_scene_object_update(ar_scene_t *scene, ar_object_t *object, ar_shader_t *shader_main) {
+    ar_light_t *light;
     if ((light = get_nearest_light(scene, object)) != NULL) {
-        light_shadow_render(light, shader_main);
+        ar_light_shadow_render(light, shader_main);
     }
 }
 
 void ar_scene_objects_render(ar_scene_t *scene, ar_shader_t *shader, camera_t *camera, bool render_materials) {
-    objects_draw(&scene->objects, shader, camera, render_materials);
+    ar_object_t *objects = *((ar_object_t **)scene->objects.data);
+    ar_objects_draw(objects, scene->objects.index, shader, camera, render_materials);
 }
 
 void ar_scene_render(ar_shader_t *shader_main, ar_scene_t *scene) {
@@ -97,7 +98,7 @@ void ar_scene_render(ar_shader_t *shader_main, ar_scene_t *scene) {
     
     //if (shader_depth != NULL) {
     unsigned i;
-    light_t *light;
+    ar_light_t *light;
     char str[48];
     for (i = 0; i < MAX_LIGHTS; i++) {
         if (i >= scene->lights.index) {
@@ -122,19 +123,22 @@ void ar_scene_render(ar_shader_t *shader_main, ar_scene_t *scene) {
 
 void *ar_scene_attach(ar_scene_t *scene, ar_scene_attach_type_t type, void *ptr) {
     void *scene_object = NULL;
-    if (type == SCENE_SKYBOX) {
+    if (type == AR_SCENE_ATTACH_SKYBOX) {
         //memcpy(&scene->skybox, ptr, sizeof(skybox_t));
         //scene->flags |= SCENE_ENABLE_SKYBOX;
         // TODO: add back
         //skybox_new(&scene->skybox.cubemap);
     }
-    else if (type == SCENE_LIGHT) {
-        if (scene->lights.index == MAX_LIGHTS)
+    else if (type == AR_SCENE_ATTACH_LIGHT) {
+        if (scene->lights.index == MAX_LIGHTS) {
+            ar_log(AR_LOG_ERROR, "Already at max lights!\n", 0);
             return NULL;
+        }
+        
         scene_object = ar_buffer_push(&scene->lights, ptr);
     }
-    else if (type == SCENE_OBJECT) {
-        scene_object = ar_buffer_push(&scene->objects.buffer, ptr);
+    else if (type == AR_SCENE_ATTACH_OBJECT) {
+        scene_object = ar_buffer_push(&scene->objects, &ptr);
     }
     return scene_object;
 }

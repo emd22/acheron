@@ -69,18 +69,9 @@ void main() {
     else {
         n = normalize(norm);
     }
-    //float bias = 0.005;
-    //float bias = 0.005*tan(acos(dot(n, normalize(dirLights[0].direction)))); // cosTheta is dot( n,l ), clamped between 0 and 1
-    //bias = clamp(bias, 0, 0.01);
-    float visibility = 1.0f;
-    //if (texture(shadow_map, frag_shadow_coords.xy).x < frag_shadow_coords.z-bias) {
-    //    visibility = 0.2;
-    //}
     
+    float visibility = 1.0f;
     vec3 result = vec3(0);
-    //for (int i = 0; i < MAX_DIR_LIGHTS; i++) {
-    //    result += CalcDirectionalLight(dirLights[i], n, frag_eye_direction, visibility);
-    //}
     for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
         result += clamp(CalcPointLight(pointLights[i], n, frag_eye_direction), 0.0, 1.0);
     }

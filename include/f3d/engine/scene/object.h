@@ -12,30 +12,25 @@
 
 #include <stdbool.h>
 
-#define RENDER_OBJECT_FLAG_UPDATE 0x01
+#define AR_OBJECT_FLAG_UPDATE 0x01
 
-enum {
+typedef enum {
     AR_RENDER_TARGET_FRAMEBUFFER,
     AR_RENDER_TARGET_CUBEMAP,
-};
+} ar_object_render_target_t;
 
-enum {
+typedef enum {
     AR_OBJECT_ATTACH_MESH,
     AR_OBJECT_ATTACH_MATERIAL,
-};
+} ar_object_attach_type_t;
 
-enum {
-    AR_RENDER_OBJECT_TYPE_MESH,
-};
+typedef enum {
+    AR_OBJECT_TYPE_MESH,
+} ar_object_type_t;
 
 typedef enum {
     AR_OBJECT_UPDATE_NEARBY,
 } ar_object_update_type_t;
-
-typedef struct {
-    ar_buffer_t buffer;
-    bool sorted;
-} ar_object_buffer_t;
 
 typedef struct object_s {
     char name[32];
@@ -52,24 +47,23 @@ typedef struct object_s {
     physics_object_t physics;
     
     int flags;
-} object_t;
+} ar_object_t;
 
-object_t object_new(const char *name);
-ar_object_buffer_t object_buffer_new(ar_buffer_type_t buffer_type, int buffer_start_size);
+ar_object_t *ar_object_new(const char *name);
 void render_set_target(int target, void *ptr);
-void object_update(object_t *object);
+void ar_object_update(ar_object_t *object);
 
-void object_move(object_t *object, float x, float y, float z);
-void object_move_v(object_t *object, vector3f_t val);
-void object_rotate(object_t *object, float x, float y, float z);
-void object_rotate_v(object_t *object, vector3f_t val);
-void object_scale(object_t *object, float x, float y, float z);
-void object_scale_v(object_t *object, vector3f_t val);
+void object_move(ar_object_t *object, float x, float y, float z);
+void object_move_v(ar_object_t *object, vector3f_t val);
+void object_rotate(ar_object_t *object, float x, float y, float z);
+void object_rotate_v(ar_object_t *object, vector3f_t val);
+void object_scale(ar_object_t *object, float x, float y, float z);
+void object_scale_v(ar_object_t *object, vector3f_t val);
 
-object_t *object_get(const char *name);
-void objects_sort(ar_object_buffer_t *objects);
-void object_attach(object_t *object, int type, void *data);
-void objects_draw(ar_object_buffer_t *objects, ar_shader_t *shader, camera_t *camera, bool render_materials);
-void object_draw(object_t *object, ar_shader_t *shader, camera_t *camera);
+ar_object_t *ar_object_get(const char *name);
+void ar_objects_sort(ar_object_t *objects, int objects_size);
+void ar_objects_draw(ar_object_t *objects, int objects_size, ar_shader_t *shader, camera_t *camera, bool render_materials);
+void ar_object_attach(ar_object_t *object, int type, void *data);
+void ar_object_draw(ar_object_t *object, ar_shader_t *shader, camera_t *camera);
 
 #endif

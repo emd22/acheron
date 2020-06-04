@@ -19,7 +19,6 @@ texture_t *texture_new(void) {
     int index = textures_index++;
     // TODO: search for previously deleted textures, use a free slot
     texture_t *texture = &textures[index];
-    
     if (textures_index > MAX_TEXTURES) {
         ar_log(AR_LOG_WARN, "Maximum textures reached(%d > %d), resetting texture_index\n", textures_index, MAX_TEXTURES);
         // TODO: find a better way around this. we need a proper way to avoid

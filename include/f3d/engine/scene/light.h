@@ -7,15 +7,15 @@
 
 #include <stdbool.h>
 
-enum {
-    LIGHT_DUMMY,
-    LIGHT_DIRECTIONAL,
-    LIGHT_POINT,
-    LIGHT_SPOTLIGHT,
-};
+typedef enum {
+    AR_LIGHT_DUMMY,
+    AR_LIGHT_DIRECTIONAL,
+    AR_LIGHT_POINT,
+    AR_LIGHT_SPOTLIGHT,
+} ar_light_type_t;
 
 typedef struct {
-    int type;
+    ar_light_type_t type;
     int index; // internal, for accessing shader light buffer
     
     vector3f_t ambient;
@@ -31,14 +31,14 @@ typedef struct {
     // point light
     vector3f_t position;
     float radius;
-} light_t;
+} ar_light_t;
 
-light_t *light_new(int type);
-light_t *light_get(ar_buffer_t *lights, light_t *next, int type);
-void light_init(light_t *light, ar_shader_t *shader);
-void light_update(light_t *light, ar_shader_t *shader);
+ar_light_t *ar_light_new(ar_light_type_t type);
+ar_light_t *ar_light_get(ar_buffer_t *lights, ar_light_t *next, ar_light_type_t type);
+void ar_light_init(ar_light_t *light, ar_shader_t *shader);
+void ar_light_update(ar_light_t *light, ar_shader_t *shader);
 
-void light_shadow_new(light_t *light, int width, int height);
-void light_shadow_render(light_t *light, ar_shader_t *shader_main);
+void ar_light_shadow_new(ar_light_t *light, int width, int height);
+void ar_light_shadow_render(ar_light_t *light, ar_shader_t *shader_main);
 
 #endif

@@ -39,6 +39,10 @@ int ar_buffer_init(ar_buffer_t *buffer, ar_buffer_type_t type, unsigned obj_sz, 
 }
 
 void *ar_buffer_new_item(ar_buffer_t *buffer) {
+    if (buffer == NULL || buffer->initialized == false || buffer->data == NULL) {
+        ar_log(AR_LOG_ERROR, "Buffer not initialized\n", 0);
+        return NULL;
+    }
     if (buffer->index >= buffer->size) {
         if (buffer->type != AR_BUFFER_DYNAMIC) {
             ar_log(AR_LOG_ERROR, "Hit end of non-dynamic buffer\n", 0);

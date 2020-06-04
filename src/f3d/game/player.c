@@ -16,20 +16,18 @@ int player_move(camera_t *camera) {
         velocity.z = max_velocity;
         moved = 1;
     }
-    else if (ar_control_check(SDLK_a)) {
+    if (ar_control_check(SDLK_a)) {
         velocity.x = -max_velocity;
         moved = 1;
     }
-    else if (ar_control_check(SDLK_s)) {
+    if (ar_control_check(SDLK_s)) {
         velocity.z = -max_velocity;
         moved = 1;
     }
-    else if (ar_control_check(SDLK_d)) {
+    if (ar_control_check(SDLK_d)) {
         velocity.x = max_velocity;
         moved = 1;
     }
-    if (camera == NULL)
-        return moved;
     const float friction = 0.08;
     if (velocity.x) {
         if (velocity.x > 0.0f) {

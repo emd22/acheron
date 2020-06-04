@@ -9,22 +9,28 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-void objects_sort(ar_object_buffer_t *objects);
+static ar_buffer_t object_buffer;
+static bool objects_sorted = false;
 
-object_t object_new(const char *name) {
-    object_t object;
+void ar_objects_sort(ar_object_t *objects, int objects_size);
+
+ar_object_t *ar_object_new(const char *name) {
+    if (object_buffer.initialized == false) {
+        ar_buffer_init(&object_buffer, AR_BUFFER_DYNAMIC, sizeof(ar_object_t), DEFAULT_OBJECTS);
+    }
+    ar_object_t *object = ar_buffer_new_item(&object_buffer);
     
-    strcpy(object.name, name);
-    object.hash = util_hash_str(name);
-    object.mesh = NULL;
-    object.position = (vector3f_t){0, 0, 0};
-    object.rotation = (vector3f_t){0, 0, 0};
-    object.scale = (vector3f_t){1, 1, 1};
-    object.material = NULL;
+    strcpy(object->name, name);
+    object->hash = util_hash_str(name);
+    object->mesh = NULL;
+    object->position = (vector3f_t){0, 0, 0};
+    object->rotation = (vector3f_t){0, 0, 0};
+    object->scale = (vector3f_t){1, 1, 1};
+    object->material = NULL;
     
-    object.physics = physics_object_new(PHYSICS_COLLIDER_AABB);
+    object->physics = physics_object_new(PHYSICS_COLLIDER_AABB);
     
-    object_update(&object);
+    ar_object_update(object);
     
     return object;
 }
@@ -38,14 +44,7 @@ void render_set_target(int target, void *ptr) {
     }
 }
 
-ar_object_buffer_t object_buffer_new(ar_buffer_type_t buffer_type, int buffer_start_size) {
-    ar_object_buffer_t buffer;
-    ar_buffer_init(&buffer.buffer, buffer_type, sizeof(object_t), buffer_start_size);
-    buffer.sorted = false;
-    return buffer;
-}
-
-void scale_object(object_t *object) {
+void scale_object(ar_object_t *object) {
     mat4_t *mat = &object->matrix;
     // x
     mat->val[0] *= object->scale.x;
@@ -64,33 +63,33 @@ void scale_object(object_t *object) {
     mat->val[11] *= object->scale.z;
 }
 
-void object_move_v(object_t *object, vector3f_t val) {
+void object_move_v(ar_object_t *object, vector3f_t val) {
     object->position = val;
-    object->flags |= RENDER_OBJECT_FLAG_UPDATE;
+    object->flags |= AR_OBJECT_FLAG_UPDATE;
 }
 
-void object_rotate_v(object_t *object, vector3f_t val) {
+void object_rotate_v(ar_object_t *object, vector3f_t val) {
     object->rotation = val;
-    object->flags |= RENDER_OBJECT_FLAG_UPDATE;
+    object->flags |= AR_OBJECT_FLAG_UPDATE;
 }
-void object_scale_v(object_t *object, vector3f_t val) {
+void object_scale_v(ar_object_t *object, vector3f_t val) {
     object->scale = val;
-    object->flags |= RENDER_OBJECT_FLAG_UPDATE;
+    object->flags |= AR_OBJECT_FLAG_UPDATE;
 }
 
-void object_move(object_t *object, float x, float y, float z) {
+void object_move(ar_object_t *object, float x, float y, float z) {
     object_move_v(object, (vector3f_t){x, y, z});
 }
 
-void object_rotate(object_t *object, float x, float y, float z) {
+void object_rotate(ar_object_t *object, float x, float y, float z) {
     object_rotate_v(object, (vector3f_t){x, y, z});
 }
 
-void object_scale(object_t *object, float x, float y, float z) {
+void object_scale(ar_object_t *object, float x, float y, float z) {
     object_scale_v(object, (vector3f_t){x, y, z});
 }
 
-void object_update(object_t *object) {
+void ar_object_update(ar_object_t *object) {
     // translations
     mat4_translate(&object->matrix, object->position);
     
@@ -104,7 +103,7 @@ void object_update(object_t *object) {
     object->physics.collider.scale = object->scale;
 }
 
-void object_attach(object_t *object, int type, void *data) {
+void ar_object_attach(ar_object_t *object, int type, void *data) {
     if (type == AR_OBJECT_ATTACH_MESH) {
         object->mesh = (mesh_t *)data;
         physics_collider_stretch_to_vertices(&object->physics.collider, &object->mesh->vertices);
@@ -117,42 +116,42 @@ void object_attach(object_t *object, int type, void *data) {
     }
 }
 
-hash_t get_material_hash(object_t *object) {
+static hash_t get_material_hash(ar_object_t *object) {
     if (object->material == NULL)
         return 0;
     return object->material->hash;
 }
 
-int compare_materials(const void *v1, const void *v2) {
-    object_t *obj1 = (object_t *)v1;
-    object_t *obj2 = (object_t *)v2;
+static int compare_materials(const void *v1, const void *v2) {
+    ar_object_t *obj1 = (ar_object_t *)v1;
+    ar_object_t *obj2 = (ar_object_t *)v2;
 
     return get_material_hash(obj1)-get_material_hash(obj2);
 }
 
-void objects_sort(ar_object_buffer_t *objects) {
-    object_t *obj_buffer = (object_t *)objects->buffer.data;
-    qsort(obj_buffer, objects->buffer.index, sizeof(object_t), &compare_materials);
+void ar_objects_sort(ar_object_t *objects, int objects_size) {
+    ar_object_t *obj_buffer = (ar_object_t *)objects;
+    qsort(obj_buffer, objects_size, sizeof(ar_object_t), &compare_materials);
 }
 
-void object_draw(object_t *object, ar_shader_t *shader, camera_t *camera) {
-    if (object->flags & RENDER_OBJECT_FLAG_UPDATE) {
-        object_update(object);
+void ar_object_draw(ar_object_t *object, ar_shader_t *shader, camera_t *camera) {
+    if (object->flags & AR_OBJECT_FLAG_UPDATE) {
+        ar_object_update(object);
     }
     if (object->mesh != NULL) {
         mesh_draw(object->mesh, &object->matrix, camera, shader);
     }
 }
 
-void objects_draw(ar_object_buffer_t *objects, ar_shader_t *shader, camera_t *camera, bool render_materials) {
-    if (objects->sorted == false)
-        objects_sort(objects);
+void ar_objects_draw(ar_object_t *objects, int objects_size, ar_shader_t *shader, camera_t *camera, bool render_materials) {
+    if (objects_sorted == false)
+        ar_objects_sort(objects, objects_size);
     
-    unsigned i;
+    int i;
     hash_t mat_hash = 1;
-    object_t *object;
-    for (i = 0; i < objects->buffer.index; i++) {
-        object = &(((object_t *)objects->buffer.data)[i]);
+    ar_object_t *object;
+    for (i = 0; i < objects_size; i++) {
+        object = &objects[i];
         if (render_materials == false) {
             material_update(NULL, shader);
         }
@@ -162,6 +161,6 @@ void objects_draw(ar_object_buffer_t *objects, ar_shader_t *shader, camera_t *ca
                 mat_hash = get_material_hash(object);
             }        
         }
-        object_draw(object, shader, camera);
+        ar_object_draw(object, shader, camera);
     }
 }

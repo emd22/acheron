@@ -16,16 +16,17 @@
 #define SCENE_ENABLE_SKYBOX  0x02
 
 typedef enum {
-    SCENE_SKYBOX,
-    SCENE_LIGHT,
-    SCENE_OBJECT,
+    AR_SCENE_ATTACH_SKYBOX,
+    AR_SCENE_ATTACH_LIGHT,
+    AR_SCENE_ATTACH_OBJECT,
 } ar_scene_attach_type_t;
 
 typedef struct {
     char name[32];
     
-    ar_object_buffer_t objects;
     ar_buffer_t lights;
+    // hold pointers of objects
+    ar_buffer_t objects;
     
     //skybox_t skybox;
     int flags;
@@ -46,7 +47,7 @@ void ar_scene_objects_render(ar_scene_t *scene, ar_shader_t *shader, camera_t *c
 void ar_scene_select(ar_scene_t *scene, ar_shader_t *shader_main);
 ar_scene_t *ar_scene_get_selected(void);
 render_view_t *ar_scene_new_view(ar_scene_t *scene, camera_t *camera, int width, int height, int attachment);
-void ar_scene_object_update(ar_scene_t *scene, object_t *object, ar_shader_t *shader_main);
+void ar_scene_object_update(ar_scene_t *scene, ar_object_t *object, ar_shader_t *shader_main);
 void *ar_scene_attach(ar_scene_t *scene, ar_scene_attach_type_t type, void *ptr);
 void ar_scene_render(ar_shader_t *shader_main, ar_scene_t *scene);
 void ar_scene_destroy(ar_scene_t *scene);

@@ -2,7 +2,7 @@
 #define F3D_LIMITS_H
 
 // render
-#define MAX_RENDER_OBJECTS 64
+#define DEFAULT_OBJECTS 64
 #define MAX_MESHES 64
 
 #define MAX_TEXTURES 256
