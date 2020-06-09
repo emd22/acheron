@@ -2,7 +2,7 @@
 #include <f3d/engine/model/obj.h>
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/rendering/shader.h>
-#include <f3d/engine/core/memory/memory.h>
+#include <f3d/engine/core/memory/m_memory.h>
 #include <f3d/engine/type/vec.h>
 #include <f3d/engine/limits.h>
 #include <f3d/engine/engine.h>
@@ -66,9 +66,9 @@ int check_vertex_matches(ar_buffer_t *vertices, vertex_t *vertex1) {
 
 static void generate_indices(mesh_t *mesh) {
     unsigned i;
-    ar_buffer_init(&mesh->indices, AR_BUFFER_STATIC, sizeof(unsigned), mesh->vertices.index);
+    ar_buffer_init(&mesh->indices, AR_BUFFER_STATIC, sizeof(unsigned), mesh->vertices.index, 0);
     ar_buffer_t new_verts;
-    ar_buffer_init(&new_verts, AR_BUFFER_STATIC, sizeof(vertex_t), mesh->vertices.index);
+    ar_buffer_init(&new_verts, AR_BUFFER_STATIC, sizeof(vertex_t), mesh->vertices.index, 0);
     vertex_t *vertex;
     
     //int index;
@@ -97,7 +97,7 @@ static void generate_indices(mesh_t *mesh) {
 
 static void generate_packed_vertices(mesh_t *mesh, ar_buffer_t *vertices, ar_buffer_t *uvs, ar_buffer_t *normals) {
     unsigned i;
-    ar_buffer_init(&mesh->vertices, AR_BUFFER_DYNAMIC, sizeof(vertex_t), vertices->index+1);
+    ar_buffer_init(&mesh->vertices, AR_BUFFER_DYNAMIC, sizeof(vertex_t), vertices->index+1, 0);
     vertex_t vertex;
     for (i = 0; i < vertices->index; i++) {
         if (vertices != NULL)

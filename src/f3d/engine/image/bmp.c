@@ -1,7 +1,7 @@
 #include <f3d/engine/image/bmp.h>
 #include <f3d/engine/core/log.h>
 
-#include <f3d/engine/core/memory/memory.h>
+#include <f3d/engine/core/memory/m_memory.h>
 
 #include <stdio.h>
 #include <stdlib.h>

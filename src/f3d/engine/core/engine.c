@@ -39,7 +39,7 @@ void signal_handler(int sig) {
     }
     // Segmentation fault
     else if (sig == SIGSEGV) {
-        ar_log(AR_LOG_WARN, "Segmentation Fault occurred... attempting to exit gracefully\n", 0);
+        ar_log(AR_LOG_FATAL, "Segmentation Fault occurred... attempting to exit gracefully\n", 0);
         debug_print_backtrace();
         static int segv_count = 0;
         segv_count++;

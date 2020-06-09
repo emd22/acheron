@@ -1,5 +1,6 @@
 #include <f3d/engine/acheron.h>
 #include <f3d/engine/core/log.h>
+#include <f3d/engine/engine.h>
 #include <f3d/engine/rendering/shader.h>
 #include <f3d/game/player.h>
 
@@ -11,6 +12,11 @@
 #include <GL/gl.h>
 
 #define MOUSE_SPEED 0.07
+
+void check_mouse(SDL_Event *event) {
+    selected_camera->rotation.x -= ar_time_get_delta()*(MOUSE_SPEED*event->motion.xrel);
+    selected_camera->rotation.y -= ar_time_get_delta()*(MOUSE_SPEED*event->motion.yrel);
+}
 
 void init_lights(ar_scene_t *scene) {
     ar_light_t *light = ar_light_new(AR_LIGHT_POINT);
@@ -33,16 +39,14 @@ void init_objects(ar_scene_t *scene) {
     ar_scene_attach(scene, AR_SCENE_ATTACH_OBJECT, object);
 }
 
-void check_mouse(SDL_Event *event) {
-    selected_camera->rotation.x -= ar_time_get_delta()*(MOUSE_SPEED*event->motion.xrel);
-    selected_camera->rotation.y -= ar_time_get_delta()*(MOUSE_SPEED*event->motion.yrel);
-}
 
 int main() {
     ar_instance_t *instance = ar_instance_new(AR_INSTANCE_GRAPHICS);
     ar_window_t *window = ar_window_new("Acheron3d", 700, 700, 0);
     ar_instance_attach(instance, AR_INSTANCE_ATTACH_WINDOW, window);
     ar_init(instance);
+    
+    engine_setup_signals();
     
     render_init();
 

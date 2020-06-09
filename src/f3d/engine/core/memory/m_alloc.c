@@ -1,5 +1,4 @@
-#include <f3d/engine/core/memory/memory.h>
-#include <f3d/engine/type/buffer.h>
+#include <f3d/engine/core/memory/m_memory.h>
 #include <f3d/engine/core/log.h>
 
 #include <stdlib.h>
@@ -7,43 +6,32 @@
 
 #define AR_MEMORY_DEBUG
 
-#define AR_MEMORY_STARTING_ALLOCS 256
+#define STARTING_ALLOCS 256
 
 static ar_buffer_t memory_allocs;
-static bool memory_direct = true;
 
 void *ar_memory_alloc(size_t size) {
     void *ptr = NULL;
+    ptr = malloc(size);
 #ifdef AR_MEMORY_DEBUG
-    if (!memory_allocs.initialized && !memory_direct) {
-        ar_buffer_init(&memory_allocs, AR_BUFFER_DYNAMIC, sizeof(ar_memory_alloc_t), AR_MEMORY_STARTING_ALLOCS);
+    if (!ar_buffer_is_initialized(&memory_allocs)) {
+        ar_log(AR_LOG_DEBUG, "*** Initializing Memory Debug Buffer ***\n", 0);
+        ar_buffer_init(&memory_allocs, AR_BUFFER_DYNAMIC, sizeof(ar_memory_alloc_t), STARTING_ALLOCS, AR_BUFFER_UNTRACKED);
     }
     
-    ptr = malloc(size);
-    
-    if (!memory_direct) {
-        ar_memory_alloc_t alloc;
-        alloc.ptr = ptr;
-        alloc.size = size;
-        ar_buffer_push(&memory_allocs, &alloc);
-    }
-    return ptr;
-#else
-    ptr = malloc(size);
+    ar_memory_alloc_t *alloc = ar_buffer_new_item(&memory_allocs);
+    alloc->ptr = ptr;
+    alloc->size = size;
+    //ar_memory_alloc_t alloc;
+    //alloc.ptr = ptr;
+    //alloc.size = size;
+    //ar_buffer_push(&memory_allocs, &alloc);
 #endif
     return ptr;
 }
 
-void ar_memory_set_option(ar_memory_option_t option, int value) {
-    switch (option) {
-        case AR_MEMORY_DIRECT:
-            memory_direct = value;
-            break;
-    }
-}
-
 bool ar_memory_is_allocated(ar_memory_alloc_t *alloc) {
-    if (alloc->ptr != NULL && alloc->size > 0)
+    if (alloc != NULL && alloc->ptr != NULL)
         return true;
     return false;
 }
@@ -54,7 +42,8 @@ static ar_memory_alloc_t *find_alloc(void *ptr) {
     ar_memory_alloc_t *alloc;
     for (i = 0; i < memory_allocs.index; i++) {
         alloc = ar_buffer_get(&memory_allocs, i);
-        if (alloc->ptr == ptr)
+        //ar_log(AR_LOG_INFO, "%p - %p\n", alloc->ptr, ptr);
+        if (alloc != NULL && alloc->ptr == ptr)
             return alloc;
     }
     return NULL;
@@ -89,15 +78,16 @@ void *ar_memory_realloc(void *ptr, size_t size) {
     }
     
     void *newptr = NULL;
+    newptr = realloc(ptr, size);
 #ifdef AR_MEMORY_DEBUG
     ar_memory_alloc_t *alloc = find_alloc(ptr);
-    newptr = realloc(ptr, size);
     if (alloc != NULL) {
         alloc->size = size;
         alloc->ptr = newptr;
     }
-#else
-    newptr = realloc(ptr, size);
+    else {
+        ar_log(AR_LOG_WARN, "Cannot find previous allocation\n", 0);
+    }
 #endif
     return newptr;
 }

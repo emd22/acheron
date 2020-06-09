@@ -15,8 +15,8 @@ static bool objects_sorted = false;
 void ar_objects_sort(ar_object_t *objects, int objects_size);
 
 ar_object_t *ar_object_new(const char *name) {
-    if (object_buffer.initialized == false) {
-        ar_buffer_init(&object_buffer, AR_BUFFER_DYNAMIC, sizeof(ar_object_t), DEFAULT_OBJECTS);
+    if (!ar_buffer_is_initialized(&object_buffer)) {
+        ar_buffer_init(&object_buffer, AR_BUFFER_DYNAMIC, sizeof(ar_object_t), DEFAULT_OBJECTS, 0);
     }
     ar_object_t *object = ar_buffer_new_item(&object_buffer);
     

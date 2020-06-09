@@ -10,8 +10,8 @@
 static ar_buffer_t window_buffer;
 
 ar_window_t *ar_window_new(const char *title, int width, int height, int flags) {
-    if (window_buffer.initialized == false) {
-        ar_buffer_init(&window_buffer, AR_BUFFER_DYNAMIC, sizeof(ar_window_t), 1);
+    if (!ar_buffer_is_initialized(&window_buffer)) {
+        ar_buffer_init(&window_buffer, AR_BUFFER_DYNAMIC, sizeof(ar_window_t), 1, 0);
     }
     
     ar_window_t window;

@@ -36,8 +36,8 @@ ar_light_t *ar_light_get(ar_buffer_t *lights, ar_light_t *next, ar_light_type_t 
 }
 
 ar_light_t *ar_light_new(ar_light_type_t type) {
-    if (lights.initialized == false) {
-        ar_buffer_init(&lights, AR_BUFFER_STATIC, sizeof(ar_light_t), MAX_LIGHTS);
+    if (!ar_buffer_is_initialized(&lights)) {
+        ar_buffer_init(&lights, AR_BUFFER_STATIC, sizeof(ar_light_t), MAX_LIGHTS, 0);
     }
     
     memset(&dummy, 0, sizeof(ar_light_t));

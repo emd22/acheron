@@ -6,7 +6,7 @@
 #include <f3d/engine/renderer/renderer.h>
 #include <f3d/engine/core/window.h>
 #include <f3d/engine/core/controls.h>
-#include <f3d/engine/core/memory/memory.h>
+#include <f3d/engine/core/memory/m_memory.h>
 
 typedef enum {
     AR_INSTANCE_ATTACH_WINDOW,

@@ -3,7 +3,7 @@
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/core/handles.h>
 
-#include <f3d/engine/type/buffer.h>
+#include <f3d/engine/core/memory/m_memory.h>
 #include <f3d/engine/type/vec.h>
 
 #include <stdio.h>
@@ -17,21 +17,21 @@ obj_model_t obj_load(const char *path) {
     obj_model_t model;
     model.inited = 0;
     
-    ar_buffer_init(&model.vertices, AR_BUFFER_DYNAMIC, sizeof(vector3f_t), 4096);
-    ar_buffer_init(&model.uvs,      AR_BUFFER_DYNAMIC, sizeof(vector2f_t), 4096);
-    ar_buffer_init(&model.normals,  AR_BUFFER_DYNAMIC, sizeof(vector3f_t), 4096);
+    ar_buffer_init(&model.vertices, AR_BUFFER_DYNAMIC, sizeof(vector3f_t), 4096, 0);
+    ar_buffer_init(&model.uvs,      AR_BUFFER_DYNAMIC, sizeof(vector2f_t), 4096, 0);
+    ar_buffer_init(&model.normals,  AR_BUFFER_DYNAMIC, sizeof(vector3f_t), 4096, 0);
     
     ar_buffer_t temp_vertices;
     ar_buffer_t temp_uvs;
     ar_buffer_t temp_normals;
-    ar_buffer_init(&temp_vertices, AR_BUFFER_DYNAMIC, sizeof(vector3f_t), 4096);
-    ar_buffer_init(&temp_uvs,      AR_BUFFER_DYNAMIC, sizeof(vector2f_t), 4096);
-    ar_buffer_init(&temp_normals,  AR_BUFFER_DYNAMIC, sizeof(vector3f_t), 4096);
+    ar_buffer_init(&temp_vertices, AR_BUFFER_DYNAMIC, sizeof(vector3f_t), 4096, 0);
+    ar_buffer_init(&temp_uvs,      AR_BUFFER_DYNAMIC, sizeof(vector2f_t), 4096, 0);
+    ar_buffer_init(&temp_normals,  AR_BUFFER_DYNAMIC, sizeof(vector3f_t), 4096, 0);
     
     ar_buffer_t vertex_indices, uv_indices, normal_indices;
-    ar_buffer_init(&vertex_indices, AR_BUFFER_DYNAMIC, sizeof(unsigned), 8192);
-    ar_buffer_init(&uv_indices,     AR_BUFFER_DYNAMIC, sizeof(unsigned), 8192);
-    ar_buffer_init(&normal_indices, AR_BUFFER_DYNAMIC, sizeof(unsigned), 8192);
+    ar_buffer_init(&vertex_indices, AR_BUFFER_DYNAMIC, sizeof(unsigned), 8192, 0);
+    ar_buffer_init(&uv_indices,     AR_BUFFER_DYNAMIC, sizeof(unsigned), 8192, 0);
+    ar_buffer_init(&normal_indices, AR_BUFFER_DYNAMIC, sizeof(unsigned), 8192, 0);
 
     FILE *fp = fopen(path, "r");
     if (fp == NULL) {
@@ -125,6 +125,10 @@ obj_model_t obj_load(const char *path) {
         ar_buffer_push(&model.uvs, &uv);
         ar_buffer_push(&model.normals, &normal);    
     }
+    
+    //ar_buffer_reduce_to_data(&model.vertices);
+    //ar_buffer_reduce_to_data(&model.uvs);
+    //ar_buffer_reduce_to_data(&model.normals);
     
     ar_buffer_destroy(&temp_vertices);
     ar_buffer_destroy(&temp_normals);

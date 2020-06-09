@@ -16,16 +16,16 @@ ar_buffer_t scenes;
 static ar_scene_t *selected_scene = NULL;
 
 ar_scene_t *ar_scene_new(const char *name) {
-    if (scenes.initialized == false) {
-        ar_buffer_init(&scenes, AR_BUFFER_DYNAMIC, sizeof(ar_scene_t), 4);
+    if (!ar_buffer_is_initialized(&scenes)) {
+        ar_buffer_init(&scenes, AR_BUFFER_DYNAMIC, sizeof(ar_scene_t), 4, 0);
     }
     
     ar_scene_t *scene = ar_buffer_new_item(&scenes);
     strcpy(scene->name, name);
-    ar_buffer_init(&scene->lights, AR_BUFFER_STATIC, sizeof(ar_light_t *), MAX_SCENE_LIGHTS);
+    ar_buffer_init(&scene->lights, AR_BUFFER_STATIC, sizeof(ar_light_t *), MAX_SCENE_LIGHTS, 0);
     scene->flags = 0;
     
-    ar_buffer_init(&scene->objects, AR_BUFFER_DYNAMIC, sizeof(ar_object_t *), SCENE_OBJECTS_START_SIZE);
+    ar_buffer_init(&scene->objects, AR_BUFFER_DYNAMIC, sizeof(ar_object_t *), SCENE_OBJECTS_START_SIZE, 0);
     
     return scene;
 }

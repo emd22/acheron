@@ -3,7 +3,7 @@
 #include <f3d/engine/core/handles.h>
 #include <f3d/engine/object/material.h>
 
-#include <f3d/engine/type/buffer.h>
+#include <f3d/engine/core/memory/m_memory.h>
 #include <f3d/engine/type/vec.h>
 
 #include <stdio.h>
