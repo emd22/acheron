@@ -78,10 +78,6 @@ void render_all() {
 }
 
 void render_destroy(void) {
-    unsigned i;
-    for (i = 0; i < scenes.index; i++) {
-        ar_scene_destroy((ar_scene_t *)ar_buffer_get(&scenes, i));
-    }
     meshes_cleanup();
     textures_cleanup();
     ar_shader_destroy(shader_main);

@@ -2,6 +2,8 @@
 #include <f3d/engine/rendering/shader.h>
 #include <f3d/engine/core/log.h>
 
+#include <f3d/engine/rendering/render.h>
+
 #include <stdio.h>
 #include <string.h>
 
@@ -40,13 +42,13 @@ ar_light_t *ar_light_new(ar_light_type_t type) {
     
     memset(&dummy, 0, sizeof(ar_light_t));
     dummy.type = AR_LIGHT_DUMMY;
+    
     if (lights.index == MAX_LIGHTS) {
         return &dummy;
     }
     ar_light_t *light = ar_buffer_new_item(&lights);
     // make sure all light data is NULL'd
     memset(light, 0, sizeof(ar_light_t));
-    
     // count amount of a type of light because of the shader having
     // multiple arrays for different lights
     light->index = count_light_types(type);
@@ -71,10 +73,13 @@ ar_light_t *ar_light_new(ar_light_type_t type) {
 }
 
 void ar_light_shadow_new(ar_light_t *light, int width, int height) {
-    if (light == NULL || light->type != AR_LIGHT_POINT) {
+    if (light == NULL) {
         ar_log(AR_LOG_ERROR, "light == NULL or light is not point light\n", 0);
         return;
     }
+    if (!light->initialized)
+        ar_light_init(light, shader_main);
+        
     light->point_shadow = shadows_point_init(light->position, width, height, light->radius);
     light->use_shadows = true;
     light->point_shadow.shadow_map_id = ++shadow_map_id;
@@ -86,12 +91,16 @@ void ar_light_shadow_render(ar_light_t *light, ar_shader_t *shader_main) {
     shadows_point_render(&light->point_shadow, light->position, shader_main);
 }
 
+
 // TODO: replace this with something better
 void ar_light_init(ar_light_t *light, ar_shader_t *shader) {
-    if (light == NULL || shader == NULL)
+    if (light->initialized)
         return;
+        
     if (light->type == AR_LIGHT_DUMMY)
         return;
+        
+    light->initialized = true;
         
     char lightstr[48];
     if (light->type == AR_LIGHT_DIRECTIONAL) {
@@ -139,6 +148,7 @@ void ar_light_init(ar_light_t *light, ar_shader_t *shader) {
     else {
         ar_log(AR_LOG_ERROR, "light type #%d not implemented\n", light->type);
     }
+    ar_light_update(light, shader_main);    
 }
 
 void ar_light_update(ar_light_t *light, ar_shader_t *shader) {
@@ -169,4 +179,14 @@ void ar_light_update(ar_light_t *light, ar_shader_t *shader) {
             ar_light_shadow_render(light, shader);
         }
     }
+}
+
+void ar_light_destroy(ar_light_t *light) {
+    if (light->use_shadows) {
+        shadows_destroy(&light->point_shadow);
+    }
+}
+
+void ar_lights_destroy(void) {
+    ar_buffer_destroy(&lights);
 }

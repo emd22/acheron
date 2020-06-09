@@ -15,7 +15,7 @@ typedef struct {
     ar_shader_t *shader;
     cubemap_t cubemap;
     mat4_t point_vps[6];
-    framebuffer_t framebuffer;
+    ar_framebuffer_t framebuffer;
     
     float far_plane;
     int shadow_map_id;

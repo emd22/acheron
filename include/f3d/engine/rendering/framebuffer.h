@@ -16,14 +16,14 @@ typedef struct {
     int width, height;
     int bpp;
     int originx, originy;
-} framebuffer_t;
+} ar_framebuffer_t;
 
-extern framebuffer_t *default_framebuffer;
-
-framebuffer_t framebuffer_new(int width, int height, int attachment, bool depth_buffer);
-void framebuffer_generate_texture(framebuffer_t *fb, int draw_type, int data_type, int type_size);
-void framebuffer_bind(framebuffer_t *fb);
-void framebuffer_texture(framebuffer_t *fb, int attachment);
-void framebuffer_destroy(framebuffer_t *fb);
+ar_framebuffer_t ar_framebuffer_new(int width, int height, int attachment, bool depth_buffer);
+void ar_framebuffer_generate_texture(ar_framebuffer_t *fb, int draw_type, int data_type, int type_size);
+void ar_framebuffer_bind(ar_framebuffer_t *fb);
+void ar_framebuffer_texture(ar_framebuffer_t *fb, int attachment);
+void ar_framebuffer_set_default(ar_framebuffer_t *fb);
+ar_framebuffer_t *ar_framebuffer_get_default(void);
+void ar_framebuffer_destroy(ar_framebuffer_t *fb);
 
 #endif

@@ -29,7 +29,7 @@ void cubemap_init(cubemap_t *cubemap, texture_t **textures) {
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
 
-void framebuffer_cubemap_init(cubemap_t *cubemap, int width, int height) {
+void ar_framebuffer_cubemap_init(cubemap_t *cubemap, int width, int height) {
     cubemap->textures = NULL;
     cubemap->map = texture_new();
     cubemap->map->bind_type = GL_TEXTURE_CUBE_MAP;

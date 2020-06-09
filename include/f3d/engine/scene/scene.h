@@ -51,5 +51,6 @@ void ar_scene_object_update(ar_scene_t *scene, ar_object_t *object, ar_shader_t 
 void *ar_scene_attach(ar_scene_t *scene, ar_scene_attach_type_t type, void *ptr);
 void ar_scene_render(ar_shader_t *shader_main, ar_scene_t *scene);
 void ar_scene_destroy(ar_scene_t *scene);
+void ar_scenes_destroy(void);
 
 #endif

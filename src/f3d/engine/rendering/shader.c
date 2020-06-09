@@ -1,4 +1,5 @@
 #include <f3d/engine/rendering/shader.h>
+#include <f3d/engine/core/memory/memory.h>
 #include <f3d/engine/core/handles.h>
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/engine.h>
@@ -121,7 +122,7 @@ static long load_shader(const char *path, int type) {
     rewind(fp);
     
     // allocate +1 for null character
-    char *data = malloc(fsize+1);
+    char *data = ar_memory_alloc(fsize+1);
     // read shader file into buffer
     fread(data, 1, fsize, fp);
     // set terminating null character
@@ -130,7 +131,7 @@ static long load_shader(const char *path, int type) {
     
     glShaderSource(shader_id, 1, (const char **)&data, NULL);
     glCompileShader(shader_id);
-    free(data);
+    ar_memory_free(data);
     check_status(shader_id, type);
     return shader_id;
 }

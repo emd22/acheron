@@ -8,10 +8,18 @@
 
 #include <stdio.h>
 
-framebuffer_t *default_framebuffer = NULL;
+static ar_framebuffer_t *default_framebuffer = NULL;
 
-framebuffer_t framebuffer_new(int width, int height, int attachment, bool depth_buffer) {
-    framebuffer_t fb;
+void ar_framebuffer_set_default(ar_framebuffer_t *fb) {
+    default_framebuffer = fb;
+}
+
+ar_framebuffer_t *ar_framebuffer_get_default(void) {
+    return default_framebuffer;
+}
+
+ar_framebuffer_t ar_framebuffer_new(int width, int height, int attachment, bool depth_buffer) {
+    ar_framebuffer_t fb;
 
     glGenFramebuffers(1, &fb.fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, fb.fbo);
@@ -29,7 +37,7 @@ framebuffer_t framebuffer_new(int width, int height, int attachment, bool depth_
     
     fb.texture_target = GL_TEXTURE_2D;
     
-    framebuffer_texture(&fb, attachment);
+    ar_framebuffer_texture(&fb, attachment);
     
     if (depth_buffer) {
         glGenRenderbuffers(1, &fb.depth_buffer);
@@ -43,7 +51,7 @@ framebuffer_t framebuffer_new(int width, int height, int attachment, bool depth_
     return fb;
 }
 
-void framebuffer_generate_texture(framebuffer_t *fb, int draw_type, int data_type, int type_size) {
+void ar_framebuffer_generate_texture(ar_framebuffer_t *fb, int draw_type, int data_type, int type_size) {
     texture_t *tex = fb->texture;
     tex->draw_type = draw_type;
     tex->data_type = data_type;
@@ -56,7 +64,7 @@ void framebuffer_generate_texture(framebuffer_t *fb, int draw_type, int data_typ
     texture_set_parameter(tex, GL_TEXTURE_WRAP_T, GL_REPEAT);
 }
 
-void framebuffer_bind(framebuffer_t *fb) {
+void ar_framebuffer_bind(ar_framebuffer_t *fb) {
     if (fb == NULL) {
         int fbo = 0;
         ar_window_t *default_window = ar_instance_get_selected()->window;
@@ -75,7 +83,7 @@ void framebuffer_bind(framebuffer_t *fb) {
     glViewport(fb->originx, fb->originy, fb->width, fb->height);
 }
 
-void framebuffer_texture(framebuffer_t *fb, int attachment) {
+void ar_framebuffer_texture(ar_framebuffer_t *fb, int attachment) {
     if (fb->texture_target == GL_TEXTURE_CUBE_MAP) {
         glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, fb->texture->id, 0);
         return;
@@ -89,7 +97,7 @@ void framebuffer_texture(framebuffer_t *fb, int attachment) {
     glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, fb->texture_target, fb->texture->id, 0);
 }
 
-void framebuffer_destroy(framebuffer_t *fb) {
+void ar_framebuffer_destroy(ar_framebuffer_t *fb) {
     if (fb == NULL)
         return;
     glDeleteFramebuffers(1, &fb->fbo);

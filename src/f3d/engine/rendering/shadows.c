@@ -72,15 +72,15 @@ shadows_point_t shadows_point_init(vector3f_t position, int width, int height, f
     // generate perspective matrix
     math_perspective(&shadow.mat_perspective, math_deg_to_rad(90.0f), (float)width/(float)height, near, far_plane);
     
-    framebuffer_cubemap_init(&shadow.cubemap, width, height);
+    ar_framebuffer_cubemap_init(&shadow.cubemap, width, height);
     generate_point_vps(&shadow, position);
     
-    shadow.framebuffer = framebuffer_new(width, height, GL_DEPTH_ATTACHMENT, false);
+    shadow.framebuffer = ar_framebuffer_new(width, height, GL_DEPTH_ATTACHMENT, false);
     shadow.framebuffer.texture = shadow.cubemap.map;
     shadow.framebuffer.texture_target = GL_TEXTURE_CUBE_MAP;
-    framebuffer_bind(&shadow.framebuffer);
+    ar_framebuffer_bind(&shadow.framebuffer);
     
-    framebuffer_texture(&shadow.framebuffer, GL_DEPTH_ATTACHMENT);
+    ar_framebuffer_texture(&shadow.framebuffer, GL_DEPTH_ATTACHMENT);
     //texture_set_parameter(shadow.framebuffer.texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     
     shadow.collider = physics_collider_new(PHYSICS_COLLIDER_AABB);
@@ -118,7 +118,7 @@ void shadows_point_render(shadows_point_t *shadow, vector3f_t position, ar_shade
     );
     shadow_mat_bias = mat4_mul(shadow_mat_bias, shadow->point_vps[0]);
         
-    framebuffer_bind(&shadow->framebuffer);
+    ar_framebuffer_bind(&shadow->framebuffer);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     ar_shader_use(shader_main);
@@ -130,10 +130,10 @@ void shadows_point_render(shadows_point_t *shadow, vector3f_t position, ar_shade
     //objects_draw(shadow->shader, &shadow_cam, false);
     ar_scene_objects_render(ar_scene_get_selected(), shadow->shader, &shadow_cam, false);
     
-    framebuffer_texture(&shadow->framebuffer, GL_DEPTH_ATTACHMENT);
+    ar_framebuffer_texture(&shadow->framebuffer, GL_DEPTH_ATTACHMENT);
     ar_shader_use(shader_main);
     
-    framebuffer_bind(NULL);
+    ar_framebuffer_bind(NULL);
 }
 
 /*void shadows_update(light_t *light, int width, int height) {
@@ -169,6 +169,6 @@ void shadows_point_render(shadows_point_t *shadow, vector3f_t position, ar_shade
 void shadows_destroy(shadows_point_t *shadow) {
     if (shadow->shader == NULL)
         return;
-    framebuffer_destroy(&shadow->framebuffer);
+    ar_framebuffer_destroy(&shadow->framebuffer);
     ar_shader_destroy(shadow->shader);
 }

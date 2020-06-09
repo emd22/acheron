@@ -4,6 +4,9 @@
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/types.h>
 
+#include <f3d/engine/scene/scene.h>
+#include <f3d/engine/scene/light.h>
+
 #define AR_GL_VERSION_MAJOR 4
 #define AR_GL_VERSION_MINOR 2
 
@@ -58,4 +61,14 @@ void ar_instance_destroy(void) {
         ar_renderer_destroy(&ar_instance.renderer);
         
     ar_instance.flags = 0;
+}
+
+void ar_instances_destroy(void) {
+    return;
+}
+
+void ar_cleanup(void) {
+    ar_lights_destroy();
+    ar_scenes_destroy();
+    ar_instances_destroy();
 }

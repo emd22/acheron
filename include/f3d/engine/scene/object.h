@@ -65,5 +65,6 @@ void ar_objects_sort(ar_object_t *objects, int objects_size);
 void ar_objects_draw(ar_object_t *objects, int objects_size, ar_shader_t *shader, camera_t *camera, bool render_materials);
 void ar_object_attach(ar_object_t *object, int type, void *data);
 void ar_object_draw(ar_object_t *object, ar_shader_t *shader, camera_t *camera);
+void ar_objects_destroy(void);
 
 #endif

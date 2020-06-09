@@ -2,6 +2,7 @@
 #include <f3d/engine/model/obj.h>
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/rendering/shader.h>
+#include <f3d/engine/core/memory/memory.h>
 #include <f3d/engine/type/vec.h>
 #include <f3d/engine/limits.h>
 #include <f3d/engine/engine.h>
@@ -21,7 +22,7 @@ static int meshes_index = 0;
 void calculate_tangents(mesh_t *mesh);
 
 void meshes_init(void) {
-    meshes = malloc(sizeof(mesh_t)*MAX_MESHES);
+    meshes = ar_memory_alloc(sizeof(mesh_t)*MAX_MESHES);
 }
 
 bool is_near(float v0, float v1) {
@@ -178,7 +179,7 @@ mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags) {
         mesh = mesh_new();
         
     if (type == MODEL_OBJ) {
-        mesh->obj = malloc(sizeof(obj_model_t));
+        mesh->obj = ar_memory_alloc(sizeof(obj_model_t));
         obj_model_t obj = obj_load(path);
         memcpy(mesh->obj, &obj, sizeof(obj_model_t));
         
@@ -263,7 +264,7 @@ void meshes_cleanup(void) {
     for (i = 0; i < meshes_index; i++) {
         mesh_destroy(&meshes[i]);
     }
-    free(meshes);
+    ar_memory_free(meshes);
 }
 
 void mesh_destroy(mesh_t *mesh) {

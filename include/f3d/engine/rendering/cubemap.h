@@ -16,6 +16,6 @@ typedef struct {
 } cubemap_t;
 
 void cubemap_init(cubemap_t *cubemap, texture_t **textures);
-void framebuffer_cubemap_init(cubemap_t *cubemap, int width, int height);
+void ar_framebuffer_cubemap_init(cubemap_t *cubemap, int width, int height);
 
 #endif

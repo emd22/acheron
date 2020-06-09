@@ -1,5 +1,6 @@
 #include <f3d/engine/type/buffer.h>
 #include <f3d/engine/core/log.h>
+#include <f3d/engine/core/memory/memory.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -21,7 +22,9 @@ int ar_buffer_init(ar_buffer_t *buffer, ar_buffer_type_t type, unsigned obj_sz, 
     buffer->type = type;
     
     unsigned long bytes_sz = (unsigned long)obj_sz*(unsigned long)start_size;
-    buffer->data = malloc(bytes_sz);
+    ar_memory_set_option(AR_MEMORY_DIRECT, true);
+    buffer->data = ar_memory_alloc(bytes_sz);
+    ar_memory_set_option(AR_MEMORY_DIRECT, false);
     buffer->resize_func = &ar_buffer_resize_func_double;
     
     if (buffer->data == NULL) {
@@ -121,7 +124,9 @@ void ar_buffer_resize(ar_buffer_t *buffer, int size) {
     else
         buffer->size = size;
     
-    buffer->data = realloc(buffer->data, buffer->size*buffer->obj_sz);
+    ar_memory_set_option(AR_MEMORY_DIRECT, true);
+    buffer->data = ar_memory_realloc(buffer->data, buffer->size*buffer->obj_sz);
+    ar_memory_set_option(AR_MEMORY_DIRECT, false);
 
     // error in realloc, probably ran out of memory
     if (buffer->data == NULL) {
@@ -148,6 +153,6 @@ void ar_buffer_destroy(ar_buffer_t *buffer) {
         return;
     ar_buffer_total_used -= buffer->size*buffer->obj_sz;
     
-    free(buffer->data);
+    ar_memory_free(buffer->data);
     buffer->data = NULL;
 }

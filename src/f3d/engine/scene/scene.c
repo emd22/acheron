@@ -6,6 +6,7 @@
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/core/time.h>
 #include <f3d/engine/limits.h>
+#include <f3d/engine/rendering/render.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -17,12 +18,11 @@ static ar_scene_t *selected_scene = NULL;
 ar_scene_t *ar_scene_new(const char *name) {
     if (scenes.initialized == false) {
         ar_buffer_init(&scenes, AR_BUFFER_DYNAMIC, sizeof(ar_scene_t), 4);
-        ar_log(AR_LOG_INFO, "Init\n", 0);
     }
     
     ar_scene_t *scene = ar_buffer_new_item(&scenes);
     strcpy(scene->name, name);
-    ar_buffer_init(&scene->lights, AR_BUFFER_STATIC, sizeof(ar_light_t), MAX_SCENE_LIGHTS);
+    ar_buffer_init(&scene->lights, AR_BUFFER_STATIC, sizeof(ar_light_t *), MAX_SCENE_LIGHTS);
     scene->flags = 0;
     
     ar_buffer_init(&scene->objects, AR_BUFFER_DYNAMIC, sizeof(ar_object_t *), SCENE_OBJECTS_START_SIZE);
@@ -34,23 +34,18 @@ void ar_scene_render_shadows(ar_scene_t *scene, ar_shader_t *shader_main) {
     unsigned i;
     ar_light_t *light;
     for (i = 0; i < scene->lights.index; i++) {
-        light = ar_buffer_get(&scene->lights, i);
+        light = *((ar_light_t **)ar_buffer_get(&scene->lights, i));
         // if shadows are setup, set shadow map in main shader
         if (light->use_shadows) {
-            ar_light_shadow_render(light, shader_main);   
+            ar_light_shadow_render(light, shader_main); 
+            ar_light_update(light, shader_main);  
         }
     }
 }
 
 void ar_scene_select(ar_scene_t *scene, ar_shader_t *shader_main) {
     selected_scene = scene;
-    unsigned i;
-    ar_light_t *light;
-    for (i = 0; i < scene->lights.index; i++) {
-        light = ar_buffer_get(&scene->lights, i);
-        ar_light_init(light, shader_main);
-        ar_light_update(light, shader_main);
-    }
+    (void)shader_main;
 }
 
 ar_scene_t *ar_scene_get_selected(void) {
@@ -62,7 +57,7 @@ ar_light_t *get_nearest_light(ar_scene_t *scene, ar_object_t *object) {
     unsigned i;
     ar_light_t *light;
     for (i = 0; i < scene->lights.index; i++) {
-        light = ar_buffer_get(&scene->lights, i);
+        light = *((ar_light_t **)ar_buffer_get(&scene->lights, i));
         rx = object->position.x-light->position.x;
         rz = object->position.z-light->position.z;
         float radius = light->radius/2;
@@ -87,14 +82,8 @@ void ar_scene_objects_render(ar_scene_t *scene, ar_shader_t *shader, camera_t *c
 }
 
 void ar_scene_render(ar_shader_t *shader_main, ar_scene_t *scene) {
-    //int view_count = 0;
-    
-    //if (scene != NULL)
-    //    view_count = scene->views_index;
-    
-    // draw main screen
     // set framebuffer to our 'default' framebuffer
-    framebuffer_bind(NULL);
+    ar_framebuffer_bind(NULL);
     
     //if (shader_depth != NULL) {
     unsigned i;
@@ -106,7 +95,7 @@ void ar_scene_render(ar_shader_t *shader_main, ar_scene_t *scene) {
             ar_shader_set_int(shader_main, str, 4);
             continue;
         }
-        light = ar_buffer_get(&scene->lights, i);
+        light = *((ar_light_t **)ar_buffer_get(&scene->lights, i));
         // if shadows are setup, set shadow map in main shader
         if (light->use_shadows) {
             glActiveTexture(GL_TEXTURE4+light->point_shadow.shadow_map_id);
@@ -134,8 +123,14 @@ void *ar_scene_attach(ar_scene_t *scene, ar_scene_attach_type_t type, void *ptr)
             ar_log(AR_LOG_ERROR, "Already at max lights!\n", 0);
             return NULL;
         }
+        ar_light_t *light = (ar_light_t *)ptr;
+        scene_object = ar_buffer_push(&scene->lights, &light);
         
-        scene_object = ar_buffer_push(&scene->lights, ptr);
+        if (!light->initialized) {
+            ar_light_init(light, shader_main);
+        }
+        //ar_light_init(light, shader_main);
+        //ar_light_update(light, shader_main);
     }
     else if (type == AR_SCENE_ATTACH_OBJECT) {
         scene_object = ar_buffer_push(&scene->objects, &ptr);
@@ -144,9 +139,17 @@ void *ar_scene_attach(ar_scene_t *scene, ar_scene_attach_type_t type, void *ptr)
 }
 
 void ar_scene_destroy(ar_scene_t *scene) {
-    (void)scene;
-    //int i;
-    //for (i = 1; i < scene->views_index; i++) {
+    unsigned i;
+    ar_light_t *light;
+    for (i = 0; i < scene->lights.index; i++) {
+        light = ar_buffer_get(&scene->lights, i);
+        ar_light_destroy(light);
         //framebuffer_destroy(&scene->views[i].framebuffer);
-    //}
+    }
+    ar_buffer_destroy(&scene->lights);
+    ar_buffer_destroy(&scene->objects);
+}
+
+void ar_scenes_destroy(void) {
+    ar_buffer_destroy(&scenes);
 }

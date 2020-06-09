@@ -37,7 +37,7 @@ ar_object_t *ar_object_new(const char *name) {
 
 void render_set_target(int target, void *ptr) {
     if (target == AR_RENDER_TARGET_FRAMEBUFFER) {
-        framebuffer_bind((framebuffer_t *)ptr);
+        ar_framebuffer_bind((ar_framebuffer_t *)ptr);
     }
     else {
         ar_log(AR_LOG_WARN, "Target is not a valid type\n", 0);
@@ -163,4 +163,8 @@ void ar_objects_draw(ar_object_t *objects, int objects_size, ar_shader_t *shader
         }
         ar_object_draw(object, shader, camera);
     }
+}
+
+void ar_objects_destroy(void) {
+    ar_buffer_destroy(&object_buffer);
 }

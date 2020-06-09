@@ -1,6 +1,8 @@
 #include <f3d/engine/image/bmp.h>
 #include <f3d/engine/core/log.h>
 
+#include <f3d/engine/core/memory/memory.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -61,7 +63,7 @@ image_bmp_t bmp_load(const char *filename) {
                    header->pixel_bit_count+7)/8 *
   	           abs(header->image_height);
 
-    if ((bmp.data = malloc(bitsize)) == NULL) {
+    if ((bmp.data = ar_memory_alloc(bitsize)) == NULL) {
         goto error;
     }
 
@@ -89,7 +91,7 @@ image_bmp_t bmp_load(const char *filename) {
     return bmp;
 error:;
     if (bmp.data != NULL)
-        free(bmp.data);
+        ar_memory_free(bmp.data);
     bmp.data = NULL;
     fclose(fp);
     return bmp;

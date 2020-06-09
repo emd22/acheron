@@ -20,6 +20,7 @@ camera_t camera_new(camera_type_t type) {
     camera_t camera;
     memset(&camera, 0, sizeof(camera_t));
     camera.direction = (vector3f_t){0, 0, 0};
+    camera.rotation = (vector3f_t){0, 0, 0};
     camera.type = type;
     
     // NOTE: FOV is stored in degrees, converted to radians when creating
