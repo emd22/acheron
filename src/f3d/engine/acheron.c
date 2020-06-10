@@ -63,12 +63,9 @@ void ar_instance_destroy(void) {
     ar_instance.flags = 0;
 }
 
-void ar_instances_destroy(void) {
-    return;
-}
-
 void ar_cleanup(void) {
-    ar_lights_destroy();
-    ar_scenes_destroy();
-    ar_instances_destroy();
+    ar_light_buffer_destroy();
+    ar_object_buffer_destroy();
+    ar_scene_buffer_destroy();
+    ar_window_buffer_destroy();
 }

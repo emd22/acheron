@@ -87,13 +87,13 @@ int main() {
         time_end();
     }
     
+    render_destroy();
     ar_scene_destroy(scene);
     ar_window_destroy(window);
     ar_instance_destroy();
-    render_destroy();
-    ar_objects_destroy();
     
     ar_cleanup();
     
     ar_log(AR_LOG_DEBUG, "Memory Leaked: %.02fKB\n", (float)ar_memory_used()/1024.0f);
+    ar_memory_cleanup();
 }

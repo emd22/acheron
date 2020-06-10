@@ -40,7 +40,7 @@ ar_light_t *ar_light_get(ar_buffer_t *lights, ar_light_t *next, ar_light_type_t 
 void ar_light_init(ar_light_t *light, ar_shader_t *shader);
 void ar_light_update(ar_light_t *light, ar_shader_t *shader);
 void ar_light_destroy(ar_light_t *light);
-void ar_lights_destroy(void);
+void ar_light_buffer_destroy(void);
 
 void ar_light_shadow_new(ar_light_t *light, int width, int height);
 void ar_light_shadow_render(ar_light_t *light, ar_shader_t *shader_main);

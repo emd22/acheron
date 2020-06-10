@@ -1,4 +1,4 @@
-#include <f3d/engine/core/memory/m_memory.h>
+#include <f3d/engine/core/memory/mm_memory.h>
 #include <f3d/engine/core/log.h>
 
 #include <stdlib.h>
@@ -42,7 +42,6 @@ static ar_memory_alloc_t *find_alloc(void *ptr) {
     ar_memory_alloc_t *alloc;
     for (i = 0; i < memory_allocs.index; i++) {
         alloc = ar_buffer_get(&memory_allocs, i);
-        //ar_log(AR_LOG_INFO, "%p - %p\n", alloc->ptr, ptr);
         if (alloc != NULL && alloc->ptr == ptr)
             return alloc;
     }
@@ -86,10 +85,24 @@ void *ar_memory_realloc(void *ptr, size_t size) {
         alloc->ptr = newptr;
     }
     else {
-        ar_log(AR_LOG_WARN, "Cannot find previous allocation\n", 0);
+        ar_log(AR_LOG_ERROR, "Unknown allocation %p\n", ptr);
     }
 #endif
     return newptr;
+}
+
+void ar_memory_cleanup(void) {
+#ifdef AR_MEMORY_DEBUG
+    unsigned i;
+    ar_memory_alloc_t *alloc;
+    for (i = 0; i < memory_allocs.index; i++) {
+        alloc = ar_buffer_get(&memory_allocs, i);
+        if (ar_memory_is_allocated(alloc)) {
+            ar_log(AR_LOG_INFO, "%.02fKB of leaked memory!\n", (float)alloc->size/1024.0f);
+            ar_memory_free(alloc->ptr);
+        }
+    }
+#endif
 }
 
 void ar_memory_free(void *ptr) {

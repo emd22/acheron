@@ -150,6 +150,6 @@ void ar_scene_destroy(ar_scene_t *scene) {
     ar_buffer_destroy(&scene->objects);
 }
 
-void ar_scenes_destroy(void) {
+void ar_scene_buffer_destroy(void) {
     ar_buffer_destroy(&scenes);
 }

@@ -81,5 +81,4 @@ void render_destroy(void) {
     meshes_cleanup();
     textures_cleanup();
     ar_shader_destroy(shader_main);
-    //shadows_destroy();
 }

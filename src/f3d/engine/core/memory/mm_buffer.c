@@ -1,5 +1,5 @@
-#include <f3d/engine/core/memory/m_buffer.h>
-#include <f3d/engine/core/memory/m_alloc.h>
+#include <f3d/engine/core/memory/mm_buffer.h>
+#include <f3d/engine/core/memory/mm_alloc.h>
 #include <f3d/engine/core/log.h>
 
 #include <stdlib.h>
@@ -16,8 +16,10 @@ static void *buffer_malloc(ar_buffer_t *buffer, size_t size);
 static void *buffer_mrealloc(ar_buffer_t *buffer, size_t new_size);
 static void buffer_mfree(ar_buffer_t *buffer);
 
-int ar_buffer_init(ar_buffer_t *buffer, ar_buffer_type_t type, uint32_t obj_sz, uint32_t start_size, uint16_t flags) {
+int ar_buffer_init(ar_buffer_t *buffer, ar_buffer_type_t type, uint16_t obj_sz, uint32_t start_size, uint16_t flags) {
     memset(buffer, 0, sizeof(ar_buffer_t));
+    //memset(&buffer->next_queue, -1, sizeof(buffer->next_queue));
+    
     buffer->index = 0;
     buffer->obj_sz = obj_sz;
     buffer->size = start_size;
@@ -75,7 +77,7 @@ void *ar_buffer_push(ar_buffer_t *buffer, void *obj) {
 }
 
 void *ar_buffer_get(ar_buffer_t *buffer, unsigned index) {
-    if (index > buffer->obj_sz)
+    if (index > buffer->size)
         return NULL;
     void *ptr = ((uint8_t *)buffer->data)+(buffer->obj_sz*index);
     return ptr;
@@ -87,7 +89,7 @@ ar_buffer_t ar_buffer_duplicate(ar_buffer_t *buffer, ar_buffer_type_t type) {
     return buf;
 }
 
-ar_buffer_t ar_buffer_from_data(ar_buffer_type_t type, void *data, uint32_t obj_sz, uint32_t data_size, uint16_t flags) {
+ar_buffer_t ar_buffer_from_data(ar_buffer_type_t type, void *data, uint16_t obj_sz, uint32_t data_size, uint16_t flags) {
     ar_buffer_t buffer;
     ar_buffer_init(&buffer, type, obj_sz, data_size, flags);
     ar_buffer_copy_data(&buffer, data, data_size);

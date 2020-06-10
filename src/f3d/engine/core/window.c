@@ -67,3 +67,7 @@ void ar_window_destroy(ar_window_t *window) {
     SDL_GL_DeleteContext(window->context);
     SDL_DestroyWindow(window->win);
 }
+
+void ar_window_buffer_destroy() {
+    ar_buffer_destroy(&window_buffer);
+}

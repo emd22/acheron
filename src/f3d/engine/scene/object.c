@@ -165,6 +165,6 @@ void ar_objects_draw(ar_object_t *objects, int objects_size, ar_shader_t *shader
     }
 }
 
-void ar_objects_destroy(void) {
+void ar_object_buffer_destroy(void) {
     ar_buffer_destroy(&object_buffer);
 }

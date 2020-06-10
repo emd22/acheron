@@ -22,5 +22,6 @@ ar_window_t *ar_window_new(const char *title, int width, int height, int flags);
 void ar_window_option_set(ar_window_t *window, int option, int value);
 void ar_window_buffers_swap(ar_window_t *window);
 void ar_window_destroy(ar_window_t *window);
+void ar_window_buffer_destroy();
 
 #endif

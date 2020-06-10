@@ -187,6 +187,6 @@ void ar_light_destroy(ar_light_t *light) {
     }
 }
 
-void ar_lights_destroy(void) {
+void ar_light_buffer_destroy(void) {
     ar_buffer_destroy(&lights);
 }
