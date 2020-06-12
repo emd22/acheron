@@ -1,4 +1,5 @@
 #include <f3d/engine/math/mt_vector.h>
+#include <f3d/engine/core/log.h>
 
 #include <stddef.h>
 #include <stdint.h>

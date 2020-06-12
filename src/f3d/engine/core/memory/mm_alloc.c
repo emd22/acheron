@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #define AR_MEMORY_DEBUG
 
@@ -10,7 +11,7 @@
 
 static ar_buffer_t memory_allocs;
 
-void *ar_memory_alloc(size_t size) {
+void *_ar_memory_alloc(const char *func, size_t size) {
     void *ptr = NULL;
     ptr = malloc(size);
 #ifdef AR_MEMORY_DEBUG
@@ -22,6 +23,7 @@ void *ar_memory_alloc(size_t size) {
     ar_memory_alloc_t *alloc = ar_buffer_new_item(&memory_allocs);
     alloc->ptr = ptr;
     alloc->size = size;
+    strcpy(alloc->calling_func, func);
     //ar_memory_alloc_t alloc;
     //alloc.ptr = ptr;
     //alloc.size = size;
@@ -98,7 +100,7 @@ void ar_memory_cleanup(void) {
     for (i = 0; i < memory_allocs.index; i++) {
         alloc = ar_buffer_get(&memory_allocs, i);
         if (ar_memory_is_allocated(alloc)) {
-            ar_log(AR_LOG_INFO, "%.02fKB of leaked memory!\n", (float)alloc->size/1024.0f);
+            ar_log(AR_LOG_INFO, "%.02fKB of leaked memory! from %s\n", (float)alloc->size/1024.0f, alloc->calling_func);
             ar_memory_free(alloc->ptr);
         }
     }

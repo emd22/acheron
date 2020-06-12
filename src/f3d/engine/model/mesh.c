@@ -244,15 +244,14 @@ void calculate_tangents(mesh_t *mesh) {
         r = 1.0f/(delta_uv0.x*delta_uv1.y-delta_uv0.y*delta_uv1.x);
         
         ar_vector3f_t temp0, temp1;
+        
         ar_vector_mul_value(AR_VEC3F, &delta_pos0, delta_uv1.y, &temp0);
         ar_vector_mul_value(AR_VEC3F, &delta_pos1, delta_uv0.y, &temp1);
         ar_vector_sub(AR_VEC3F, &temp0, &temp1, &tmp);
-        
         ar_vector_mul_value(AR_VEC3F, &tmp, r, &tangent);
         
         ar_vector_mul_value(AR_VEC3F, &delta_pos1, delta_uv0.x, &temp0);
         ar_vector_mul_value(AR_VEC3F, &delta_pos0, delta_uv1.x, &temp1);
-        
         ar_vector_sub(AR_VEC3F, &temp0, &temp1, &tmp);
         ar_vector_mul_value(AR_VEC3F, &tmp, r, &bitangent);
         

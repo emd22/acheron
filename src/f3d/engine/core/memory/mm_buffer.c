@@ -150,8 +150,10 @@ size_t ar_buffer_resize_func_double(ar_buffer_t *buffer) {
 }
 
 void ar_buffer_destroy(ar_buffer_t *buffer) {
-    if (!ar_buffer_is_initialized(buffer))
+    if (!ar_buffer_is_initialized(buffer)) {
+        ar_log(AR_LOG_WARN, "Buffer not initialized, discarding\n", 0);
         return;
+    }
     
     buffer_mfree(buffer);
     buffer->data = NULL;

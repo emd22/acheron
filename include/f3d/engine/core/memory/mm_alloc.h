@@ -3,12 +3,15 @@
 
 #include <stddef.h>
 
+#define ar_memory_alloc(size) _ar_memory_alloc(__func__, size)
+
 typedef struct {
     size_t size;
     void *ptr;
+    char calling_func[32];
 } ar_memory_alloc_t;
 
-void *ar_memory_alloc(size_t size);
+void *_ar_memory_alloc(const char *func, size_t size);
 void *ar_memory_realloc(void *ptr, size_t size);
 void  ar_memory_free(void *ptr);
 void  ar_memory_cleanup(void);
