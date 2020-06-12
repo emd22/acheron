@@ -78,7 +78,6 @@ int main() {
 
         player_move(&camera);
         camera_update(selected_camera);
-        ar_shader_set_vec3f(shader_main, "view_pos", selected_camera->position);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
         render_all();
@@ -92,7 +91,6 @@ int main() {
     ar_instance_destroy();
     
     ar_cleanup();
-    
-    ar_log(AR_LOG_DEBUG, "Memory Leaked: %.02fKB\n", (float)ar_memory_used()/1024.0f);
+
     ar_memory_cleanup();
 }

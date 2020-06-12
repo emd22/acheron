@@ -18,8 +18,7 @@ static void buffer_mfree(ar_buffer_t *buffer);
 
 int ar_buffer_init(ar_buffer_t *buffer, ar_buffer_type_t type, uint16_t obj_sz, uint32_t start_size, uint16_t flags) {
     memset(buffer, 0, sizeof(ar_buffer_t));
-    //memset(&buffer->next_queue, -1, sizeof(buffer->next_queue));
-    
+
     buffer->index = 0;
     buffer->obj_sz = obj_sz;
     buffer->size = start_size;
@@ -150,13 +149,13 @@ size_t ar_buffer_resize_func_double(ar_buffer_t *buffer) {
 }
 
 void ar_buffer_destroy(ar_buffer_t *buffer) {
-    if (!ar_buffer_is_initialized(buffer)) {
-        ar_log(AR_LOG_WARN, "Buffer not initialized, discarding\n", 0);
+    if (!ar_buffer_is_initialized(buffer))
         return;
-    }
     
     buffer_mfree(buffer);
     buffer->data = NULL;
+    buffer->size = 0;
+    buffer->index = 0;
 }
 
 

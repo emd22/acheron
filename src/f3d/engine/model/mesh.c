@@ -35,6 +35,7 @@ int vertcmp(const void *a, const void *b) {
     
     int total0 = v0->position.x+v0->position.y+v0->position.z;
     int total1 = v1->position.x+v1->position.y+v1->position.z;
+    
     if (is_near(v0->position.x, v1->position.x) &&
         is_near(v0->position.y, v1->position.y) &&
         is_near(v0->position.z, v1->position.z) &&
@@ -116,6 +117,9 @@ static void generate_packed_vertices(mesh_t *mesh, ar_buffer_t *vertices, ar_buf
             
         ar_buffer_push(&mesh->vertices, &vertex);
     }
+    ar_buffer_destroy(vertices);
+    ar_buffer_destroy(uvs);
+    ar_buffer_destroy(normals);
 }
 
 mesh_t *mesh_new(void) {
@@ -185,6 +189,7 @@ mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags) {
         generate_packed_vertices(mesh, &obj.vertices, &obj.uvs, &obj.normals);
         generate_indices(mesh);
         mesh->type = MODEL_OBJ;
+        ar_memory_free(mesh->obj);
     }
     else {
         ar_log(AR_LOG_ERROR, "Cannot load mesh of unknown type\n", 0);
@@ -280,6 +285,7 @@ void mesh_destroy(mesh_t *mesh) {
     if (mesh->type == MODEL_OBJ) {
         obj_destroy(mesh->obj);
     }
+    ar_buffer_destroy(&mesh->indices);
     ar_buffer_destroy(&mesh->vertices);
     mesh->type = MODEL_NONE;
 }

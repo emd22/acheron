@@ -21,9 +21,7 @@ obj_model_t obj_load(const char *path) {
     ar_buffer_init(&model.uvs,      AR_BUFFER_DYNAMIC, sizeof(ar_vector2f_t), 4096, 0);
     ar_buffer_init(&model.normals,  AR_BUFFER_DYNAMIC, sizeof(ar_vector3f_t), 4096, 0);
     
-    ar_buffer_t temp_vertices;
-    ar_buffer_t temp_uvs;
-    ar_buffer_t temp_normals;
+    ar_buffer_t temp_vertices, temp_uvs, temp_normals;
     ar_buffer_init(&temp_vertices, AR_BUFFER_DYNAMIC, sizeof(ar_vector3f_t), 4096, 0);
     ar_buffer_init(&temp_uvs,      AR_BUFFER_DYNAMIC, sizeof(ar_vector2f_t), 4096, 0);
     ar_buffer_init(&temp_normals,  AR_BUFFER_DYNAMIC, sizeof(ar_vector3f_t), 4096, 0);

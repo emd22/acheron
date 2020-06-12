@@ -100,10 +100,11 @@ void ar_memory_cleanup(void) {
     for (i = 0; i < memory_allocs.index; i++) {
         alloc = ar_buffer_get(&memory_allocs, i);
         if (ar_memory_is_allocated(alloc)) {
-            ar_log(AR_LOG_INFO, "%.02fKB of leaked memory! from %s\n", (float)alloc->size/1024.0f, alloc->calling_func);
+            ar_log(AR_LOG_INFO, "%.02fKB of leaked memory from %s!\n", (float)alloc->size/1024.0f, alloc->calling_func);
             ar_memory_free(alloc->ptr);
         }
     }
+    ar_buffer_destroy(&memory_allocs);
 #endif
 }
 

@@ -6,6 +6,7 @@
 #include <f3d/engine/core/time.h>
 #include <f3d/engine/acheron.h>
 #include <f3d/engine/types.h>
+#include <f3d/engine/rendering/render.h>
 
 #include <math.h>
 
@@ -134,4 +135,6 @@ void camera_update(camera_t *camera) {
     lookto.z = camera->position.z+camera->direction.z;
     
     camera->mat_view = math_lookat(camera->position, lookto, camera->up);
+    
+    ar_shader_set_vec3f(shader_main, "view_pos", selected_camera->position);
 }
