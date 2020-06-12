@@ -63,10 +63,10 @@ ar_light_t *ar_light_new(ar_light_type_t type) {
         light->radius = 8.0f;
     }
     else if (type == AR_LIGHT_DIRECTIONAL) {
-        light->direction = (vector3f_t){-0.2, 0.8, -0.7};
-        light->ambient   = VEC3F(0.02f);
-        light->diffuse   = VEC3F(0.15f);
-        light->specular  = VEC3F(0.3f);
+        light->direction = (ar_vector3f_t){-0.2, 0.8, -0.7};
+        light->ambient   = (ar_vector3f_t){0.02f, 0.02f, 0.02f};
+        light->diffuse   = (ar_vector3f_t){0.15f, 0.15f, 0.15f};
+        light->specular  = (ar_vector3f_t){0.3f, 0.3f, 0.3f};
     }
     
     return light;

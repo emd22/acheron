@@ -5,7 +5,8 @@
 
 void ar_vector_add(ar_vector_type_t type, void *vec0, void *vec1, void *result);
 void ar_vector_sub(ar_vector_type_t type, void *vec0, void *vec1, void *result);
-void ar_vector_mul(ar_vector_type_t type, void *vec0, void *vec1, void *result);
+void *ar_vector_mul(ar_vector_type_t type, void *vec0, void *vec1, void *result);
+void *ar_vector_mul_value(ar_vector_type_t type, void *vec, float value, void *result);
 void ar_vector_div(ar_vector_type_t type, void *vec0, void *vec1, void *result);
 
 #endif

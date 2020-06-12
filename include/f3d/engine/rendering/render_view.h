@@ -8,8 +8,8 @@
 typedef struct {
     camera_t *camera;
     ar_framebuffer_t framebuffer;
-    vector2f_t dest_position, dest_dimensions;
-    vector2f_t src_position, src_dimensions;
+    ar_vector2f_t dest_position, dest_dimensions;
+    ar_vector2f_t src_position, src_dimensions;
 } render_view_t;
 
 #endif

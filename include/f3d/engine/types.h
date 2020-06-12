@@ -3,9 +3,6 @@
 
 #include <f3d/engine/core/memory/mm_memory.h>
 
-#include <f3d/engine/type/vec.h>
-#include <f3d/engine/type/matrix3.h>
-#include <f3d/engine/type/matrix4.h>
-#include <f3d/engine/type/quaternion.h>
+#include <f3d/engine/math/mt_math.h>
 
 #endif

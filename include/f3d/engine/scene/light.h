@@ -20,18 +20,18 @@ typedef struct {
     ar_light_type_t type;
     int index; // internal, for accessing shader light buffer
     
-    vector3f_t ambient;
-    vector3f_t diffuse;
-    vector3f_t specular;
+    ar_vector3f_t ambient;
+    ar_vector3f_t diffuse;
+    ar_vector3f_t specular;
     
     shadows_point_t point_shadow;
     bool use_shadows;
     
     // directional light
-    vector3f_t direction;
+    ar_vector3f_t direction;
     
     // point light
-    vector3f_t position;
+    ar_vector3f_t position;
     float radius;
 } ar_light_t;
 

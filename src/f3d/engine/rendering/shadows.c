@@ -4,7 +4,7 @@
 #include <f3d/engine/rendering/camera.h>
 
 #include <f3d/engine/core/handles.h>
-#include <f3d/engine/core/math.h>
+#include <f3d/engine/math/mt_math.h>
 #include <f3d/engine/core/log.h>
 
 #include <f3d/engine/scene/scene.h>
@@ -32,29 +32,29 @@ void generate_vp(vector3f_t direction, vector3f_t center) {
     shadow_mat_vp = mat4_mul(shadow_mat_vp, model_mat);
 }*/
 
-void generate_point_vp(int index, vector3f_t position, shadows_point_t *shadow, vector3f_t offset, vector3f_t upvec) {
-    vector3f_t to;
-    vec3f_add(&to, position, offset);
+void generate_point_vp(int index, ar_vector3f_t position, shadows_point_t *shadow, ar_vector3f_t offset, ar_vector3f_t upvec) {
+    ar_vector3f_t to;
+    ar_vector_add(AR_VEC3F, &position, &offset, &to);
     shadow->point_vps[index] = math_lookat(position, to, upvec);
     shadow->point_vps[index] = mat4_mul(shadow->mat_perspective, shadow->point_vps[index]);
 }
 
-void generate_point_vps(shadows_point_t *shadow, vector3f_t position) {
-    generate_point_vp(0, position, shadow, (vector3f_t){ 1.0f,  0.0f,  0.0f}, (vector3f_t){0, -1,  0});
-    generate_point_vp(1, position, shadow, (vector3f_t){-1.0f,  0.0f,  0.0f}, (vector3f_t){0, -1,  0});
-    generate_point_vp(2, position, shadow, (vector3f_t){ 0.0f,  1.0f,  0.0f}, (vector3f_t){0,  0,  1});
-    generate_point_vp(3, position, shadow, (vector3f_t){ 0.0f, -1.0f,  0.0f}, (vector3f_t){0,  0, -1});
-    generate_point_vp(4, position, shadow, (vector3f_t){ 0.0f,  0.0f,  1.0f}, (vector3f_t){0, -1,  0});
-    generate_point_vp(5, position, shadow, (vector3f_t){ 0.0f,  0.0f, -1.0f}, (vector3f_t){0, -1,  0});
+void generate_point_vps(shadows_point_t *shadow, ar_vector3f_t position) {
+    generate_point_vp(0, position, shadow, (ar_vector3f_t){ 1.0f,  0.0f,  0.0f}, (ar_vector3f_t){0, -1,  0});
+    generate_point_vp(1, position, shadow, (ar_vector3f_t){-1.0f,  0.0f,  0.0f}, (ar_vector3f_t){0, -1,  0});
+    generate_point_vp(2, position, shadow, (ar_vector3f_t){ 0.0f,  1.0f,  0.0f}, (ar_vector3f_t){0,  0,  1});
+    generate_point_vp(3, position, shadow, (ar_vector3f_t){ 0.0f, -1.0f,  0.0f}, (ar_vector3f_t){0,  0, -1});
+    generate_point_vp(4, position, shadow, (ar_vector3f_t){ 0.0f,  0.0f,  1.0f}, (ar_vector3f_t){0, -1,  0});
+    generate_point_vp(5, position, shadow, (ar_vector3f_t){ 0.0f,  0.0f, -1.0f}, (ar_vector3f_t){0, -1,  0});
 }
 
-void shadows_point_update(shadows_point_t *shadow, vector3f_t position) {
+void shadows_point_update(shadows_point_t *shadow, ar_vector3f_t position) {
     // recalculate View/Projection matrices
     generate_point_vps(shadow, position);
     shadow->collider.position = position;
 }
 
-shadows_point_t shadows_point_init(vector3f_t position, int width, int height, float far_plane) {
+shadows_point_t shadows_point_init(ar_vector3f_t position, int width, int height, float far_plane) {
     shadows_point_t shadow;
     if (shader_point_shadow == NULL) {
         shader_point_shadow = ar_shader_new("Point Shadow");
@@ -85,14 +85,14 @@ shadows_point_t shadows_point_init(vector3f_t position, int width, int height, f
     
     shadow.collider = physics_collider_new(PHYSICS_COLLIDER_AABB);
     shadow.collider.position = position;
-    shadow.collider.dimensions = (vector3f_t){far_plane, far_plane, far_plane};
+    shadow.collider.dimensions = (ar_vector3f_t){far_plane, far_plane, far_plane};
     
     shadow.shadow_map_id = 0;
     
     return shadow;
 }
 
-void shadows_send_uniforms(shadows_point_t *shadow, vector3f_t position) {
+void shadows_send_uniforms(shadows_point_t *shadow, ar_vector3f_t position) {
     char str[64];
     int i;
     for (i = 0; i < 6; i++) {
@@ -102,7 +102,7 @@ void shadows_send_uniforms(shadows_point_t *shadow, vector3f_t position) {
     ar_shader_set_vec3f(shadow->shader, "light_pos", position);
 }
 
-void shadows_point_render(shadows_point_t *shadow, vector3f_t position, ar_shader_t *shader_main) {
+void shadows_point_render(shadows_point_t *shadow, ar_vector3f_t position, ar_shader_t *shader_main) {
     if (shadow->shader == NULL)
         return;
         

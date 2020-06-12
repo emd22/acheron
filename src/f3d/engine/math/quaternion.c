@@ -1,4 +1,4 @@
-#include <f3d/engine/types.h>
+#include <f3d/engine/math/quaternion.h>
 
 #include <math.h>
 
@@ -69,7 +69,7 @@ void quaternion_to_mat4(quaternion_t *quat, mat4_t *mat) {
     mat->val[QUAT_INDEX(2, 3)] = 0; mat->val[QUAT_INDEX(3, 3)] = 1;
 }
 
-void quaternion_convert_from_euler(quaternion_t *quat, vector3f_t euler) {
+void quaternion_convert_from_euler(quaternion_t *quat, ar_vector3f_t euler) {
     float cr, cp, cy, sr, sp, sy, cpcy, spsy;
     float roll = euler.x;
     float pitch = euler.y;

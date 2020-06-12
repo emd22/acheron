@@ -20,14 +20,14 @@ void check_mouse(SDL_Event *event) {
 
 void init_lights(ar_scene_t *scene) {
     ar_light_t *light = ar_light_new(AR_LIGHT_POINT);
-    light->position = (vector3f_t){-1.37f, 3.0f, -6.13f};
-    light->diffuse = (vector3f_t){0.2, 1.0, 0.2};
+    light->position = (ar_vector3f_t){-1.37f, 3.0f, -6.13f};
+    light->diffuse = (ar_vector3f_t){0.2, 1.0, 0.2};
     ar_scene_attach(scene, AR_SCENE_ATTACH_LIGHT, light);
     ar_light_shadow_new(light, 700, 700);
     
     ar_light_t *light2 = ar_light_new(AR_LIGHT_POINT);
-    light2->position = (vector3f_t){0.0f, 3.0f, 2.0f};
-    light2->diffuse = (vector3f_t){1.0, 0.2, 0.2};
+    light2->position = (ar_vector3f_t){0.0f, 3.0f, 2.0f};
+    light2->diffuse = (ar_vector3f_t){1.0, 0.2, 0.2};
     ar_scene_attach(scene, AR_SCENE_ATTACH_LIGHT, light2);
     ar_light_shadow_new(light2, 700, 700);
 }
@@ -52,7 +52,7 @@ int main() {
 
     camera_t camera = camera_new(CAMERA_PERSPECTIVE);
     camera.move_speed = 6.0f;
-    camera.position = (vector3f_t){0, 3, 4};
+    camera.position = (ar_vector3f_t){0, 3, 4};
     camera.rotation.x = 3.14f;
     camera_select(&camera);
     

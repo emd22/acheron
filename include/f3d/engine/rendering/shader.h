@@ -42,6 +42,6 @@ void ar_shader_destroy(ar_shader_t *shader);
 void ar_shader_set_int(ar_shader_t *shader, const char *var, int val);
 void ar_shader_set_float(ar_shader_t *shader, const char *var, float val);
 void ar_shader_set_mat4(ar_shader_t *shader, const char *var, mat4_t *mat);
-void ar_shader_set_vec3f(ar_shader_t *shader, const char *var, vector3f_t vec);
+void ar_shader_set_vec3f(ar_shader_t *shader, const char *var, ar_vector3f_t vec);
 
 #endif

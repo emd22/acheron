@@ -3,7 +3,7 @@
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/rendering/shader.h>
 #include <f3d/engine/core/memory/mm_memory.h>
-#include <f3d/engine/type/vec.h>
+#include <f3d/engine/math/mt_vector.h>
 #include <f3d/engine/limits.h>
 #include <f3d/engine/engine.h>
 
@@ -77,7 +77,6 @@ static void generate_indices(mesh_t *mesh) {
     int index;
     int amt_reused = 0;
     
-    
     for (i = 0; i < mesh->vertices.index; i++) {
         vertex = &((vertex_t *)mesh->vertices.data)[i];
         if ((index = check_vertex_matches(&new_verts, vertex)) != -1) {
@@ -101,19 +100,19 @@ static void generate_packed_vertices(mesh_t *mesh, ar_buffer_t *vertices, ar_buf
     vertex_t vertex;
     for (i = 0; i < vertices->index; i++) {
         if (vertices != NULL)
-            vertex.position = ((vector3f_t *)vertices->data)[i];
+            vertex.position = ((ar_vector3f_t *)vertices->data)[i];
         else
-            vertex.position = (vector3f_t){0, 0, 0};
+            vertex.position = (ar_vector3f_t){0, 0, 0};
             
         if (uvs != NULL)
-            vertex.uv = ((vector2f_t *)uvs->data)[i];
+            vertex.uv = ((ar_vector2f_t *)uvs->data)[i];
         else
-            vertex.uv = (vector2f_t){0, 0};
+            vertex.uv = (ar_vector2f_t){0, 0};
             
         if (normals != NULL)
-            vertex.normal =   ((vector3f_t *)normals->data)[i];
+            vertex.normal =   ((ar_vector3f_t *)normals->data)[i];
         else
-            vertex.normal = (vector3f_t){0, 0, 0};
+            vertex.normal = (ar_vector3f_t){0, 0, 0};
             
         ar_buffer_push(&mesh->vertices, &vertex);
     }
@@ -214,17 +213,17 @@ void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, ar_shader_t *shad
 }
 
 void calculate_tangents(mesh_t *mesh) {
-    vector3f_t v0, v1, v2;
-    vector2f_t uv0, uv1, uv2;
+    ar_vector3f_t v0, v1, v2;
+    ar_vector2f_t uv0, uv1, uv2;
 
     vertex_t *vertices = (vertex_t *)mesh->vertices.data;
     
-    vector3f_t delta_pos0, delta_pos1;
-    vector2f_t delta_uv0, delta_uv1;
-    vector3f_t tangent, bitangent;
+    ar_vector3f_t delta_pos0, delta_pos1;
+    ar_vector2f_t delta_uv0, delta_uv1;
+    ar_vector3f_t tangent, bitangent;
     float r;
         
-    vector3f_t tmp;
+    ar_vector3f_t tmp;
     
     unsigned i;
     unsigned bufidx = 0;
@@ -237,18 +236,25 @@ void calculate_tangents(mesh_t *mesh) {
         uv1 = vertices[i+1].uv;
         uv2 = vertices[i+2].uv;
         
-        vec3f_sub(&delta_pos0, v1, v0);
-        vec3f_sub(&delta_pos1, v2, v0);
-        vec2f_sub(&delta_uv0, uv1, uv0);
-        vec2f_sub(&delta_uv1, uv2, uv0);
+        ar_vector_sub(AR_VEC3F, &v1, &v0, &delta_pos0);
+        ar_vector_sub(AR_VEC3F, &v2, &v0, &delta_pos1);
+        ar_vector_sub(AR_VEC2F, &uv1, &uv0, &delta_uv0);
+        ar_vector_sub(AR_VEC2F, &uv2, &uv0, &delta_uv1);
         
         r = 1.0f/(delta_uv0.x*delta_uv1.y-delta_uv0.y*delta_uv1.x);
         
-        vec3f_sub(&tmp, vec3f_mul_v(delta_pos0, delta_uv1.y), vec3f_mul_v(delta_pos1, delta_uv0.y));
-        tangent = vec3f_mul_v(tmp, r);
+        ar_vector3f_t temp0, temp1;
+        ar_vector_mul_value(AR_VEC3F, &delta_pos0, delta_uv1.y, &temp0);
+        ar_vector_mul_value(AR_VEC3F, &delta_pos1, delta_uv0.y, &temp1);
+        ar_vector_sub(AR_VEC3F, &temp0, &temp1, &tmp);
         
-        vec3f_sub(&tmp, vec3f_mul_v(delta_pos1, delta_uv0.x), vec3f_mul_v(delta_pos0, delta_uv1.x));
-        bitangent = vec3f_mul_v(tmp, r);
+        ar_vector_mul_value(AR_VEC3F, &tmp, r, &tangent);
+        
+        ar_vector_mul_value(AR_VEC3F, &delta_pos1, delta_uv0.x, &temp0);
+        ar_vector_mul_value(AR_VEC3F, &delta_pos0, delta_uv1.x, &temp1);
+        
+        ar_vector_sub(AR_VEC3F, &temp0, &temp1, &tmp);
+        ar_vector_mul_value(AR_VEC3F, &tmp, r, &bitangent);
         
         vertices[bufidx].bitangent = bitangent;
         vertices[bufidx++].tangent = tangent;

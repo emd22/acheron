@@ -1,5 +1,5 @@
-#include <f3d/engine/type/matrix3.h>
-#include <f3d/engine/type/vec.h>
+#include <f3d/engine/math/matrix3.h>
+#include <f3d/engine/math/mt_vector.h>
 #include <f3d/engine/core/log.h>
 
 #include <string.h>
@@ -28,13 +28,13 @@ void mat3_identity(mat3_t *mat) {
 void mat3_sub(mat3_t *mat0, mat3_t mat1) {
     int i;
     for (i = 0; i < 3; i++)
-        vec3f_sub((vector3f_t *)(mat0->val+i*3), *(vector3f_t *)(mat0->val+i*3), *(vector3f_t *)(mat1.val+i*3));
+        ar_vector_sub(AR_VEC3F, (mat0->val+i*3), (mat1.val+i*3), (mat0->val+i*3));
 }
 
 void mat3_add(mat3_t *mat0, mat3_t mat1) {
     int i;
     for (i = 0; i < 3; i++)
-        vec3f_add((vector3f_t *)(mat0->val+i*3), *(vector3f_t *)(mat0->val+i*3), *(vector3f_t *)(mat1.val+i*3));
+        ar_vector_add(AR_VEC3F, (mat0->val+i*3), (mat1.val+i*3), (mat0->val+i*3));
 }
 
 // TODO: pass in result matrix as pointer instead

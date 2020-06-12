@@ -25,9 +25,9 @@ typedef struct {
     mat4_t mat_perspective;
 } shadows_point_t;
 
-shadows_point_t shadows_point_init(vector3f_t position, int width, int height, float far_plane);
-void shadows_point_render(shadows_point_t *shadow, vector3f_t position, ar_shader_t *shader_main);
-void shadows_point_update(shadows_point_t *shadow, vector3f_t position);
+shadows_point_t shadows_point_init(ar_vector3f_t position, int width, int height, float far_plane);
+void shadows_point_render(shadows_point_t *shadow, ar_vector3f_t position, ar_shader_t *shader_main);
+void shadows_point_update(shadows_point_t *shadow, ar_vector3f_t position);
 
 void shadows_render(ar_shader_t *shader_main, camera_t *camera);
 void shadows_destroy(shadows_point_t *shadow);

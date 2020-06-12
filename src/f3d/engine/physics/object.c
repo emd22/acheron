@@ -14,10 +14,10 @@ ar_shader_t *shader_bounding = NULL;
 physics_collider_t physics_collider_new(physics_collider_type_t type) {
     physics_collider_t collider;
     collider.type = type;
-    collider.position = (vector3f_t){0, 0, 0};
-    collider.dimensions = (vector3f_t){1, 1, 1};
+    collider.position = (ar_vector3f_t){0, 0, 0};
+    collider.dimensions = (ar_vector3f_t){1, 1, 1};
     //collider.rotation = (vector3f_t){0, 0, 0};
-    collider.scale = (vector3f_t){1, 1, 1};
+    collider.scale = (ar_vector3f_t){1, 1, 1};
     
     if (shader_bounding == NULL) {
         shader_bounding = ar_shader_new("BoundingBox");
@@ -30,8 +30,8 @@ physics_collider_t physics_collider_new(physics_collider_type_t type) {
 physics_object_t physics_object_new(physics_collider_type_t collider_type) {
     physics_object_t object;
     object.collider = physics_collider_new(collider_type);
-    object.velocity = (vector3f_t){0, 0, 0};
-    object.torque = (vector3f_t){0, 0, 0};
+    object.velocity = (ar_vector3f_t){0, 0, 0};
+    object.torque = (ar_vector3f_t){0, 0, 0};
     object.locked = false;
     object.mass = 10.0f;
     object.friction = 1.0f;
@@ -57,12 +57,12 @@ static bool collider_check_aabb(physics_collider_t *obj0, physics_collider_t *ob
 }
 
 void physics_collider_stretch_to_vertices(physics_collider_t *collider, ar_buffer_t *vertices) {
-    vector2f_t width, height, depth;
-    width =  (vector2f_t){0.0f, 0.0f};
-    height = (vector2f_t){0.0f, 0.0f};
-    depth =  (vector2f_t){0.0f, 0.0f};
+    ar_vector2f_t width, height, depth;
+    width =  (ar_vector2f_t){0.0f, 0.0f};
+    height = (ar_vector2f_t){0.0f, 0.0f};
+    depth =  (ar_vector2f_t){0.0f, 0.0f};
     unsigned i;
-    vector3f_t vertex;
+    ar_vector3f_t vertex;
     for (i = 0; i < vertices->index; i++) {
         vertex = (((vertex_t *)vertices->data)[i]).position;
         // x
@@ -92,8 +92,8 @@ void physics_collider_stretch_to_vertices(physics_collider_t *collider, ar_buffe
     float pwidth = width.y-width.x;
     float pheight = height.y-height.x;
     float pdepth = depth.y-depth.x;
-    collider->position = (vector3f_t){width.x, height.x, depth.y};
-    collider->dimensions = (vector3f_t){pwidth, pheight, pdepth};
+    collider->position = (ar_vector3f_t){width.x, height.x, depth.y};
+    collider->dimensions = (ar_vector3f_t){pwidth, pheight, pdepth};
 }
 
 bool physics_collider_check_collision(physics_collider_t *collider0, physics_collider_t *collider1) {
@@ -106,7 +106,7 @@ bool physics_collider_check_collision(physics_collider_t *collider0, physics_col
     return false;
 }
 
-void physics_move(physics_object_t *obj, vector3f_t direction) {
+void physics_move(physics_object_t *obj, ar_vector3f_t direction) {
     (void)obj;
     (void)direction;
 }

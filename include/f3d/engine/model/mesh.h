@@ -12,11 +12,11 @@
 #define MESH_KEEP_DATA   0x02
 
 typedef struct {
-    vector3f_t position;
-    vector2f_t uv;
-    vector3f_t normal;
-    vector3f_t tangent;
-    vector3f_t bitangent;
+    ar_vector3f_t position;
+    ar_vector2f_t uv;
+    ar_vector3f_t normal;
+    ar_vector3f_t tangent;
+    ar_vector3f_t bitangent;
 } __attribute__((packed)) vertex_t;
 
 enum {

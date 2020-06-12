@@ -9,7 +9,7 @@
 int player_move(camera_t *camera) {
     int moved = 0;
     
-    static vector3f_t velocity;
+    static ar_vector3f_t velocity;
     const float max_velocity = 1.0f;
     
     if (ar_control_check(SDLK_w)) {

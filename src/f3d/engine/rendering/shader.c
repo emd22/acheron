@@ -216,7 +216,7 @@ void ar_shader_set_mat4(ar_shader_t *shader, const char *var, mat4_t *mat) {
         ar_log(AR_LOG_ERROR, "OpenGL error: %s: %s\n", var, errmsg);
 }
 
-void ar_shader_set_vec3f(ar_shader_t *shader, const char *var, vector3f_t vec) {
+void ar_shader_set_vec3f(ar_shader_t *shader, const char *var, ar_vector3f_t vec) {
     const unsigned location = shader_get_uniform_location(shader, var, NULL);
     glUniform3f(location, vec.x, vec.y, vec.z);
     const char *errmsg = engine_get_opengl_error();

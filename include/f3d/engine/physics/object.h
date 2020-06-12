@@ -13,18 +13,18 @@ typedef enum {
 typedef struct {
     physics_collider_type_t type;
     
-    vector3f_t position;
-    vector3f_t dimensions;
-    vector3f_t scale;
+    ar_vector3f_t position;
+    ar_vector3f_t dimensions;
+    ar_vector3f_t scale;
     
     mesh_t *debug_mesh;
 } physics_collider_t;
 
 typedef struct {
     physics_collider_t collider;
-    vector3f_t velocity;
-    vector3f_t rotation;
-    vector3f_t torque;
+    ar_vector3f_t velocity;
+    ar_vector3f_t rotation;
+    ar_vector3f_t torque;
     
     float restitution;
     float mass;

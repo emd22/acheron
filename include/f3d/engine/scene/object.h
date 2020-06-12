@@ -39,9 +39,9 @@ typedef struct object_s {
     mesh_t *mesh;
     material_t *material;
     
-    vector3f_t position;
-    vector3f_t rotation;
-    vector3f_t scale;
+    ar_vector3f_t position;
+    ar_vector3f_t rotation;
+    ar_vector3f_t scale;
     mat4_t matrix;
     
     physics_object_t physics;
@@ -54,11 +54,11 @@ void render_set_target(int target, void *ptr);
 void ar_object_update(ar_object_t *object);
 
 void object_move(ar_object_t *object, float x, float y, float z);
-void object_move_v(ar_object_t *object, vector3f_t val);
+void object_move_v(ar_object_t *object, ar_vector3f_t val);
 void object_rotate(ar_object_t *object, float x, float y, float z);
-void object_rotate_v(ar_object_t *object, vector3f_t val);
+void object_rotate_v(ar_object_t *object, ar_vector3f_t val);
 void object_scale(ar_object_t *object, float x, float y, float z);
-void object_scale_v(ar_object_t *object, vector3f_t val);
+void object_scale_v(ar_object_t *object, ar_vector3f_t val);
 
 ar_object_t *ar_object_get(const char *name);
 void ar_objects_sort(ar_object_t *objects, int objects_size);

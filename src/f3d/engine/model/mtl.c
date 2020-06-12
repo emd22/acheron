@@ -4,7 +4,7 @@
 #include <f3d/engine/object/material.h>
 
 #include <f3d/engine/core/memory/mm_memory.h>
-#include <f3d/engine/type/vec.h>
+#include <f3d/engine/math/mt_vector.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -54,28 +54,28 @@ void mtl_load(const char *path) {
         }
         // ambient colour
         else if (!strcmp(line, "Ka")) {
-            vector3f_t ambient;
+            ar_vector3f_t ambient;
             fscanf(fp, "%f %f %f\n", &ambient.x, &ambient.y, &ambient.z);
             ar_log(AR_LOG_INFO, "ambient [%f,%f,%f]\n", ambient.x, ambient.y, ambient.z);
         }
         else if (!strcmp(line, "Kd")) {
-            vector3f_t diffuse;
+            ar_vector3f_t diffuse;
             fscanf(fp, "%f %f %f\n", &diffuse.x, &diffuse.y, &diffuse.z);
             ar_log(AR_LOG_INFO, "diffuse [%f,%f,%f]\n", diffuse.x, diffuse.y, diffuse.z);
         }
         else if (!strcmp(line, "Ks")) {
-            vector3f_t specular;
+            ar_vector3f_t specular;
             fscanf(fp, "%f %f %f\n", &specular.x, &specular.y, &specular.z);
             ar_log(AR_LOG_INFO, "specular [%f,%f,%f]\n", specular.x, specular.y, specular.z);
         }
         else if (!strcmp(line, "Ke")) {
-            vector3f_t emissive;
+            ar_vector3f_t emissive;
             fscanf(fp, "%f %f %f\n", &emissive.x, &emissive.y, &emissive.z);
             ar_log(AR_LOG_INFO, "emissive [%f,%f,%f]\n", emissive.x, emissive.y, emissive.z);
         }
         // Optical density
         else if (!strcmp(line, "Ni")) {
-            vector3f_t opdensity;
+            ar_vector3f_t opdensity;
             fscanf(fp, "%f %f %f\n", &opdensity.x, &opdensity.y, &opdensity.z);
             ar_log(AR_LOG_INFO, "opdensity [%f,%f,%f]\n", opdensity.x, opdensity.y, opdensity.z);
         }

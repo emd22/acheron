@@ -4,7 +4,7 @@
 #include <f3d/engine/core/handles.h>
 
 #include <f3d/engine/core/memory/mm_memory.h>
-#include <f3d/engine/type/vec.h>
+#include <f3d/engine/math/mt_math.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,16 +17,16 @@ obj_model_t obj_load(const char *path) {
     obj_model_t model;
     model.inited = 0;
     
-    ar_buffer_init(&model.vertices, AR_BUFFER_DYNAMIC, sizeof(vector3f_t), 4096, 0);
-    ar_buffer_init(&model.uvs,      AR_BUFFER_DYNAMIC, sizeof(vector2f_t), 4096, 0);
-    ar_buffer_init(&model.normals,  AR_BUFFER_DYNAMIC, sizeof(vector3f_t), 4096, 0);
+    ar_buffer_init(&model.vertices, AR_BUFFER_DYNAMIC, sizeof(ar_vector3f_t), 4096, 0);
+    ar_buffer_init(&model.uvs,      AR_BUFFER_DYNAMIC, sizeof(ar_vector2f_t), 4096, 0);
+    ar_buffer_init(&model.normals,  AR_BUFFER_DYNAMIC, sizeof(ar_vector3f_t), 4096, 0);
     
     ar_buffer_t temp_vertices;
     ar_buffer_t temp_uvs;
     ar_buffer_t temp_normals;
-    ar_buffer_init(&temp_vertices, AR_BUFFER_DYNAMIC, sizeof(vector3f_t), 4096, 0);
-    ar_buffer_init(&temp_uvs,      AR_BUFFER_DYNAMIC, sizeof(vector2f_t), 4096, 0);
-    ar_buffer_init(&temp_normals,  AR_BUFFER_DYNAMIC, sizeof(vector3f_t), 4096, 0);
+    ar_buffer_init(&temp_vertices, AR_BUFFER_DYNAMIC, sizeof(ar_vector3f_t), 4096, 0);
+    ar_buffer_init(&temp_uvs,      AR_BUFFER_DYNAMIC, sizeof(ar_vector2f_t), 4096, 0);
+    ar_buffer_init(&temp_normals,  AR_BUFFER_DYNAMIC, sizeof(ar_vector3f_t), 4096, 0);
     
     ar_buffer_t vertex_indices, uv_indices, normal_indices;
     ar_buffer_init(&vertex_indices, AR_BUFFER_DYNAMIC, sizeof(unsigned), 8192, 0);
@@ -48,17 +48,17 @@ obj_model_t obj_load(const char *path) {
         if (res == EOF)
             break;
         if (!strcmp(line, "v")) {
-            vector3f_t vertex;
+            ar_vector3f_t vertex;
             fscanf(fp, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z);
             ar_buffer_push(&temp_vertices, &vertex);
         }
         else if (!strcmp(line, "vt")) {
-            vector2f_t uv;
+            ar_vector2f_t uv;
             fscanf(fp, "%f %f\n", &uv.x, &uv.y);
             ar_buffer_push(&temp_uvs, &uv);
         }
         else if (!strcmp(line, "vn")) {
-            vector3f_t normal;
+            ar_vector3f_t normal;
             fscanf(fp, "%f %f %f\n", &normal.x, &normal.y, &normal.z);
             ar_buffer_push(&temp_normals, &normal);
         }
@@ -118,9 +118,9 @@ obj_model_t obj_load(const char *path) {
         unsigned vert_index = ((unsigned *)vertex_indices.data)[i];
         unsigned uv_index   = ((unsigned *)uv_indices.data)[i];
         unsigned norm_index = ((unsigned *)normal_indices.data)[i];
-        vector3f_t vertex = ((vector3f_t *)temp_vertices.data)[vert_index-1];
-        vector2f_t uv     = ((vector2f_t *)temp_uvs.data)[uv_index-1];
-        vector3f_t normal = ((vector3f_t *)temp_normals.data)[norm_index-1];
+        ar_vector3f_t vertex = ((ar_vector3f_t *)temp_vertices.data)[vert_index-1];
+        ar_vector2f_t uv     = ((ar_vector2f_t *)temp_uvs.data)[uv_index-1];
+        ar_vector3f_t normal = ((ar_vector3f_t *)temp_normals.data)[norm_index-1];
         ar_buffer_push(&model.vertices, &vertex);
         ar_buffer_push(&model.uvs, &uv);
         ar_buffer_push(&model.normals, &normal);    

@@ -23,9 +23,9 @@ ar_object_t *ar_object_new(const char *name) {
     strcpy(object->name, name);
     object->hash = util_hash_str(name);
     object->mesh = NULL;
-    object->position = (vector3f_t){0, 0, 0};
-    object->rotation = (vector3f_t){0, 0, 0};
-    object->scale = (vector3f_t){1, 1, 1};
+    object->position = (ar_vector3f_t){0, 0, 0};
+    object->rotation = (ar_vector3f_t){0, 0, 0};
+    object->scale = (ar_vector3f_t){1, 1, 1};
     object->material = NULL;
     
     object->physics = physics_object_new(PHYSICS_COLLIDER_AABB);
@@ -63,30 +63,30 @@ void scale_object(ar_object_t *object) {
     mat->val[11] *= object->scale.z;
 }
 
-void object_move_v(ar_object_t *object, vector3f_t val) {
+void object_move_v(ar_object_t *object, ar_vector3f_t val) {
     object->position = val;
     object->flags |= AR_OBJECT_FLAG_UPDATE;
 }
 
-void object_rotate_v(ar_object_t *object, vector3f_t val) {
+void object_rotate_v(ar_object_t *object, ar_vector3f_t val) {
     object->rotation = val;
     object->flags |= AR_OBJECT_FLAG_UPDATE;
 }
-void object_scale_v(ar_object_t *object, vector3f_t val) {
+void object_scale_v(ar_object_t *object, ar_vector3f_t val) {
     object->scale = val;
     object->flags |= AR_OBJECT_FLAG_UPDATE;
 }
 
 void object_move(ar_object_t *object, float x, float y, float z) {
-    object_move_v(object, (vector3f_t){x, y, z});
+    object_move_v(object, (ar_vector3f_t){x, y, z});
 }
 
 void object_rotate(ar_object_t *object, float x, float y, float z) {
-    object_rotate_v(object, (vector3f_t){x, y, z});
+    object_rotate_v(object, (ar_vector3f_t){x, y, z});
 }
 
 void object_scale(ar_object_t *object, float x, float y, float z) {
-    object_scale_v(object, (vector3f_t){x, y, z});
+    object_scale_v(object, (ar_vector3f_t){x, y, z});
 }
 
 void ar_object_update(ar_object_t *object) {

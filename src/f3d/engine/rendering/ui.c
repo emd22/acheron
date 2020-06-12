@@ -3,7 +3,7 @@
 #include <f3d/engine/rendering/shader.h>
 #include <f3d/engine/image/texture.h>
 #include <f3d/engine/rendering/ui.h>
-#include <f3d/engine/core/math.h>
+#include <f3d/engine/math/mt_math.h>
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/types.h>
 
@@ -24,11 +24,11 @@ void ui_init() {
     
     //node.mesh = mesh_load(NULL, "../models/cube.obj", MODEL_OBJ, 0);
     node.mesh = mesh_new();
-    vector3f_t quad_vertices[] = {
-        (vector3f_t){-1, -1, 0},
-        (vector3f_t){-1, 1, 0},
-        (vector3f_t){1, 1, 0},
-        (vector3f_t){1, -1, 0}
+    ar_vector3f_t quad_vertices[] = {
+        (ar_vector3f_t){-1, -1, 0},
+        (ar_vector3f_t){-1, 1, 0},
+        (ar_vector3f_t){1, 1, 0},
+        (ar_vector3f_t){1, -1, 0}
     };
     (void)quad_vertices;
     

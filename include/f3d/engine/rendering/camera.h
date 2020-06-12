@@ -16,13 +16,13 @@ typedef enum {
 typedef struct {
     camera_type_t type;
     
-    vector3f_t position;
-    vector3f_t rotation;    
+    ar_vector3f_t position;
+    ar_vector3f_t rotation;    
     
-    vector3f_t right, direction, up;
+    ar_vector3f_t right, direction, up;
     
     float move_speed;
-    vector3f_t move_mul;
+    ar_vector3f_t move_mul;
     float fov;
     
     mat4_t mat_view, mat_projection;

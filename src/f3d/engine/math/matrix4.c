@@ -1,5 +1,5 @@
-#include <f3d/engine/type/matrix4.h>
-#include <f3d/engine/type/vec.h>
+#include <f3d/engine/math/matrix4.h>
+#include <f3d/engine/math/mt_vector.h>
 #include <f3d/engine/core/log.h>
 
 #include <stdlib.h>
@@ -39,10 +39,10 @@ void mat4_identity(mat4_t *mat) {
             mat->val[MAT4_INDEX(i, j)] = (i == j) ? 1.0f : 0.0f;
 }
 
-void mat4_row(vector4f_t *vec, mat4_t *mat, int i) {
+void mat4_row(ar_vector4f_t *vec, mat4_t *mat, int i) {
     int k;
     for (k = 0; k < 4; k++)
-        vecf_set_at(TYPE_VEC4F, vec, k, mat->val[MAT4_INDEX(k, i)]);
+        ar_vectorf_set(AR_VEC4F, vec, k, mat->val[MAT4_INDEX(k, i)]);
 }
 
 void mat4_print(mat4_t *mat) {
@@ -56,33 +56,34 @@ void mat4_print(mat4_t *mat) {
     printf("=== MAT DEBUG END ===\n");
 }
 
-void mat4_translate(mat4_t *mat, vector3f_t v) {
+void mat4_translate(mat4_t *mat, ar_vector3f_t v) {
     mat4_identity(mat);
     mat->val[MAT4_INDEX(3, 0)] = v.x;
     mat->val[MAT4_INDEX(3, 1)] = v.y;
     mat->val[MAT4_INDEX(3, 2)] = v.z;
 }
 
-void mat4_translate_in_place(mat4_t *mat, vector3f_t t) {
-    vector4f_t new = {t.x, t.y, t.z, 0};
-    vector4f_t r;
+void mat4_translate_in_place(mat4_t *mat, ar_vector3f_t t) {
+    ar_vector4f_t new = {t.x, t.y, t.z, 0};
+    ar_vector4f_t r;
     int i;
     for (i = 0; i < 4; i++) {
         mat4_row(&r, mat, i);
-        mat->val[MAT4_INDEX(3, i)] += vec4f_dot(r, new);
+        mat->val[MAT4_INDEX(3, i)] += ar_vector_dot(AR_VEC4F, &r, &new);
+        mat->val[MAT4_INDEX(3, i)] += ar_vector_dot(AR_VEC4F, &r, &new);
     }
 }
 
 void mat4_sub(mat4_t *mat0, mat4_t mat1) {
     int i;
     for (i = 0; i < 4; i++)
-        vec4f_sub((vector4f_t *)(mat0->val+i*4), *(vector4f_t *)(mat0->val+i*4), *(vector4f_t *)(mat1.val+i*4));
+        ar_vector_sub(AR_VEC4F, (mat0->val+i*4), (mat1.val+i*4), (mat0->val+i*4));
 }
 
 void mat4_add(mat4_t *mat0, mat4_t mat1) {
     int i;
     for (i = 0; i < 4; i++)
-        vec4f_add((vector4f_t *)(mat0->val+i*4), *(vector4f_t *)(mat0->val+i*4), *(vector4f_t *)(mat1.val+i*4));
+        ar_vector_add(AR_VEC4F, (mat0->val+i*4), (mat1.val+i*4), (mat0->val+i*4));
 }
 
 // TODO: pass in result matrix as pointer instead
@@ -100,21 +101,21 @@ mat4_t mat4_mul(mat4_t mat0, mat4_t mat1) {
     return res;
 }
 
-mat4_t mat4_mul_vec4(mat4_t mat, vector4f_t vec) {
+mat4_t mat4_mul_vec4(mat4_t mat, ar_vector4f_t vec) {
     mat4_t res;
     int i;
     for (i = 0; i < 16; i++)
-        res.val[i] = mat.val[i]*vecf_get_at(TYPE_VEC4F, &vec, i % 4);
+        res.val[i] = mat.val[i]*ar_vectorf_get(AR_VEC4F, &vec, i % 4);
         
     return res;
 }
 
-void mat4_from_vec3_mul_outer(mat4_t *mat, vector3f_t a, vector3f_t b) {
+void mat4_from_vec3_mul_outer(mat4_t *mat, ar_vector3f_t a, ar_vector3f_t b) {
 	int i, j;
 	for (i = 0; i < 4; i++) 
 	    for (j = 0; j < 4; j++)
 		    mat->val[MAT4_INDEX(i, j)] = (i < 3 && j < 3) 
-		                    ? vecf_get_at(TYPE_VEC3F, &a, i)*vecf_get_at(TYPE_VEC3F, &b, j) 
+		                    ? ar_vectorf_get(AR_VEC3F, &a, i)*ar_vectorf_get(AR_VEC3F, &b, j) 
 		                    : 0.0f;
 }
 
@@ -130,15 +131,15 @@ void mat4_scale(mat4_t *mat, mat4_t a, float k) {
 		//vec4f_scale((vector4f_t *)(mat->val+(i*4)), *((vector4f_t *)(a.val+(i*4))), k);
 }
 
-mat4_t mat4_rotate(mat4_t *mat, vector3f_t r, float angle) {
+mat4_t mat4_rotate(mat4_t *mat, ar_vector3f_t r, float angle) {
     float sn = sinf(angle);
     float cn = cosf(angle);
     (void)cn;
     
     mat4_t res, t;
     
-    if (vec3f_len(r) > 1e-4) {
-        vec3f_norm(&r, r);
+    if (ar_vector_length(AR_VEC3F, &r) > 1e-4) {
+        ar_vector_normalize(AR_VEC3F, &r, &r);
         mat4_t s;
         mat4_set(
             &s, 
