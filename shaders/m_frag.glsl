@@ -89,7 +89,7 @@ vec3 ShadowCalculation(PointLight light, vec3 matdiffuse)
     float current_depth = length(lightToFrag);
     
     if (current_depth-bias > depth) {
-        return 0.0f*matdiffuse;
+        return 0.5f*matdiffuse;
     }
     return vec3(1.0f);
 }

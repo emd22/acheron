@@ -1,5 +1,6 @@
 #include <f3d/engine/math/vector/mt_vector_arith.h>
 #include <f3d/engine/math/vector/mt_vector_math.h>
+#include <f3d/engine/core/log.h>
 
 void ar_vector_add(ar_vector_type_t type, void *vec0, void *vec1, void *result) {
     const int length = _AR_VEC_LENGTH(type);

@@ -50,17 +50,17 @@ void scale_object(ar_object_t *object) {
     mat->val[0] *= object->scale.x;
     mat->val[1] *= object->scale.x;
     mat->val[2] *= object->scale.x;
-    mat->val[3] *= object->scale.x;
+    //mat->val[3] *= object->scale.x;
     
     mat->val[4] *= object->scale.y;
     mat->val[5] *= object->scale.y;
     mat->val[6] *= object->scale.y;
-    mat->val[7] *= object->scale.y;
+    //mat->val[7] *= object->scale.y;
     
     mat->val[8] *= object->scale.z;
     mat->val[9] *= object->scale.z;
     mat->val[10] *= object->scale.z;
-    mat->val[11] *= object->scale.z;
+    //mat->val[11] *= object->scale.z;
 }
 
 void object_move_v(ar_object_t *object, ar_vector3f_t val) {

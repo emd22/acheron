@@ -14,7 +14,6 @@ double math_rad_to_deg(double rad) {
     return rad*(180/AR_PI);
 }
 
-
 ar_vector3f_t math_cross(ar_vector3f_t vec0, ar_vector3f_t vec1) {
     ar_vector3f_t res;
     res.x = vec0.y*vec1.z-vec0.z*vec1.y;

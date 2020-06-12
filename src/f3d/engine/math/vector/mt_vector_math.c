@@ -36,37 +36,40 @@ int ar_vector_type_size(ar_vector_type_t type) {
  * Float and integer get/set functions
  */
 
-
 void ar_vectorf_set(ar_vector_type_t type, void *vec, int index, float value) {
-    const int length = _AR_VEC_LENGTH(type);
-    if (index < 0 || index > length)
-        return;
-    float *valp = (float *)(((float *)vec)+(sizeof(float)*index));
-    (*valp) = value;
+    //const int length = _AR_VEC_LENGTH(type);
+    //if (index < 0 || index > length)
+    //    return;
+    (void)type;
+    float *valp = (float *)vec;
+    valp[index] = value;
 }
 
 void ar_vectori_set(ar_vector_type_t type, void *vec, int index, int value) {
-    const int length = _AR_VEC_LENGTH(type);
-    if (index < 0 || index > length)
-        return;
-    int *valp = (int *)(((int *)vec)+(sizeof(int)*index));
-    (*valp) = value;
+    //const int length = _AR_VEC_LENGTH(type);
+    //if (index < 0 || index > length)
+    //    return;
+    (void)type;
+    int *valp = (int *)vec;
+    valp[index] = value;
 }
 
 float ar_vectorf_get(ar_vector_type_t type, void *vec, int index) {
-    const int length = _AR_VEC_LENGTH(type);
-    if (index < 0 || index > length)
-        return 0.0f;
-    float *value = (float *)(((float *)vec)+(sizeof(float)*index));
-    return (*value);
+    //const int length = _AR_VEC_LENGTH(type);
+    //if (index < 0 || index > length)
+    //    return 0.0f;
+    (void)type;
+    float *values = (float *)vec;
+    return values[index];
 }
 
 int ar_vectori_get(ar_vector_type_t type, void *vec, int index) {
-    const int length = _AR_VEC_LENGTH(type);
-    if (index < 0 || index > length)
-        return 0;
-    int *value = (int *)(((int *)vec)+sizeof(int)*index);
-    return (*value);
+    //const int length = _AR_VEC_LENGTH(type);
+    //if (index < 0 || index > length)
+    //    return 0;
+    (void)type;
+    int *values = (int *)vec;
+    return values[index];
 }
 
 /*

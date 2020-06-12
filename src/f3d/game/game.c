@@ -26,19 +26,18 @@ void init_lights(ar_scene_t *scene) {
     ar_light_shadow_new(light, 700, 700);
     
     ar_light_t *light2 = ar_light_new(AR_LIGHT_POINT);
-    light2->position = (ar_vector3f_t){0.0f, 3.0f, 2.0f};
+    light2->position = (ar_vector3f_t){1.32f, 3.0f, 5.2f};
     light2->diffuse = (ar_vector3f_t){1.0, 0.2, 0.2};
     ar_scene_attach(scene, AR_SCENE_ATTACH_LIGHT, light2);
     ar_light_shadow_new(light2, 700, 700);
 }
 
 void init_objects(ar_scene_t *scene) {
-    ar_object_t *object = ar_object_new("Cube");
+    ar_object_t *object = ar_object_new("Level");
     ar_object_attach(object, AR_OBJECT_ATTACH_MESH, mesh_load(NULL, "../models/reception/reception.obj", MODEL_OBJ, 0));
     object_move(object, 0, 0, 0);
     ar_scene_attach(scene, AR_SCENE_ATTACH_OBJECT, object);
 }
-
 
 int main() {
     ar_instance_t *instance = ar_instance_new(AR_INSTANCE_GRAPHICS);

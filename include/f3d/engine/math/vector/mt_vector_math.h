@@ -3,7 +3,6 @@
 
 #define VEC2F(val) (ar_vector2f_t){val, val}
 #define VEC3F(val) (ar_vector3f_t){val, val, val}
-#define VEC4F(val) (ar_vector4f_t){val, val, val, val}
 
 // if vector is float type(vec2f, vec3f, vec4f) return size of float; 
 // else return sizeof int

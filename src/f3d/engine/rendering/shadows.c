@@ -83,9 +83,9 @@ shadows_point_t shadows_point_init(ar_vector3f_t position, int width, int height
     ar_framebuffer_texture(&shadow.framebuffer, GL_DEPTH_ATTACHMENT);
     //texture_set_parameter(shadow.framebuffer.texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     
-    shadow.collider = physics_collider_new(PHYSICS_COLLIDER_AABB);
-    shadow.collider.position = position;
-    shadow.collider.dimensions = (ar_vector3f_t){far_plane, far_plane, far_plane};
+    //shadow.collider = physics_collider_new(PHYSICS_COLLIDER_AABB);
+    //shadow.collider.position = position;
+    //shadow.collider.dimensions = (ar_vector3f_t){far_plane, far_plane, far_plane};
     
     shadow.shadow_map_id = 0;
     
