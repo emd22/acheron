@@ -1,3 +1,6 @@
+#ifdef AR_USE_OPENGL
+#include <f3d/engine/renderer/rr_shader.h>
+
 #include <f3d/engine/rendering/shader.h>
 #include <f3d/engine/core/memory/mm_memory.h>
 #include <f3d/engine/core/handles.h>
@@ -14,13 +17,6 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
-#define SHADER_NONE -1
-
-static ar_shader_t shaders[MAX_SHADERS];
-static ar_shader_t *shader_table[AR_SHADER_TABLE_SIZE];
-
-static int shaders_index = 0;
-
 const char *get_shader_type_name(int type) {
     if (type == SHADER_NONE)
         return "None";
@@ -34,15 +30,7 @@ const char *get_shader_type_name(int type) {
     return "Unknown";
 }
 
-void ar_shader_manager_set(ar_shader_table_index_t index, ar_shader_t *shader) {
-    shader_table[index] = shader;
-}
-
-ar_shader_t *ar_shader_manager_get(ar_shader_table_index_t index) {
-    return shader_table[index];
-}
-
-void check_status(unsigned id, int type) {
+static void check_shader_status(unsigned id, int type) {
     int info_log_length;
 	glGetShaderiv(id, GL_INFO_LOG_LENGTH, &info_log_length);
 	if (info_log_length > 0) {
@@ -53,14 +41,10 @@ void check_status(unsigned id, int type) {
 	}
 }
 
-bool shader_check_linked(ar_shader_t *shader) {
-    return (shader->program != SHADER_NONE);
-}
-
 static void link_shader_check(ar_shader_t *shader) {
-    if (!shader_check_linked(shader))
+    if (!(shader->program != SHADER_NONE))
         ar_shader_link(shader);
-} 
+}
 
 void ar_shader_use(ar_shader_t *shader) {
     link_shader_check(shader);
@@ -156,21 +140,6 @@ ar_shader_t *ar_shader_get(const char *name) {
     return NULL;
 }
 
-ar_shader_t *ar_shader_new(const char *name) {
-    int index = shaders_index++;
-    ar_shader_t *shader = &shaders[index];
-    shader->hash = util_hash_str(name);
-    
-    shader->vertex = SHADER_NONE;
-    shader->fragment = SHADER_NONE;
-    shader->geometry = SHADER_NONE;
-    shader->program = SHADER_NONE;
-    shader->uniform_index = 0;
-    
-    strcpy(shader->name, name);
-    return shader;
-}
-
 void ar_shader_attach(ar_shader_t *shader, int type, const char *path) {
     if (type == SHADER_VERTEX) {
         shader->vertex = load_shader(path, type);
@@ -218,49 +187,33 @@ unsigned shader_get_uniform_location(ar_shader_t *shader, const char *var, int *
     return new_uniform.location;
 }
 
-void ar_shader_set_mat4(ar_shader_t *shader, const char *var, mat4_t *mat) {
-    const unsigned location = shader_get_uniform_location(shader, var, NULL);
-    glUniformMatrix4fv(location, 1, GL_FALSE, mat->val);
-    const char *errmsg = engine_get_opengl_error();
-    if (errmsg != NULL)
-        ar_log(AR_LOG_ERROR, "OpenGL error: %s: %s\n", var, errmsg);
+void ar_shader_set_uniform(ar_shader_t *shader, ar_shader_uniform_type_t uniform_type, const char *uniform_name, void *value) {
+    int uniform_index = 0;
+    unsigned uniform_location = shader_get_uniform_location(shader, uniform_name, &uniform_index);
+    
+    (void)uniform_index;
+    
+    if (uniform_type == AR_SHADER_VEC3F) {
+        ar_vector3f_t *vec = (ar_vector3f_t)value;
+        glUniform3f(uniform_location, vec->x, vec->y, vec->z);
+    }
+    else if (uniform_type == AR_SHADER_MAT4) {
+        mat4_t *mat = (mat4_t *)value;
+        glUniformMatrix4fv(uniform_location, 1, GL_FALSE, mat->val);
+    }
+    else if (uniform_type == AR_SHADER_FLOAT) {
+        float *val = (float *)value;
+        glUniform1f(location, *val);
+    }
+    else if (uniform_type == AR_SHADER_INT) {
+        int *val = (int *)value;
+        glUniform1i(location, *val);
+    }
+    
+    const char *err = ar_renderer_check_error();
+    if (err != NULL) {
+        ar_log(AR_LOG_ERROR, "OpenGL error: %s\n", err);
+    }
 }
 
-void ar_shader_set_vec3f(ar_shader_t *shader, const char *var, ar_vector3f_t vec) {
-    const unsigned location = shader_get_uniform_location(shader, var, NULL);
-    glUniform3f(location, vec.x, vec.y, vec.z);
-    const char *errmsg = engine_get_opengl_error();
-    if (errmsg != NULL)
-        ar_log(AR_LOG_ERROR, "OpenGL error: %s: %s\n", var, errmsg);
-}
-
-void ar_shader_set_float(ar_shader_t *shader, const char *var, float val) {
-    int uniform_i;
-    
-    const unsigned location = shader_get_uniform_location(shader, var, &uniform_i);
-    // check if uniform is already set to value
-    if (shader->uniforms[uniform_i].value == val)
-        return;
-    shader->uniforms[uniform_i].value = val;
-    
-    glUniform1f(location, val);
-    const char *errmsg = engine_get_opengl_error();
-    if (errmsg != NULL)
-        ar_log(AR_LOG_ERROR, "OpenGL error: %s: %s\n", var, errmsg);
-}
-
-void ar_shader_set_int(ar_shader_t *shader, const char *var, int val) {
-    int uniform_i;
-    
-    const unsigned location = shader_get_uniform_location(shader, var, &uniform_i);
-    // check if uniform is already set to value
-    if (shader->uniforms[uniform_i].value == val)
-        return;
-    shader->uniforms[uniform_i].value = val;
-    
-    glUniform1i(location, val);
-    const char *errmsg = engine_get_opengl_error();
-    if (errmsg != NULL)
-        ar_log(AR_LOG_ERROR, "OpenGL error: %s: %s\n", var, errmsg);
-}
-
+#endif

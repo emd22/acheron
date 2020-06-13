@@ -1,5 +1,0 @@
-#ifndef SB_RENDERER_OPENGL_H
-#define SB_RENDERER_OPENGL_H
-
-
-#endif

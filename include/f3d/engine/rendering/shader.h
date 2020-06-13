@@ -14,6 +14,16 @@
 #define SHADER_FRAGMENT GL_FRAGMENT_SHADER
 #define SHADER_GEOMETRY GL_GEOMETRY_SHADER
 
+typedef enum {
+    AR_SHADER_MAIN,
+    AR_SHADER_SHADOW,
+    AR_SHADER_SKYBOX,
+    AR_SHADER_UI,
+    AR_SHADER_DEBUG,
+    
+    AR_SHADER_TABLE_SIZE,
+} ar_shader_table_index_t;
+
 typedef struct {
     hash_t hash;
     unsigned location;

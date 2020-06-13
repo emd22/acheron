@@ -1,5 +1,5 @@
-#ifndef SB_CONTROLS_H
-#define SB_CONTROLS_H
+#ifndef AR_CONTROLS_H
+#define AR_CONTROLS_H
 
 #include <SDL2/SDL.h>
 #include <stdbool.h>

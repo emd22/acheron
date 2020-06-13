@@ -21,11 +21,12 @@ typedef struct {
 } ar_renderer_instance_t;
 
 ar_renderer_instance_t ar_renderer_init(void);
+void ar_renderer_intern_init(ar_render_instance_t *instance);
 void ar_renderer_destroy(ar_renderer_instance_t *instance);
+
+const char *ar_renderer_check_error(void);
 
 void ar_renderer_enable(ar_renderer_enable_t code);
 void ar_renderer_disable(ar_renderer_enable_t code);
-
-void ar_renderer_opengl_init(void);
 
 #endif

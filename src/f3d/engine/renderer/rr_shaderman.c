@@ -1,3 +1,5 @@
+#include <f3d/engine/renderer/rr_shaderman.h>
+
 #include <f3d/engine/rendering/shader.h>
 #include <f3d/engine/core/memory/mm_memory.h>
 #include <f3d/engine/core/handles.h>
@@ -169,98 +171,5 @@ ar_shader_t *ar_shader_new(const char *name) {
     
     strcpy(shader->name, name);
     return shader;
-}
-
-void ar_shader_attach(ar_shader_t *shader, int type, const char *path) {
-    if (type == SHADER_VERTEX) {
-        shader->vertex = load_shader(path, type);
-    }
-    else if (type == SHADER_FRAGMENT) {
-        shader->fragment = load_shader(path, type);
-    }
-    else if (type == SHADER_GEOMETRY) {
-        shader->geometry = load_shader(path, type);
-    }
-    else {
-        ar_log(AR_LOG_ERROR, "Unsupported shader type\n", 0);
-    }
-}
-
-unsigned shader_get_uniform_location(ar_shader_t *shader, const char *var, int *uniform_index) {
-    link_shader_check(shader);
-    
-    hash_t hash = util_hash_str(var);
-    int i;
-    for (i = 0; i < shader->uniform_index; i++) {
-        // compare hash to cached uniforms
-        if (shader->uniforms[i].hash == hash) {
-            // we found the hash, so we set the index
-            if (uniform_index != NULL)
-                (*uniform_index) = i;
-            // uniform has already been cached, so we return the location
-            return shader->uniforms[i].location;
-        }
-    }
-    // uniform not found, add to uniform buffer in shader
-    shader_uniform_t new_uniform;
-    new_uniform.hash = hash;
-    new_uniform.location = glGetUniformLocation(shader->program, var);
-    
-    // cache the location
-    if (shader->uniform_index != MAX_SHADER_UNIFORMS)
-        shader->uniforms[shader->uniform_index++] = new_uniform;
-        
-    // set uniform_index to the index of the new cached object
-    if (uniform_index != NULL)
-        (*uniform_index) = shader->uniform_index-1;
-    
-    new_uniform.value = 0.0f;
-    return new_uniform.location;
-}
-
-void ar_shader_set_mat4(ar_shader_t *shader, const char *var, mat4_t *mat) {
-    const unsigned location = shader_get_uniform_location(shader, var, NULL);
-    glUniformMatrix4fv(location, 1, GL_FALSE, mat->val);
-    const char *errmsg = engine_get_opengl_error();
-    if (errmsg != NULL)
-        ar_log(AR_LOG_ERROR, "OpenGL error: %s: %s\n", var, errmsg);
-}
-
-void ar_shader_set_vec3f(ar_shader_t *shader, const char *var, ar_vector3f_t vec) {
-    const unsigned location = shader_get_uniform_location(shader, var, NULL);
-    glUniform3f(location, vec.x, vec.y, vec.z);
-    const char *errmsg = engine_get_opengl_error();
-    if (errmsg != NULL)
-        ar_log(AR_LOG_ERROR, "OpenGL error: %s: %s\n", var, errmsg);
-}
-
-void ar_shader_set_float(ar_shader_t *shader, const char *var, float val) {
-    int uniform_i;
-    
-    const unsigned location = shader_get_uniform_location(shader, var, &uniform_i);
-    // check if uniform is already set to value
-    if (shader->uniforms[uniform_i].value == val)
-        return;
-    shader->uniforms[uniform_i].value = val;
-    
-    glUniform1f(location, val);
-    const char *errmsg = engine_get_opengl_error();
-    if (errmsg != NULL)
-        ar_log(AR_LOG_ERROR, "OpenGL error: %s: %s\n", var, errmsg);
-}
-
-void ar_shader_set_int(ar_shader_t *shader, const char *var, int val) {
-    int uniform_i;
-    
-    const unsigned location = shader_get_uniform_location(shader, var, &uniform_i);
-    // check if uniform is already set to value
-    if (shader->uniforms[uniform_i].value == val)
-        return;
-    shader->uniforms[uniform_i].value = val;
-    
-    glUniform1i(location, val);
-    const char *errmsg = engine_get_opengl_error();
-    if (errmsg != NULL)
-        ar_log(AR_LOG_ERROR, "OpenGL error: %s: %s\n", var, errmsg);
 }
 
