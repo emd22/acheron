@@ -92,7 +92,8 @@ void ar_scene_render(ar_shader_t *shader_main, ar_scene_t *scene) {
     for (i = 0; i < MAX_LIGHTS; i++) {
         if (i >= scene->lights.index) {
             sprintf(str, "pointLights[%d].shadow_map", i);
-            ar_shader_set_int(shader_main, str, 4);
+            const int temp = 4;
+            ar_shader_set_uniform(shader_main, AR_SHADER_INT, str, &temp);
             continue;
         }
         light = *((ar_light_t **)ar_buffer_get(&scene->lights, i));

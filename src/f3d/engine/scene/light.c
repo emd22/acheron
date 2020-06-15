@@ -1,5 +1,5 @@
 #include <f3d/engine/scene/light.h>
-#include <f3d/engine/rendering/shader.h>
+#include <f3d/engine/renderer/rr_shader.h>
 #include <f3d/engine/core/log.h>
 
 #include <f3d/engine/rendering/render.h>
@@ -106,44 +106,45 @@ void ar_light_init(ar_light_t *light, ar_shader_t *shader) {
     if (light->type == AR_LIGHT_DIRECTIONAL) {
         ar_log(AR_LOG_INFO, "Initializing directional light (id: %d)\n", light->index);
         sprintf(lightstr, "dirLights[%d].direction", light->index);
-        ar_shader_set_vec3f(shader, lightstr, light->direction);
+        ar_shader_set_uniform(shader, AR_SHADER_VEC3F, lightstr, &light->direction);
 
         sprintf(lightstr, "dirLights[%d].ambient", light->index);
-        ar_shader_set_vec3f(shader, lightstr, light->ambient);
+        ar_shader_set_uniform(shader, AR_SHADER_VEC3F, lightstr, &light->ambient);
 
         sprintf(lightstr, "dirLights[%d].diffuse", light->index);
-        ar_shader_set_vec3f(shader, lightstr, light->diffuse);
+        ar_shader_set_uniform(shader, AR_SHADER_VEC3F, lightstr, &light->diffuse);
 
         sprintf(lightstr, "dirLights[%d].specular", light->index);
-        ar_shader_set_vec3f(shader, lightstr, light->specular);
+        ar_shader_set_uniform(shader, AR_SHADER_VEC3F, lightstr, &light->specular);
     }
     else if (light->type == AR_LIGHT_POINT) {
         ar_log(AR_LOG_INFO, "Initializing point light (id: %d)\n", light->index);
         
         sprintf(lightstr, "pointLights[%d].position", light->index);
-        ar_shader_set_vec3f(shader, lightstr, light->position);
+        ar_shader_set_uniform(shader, AR_SHADER_VEC3F, lightstr, &light->position);
 
         sprintf(lightstr, "pointLights[%d].ambient", light->index);
-        ar_shader_set_vec3f(shader, lightstr, light->ambient);
+        ar_shader_set_uniform(shader, AR_SHADER_VEC3F, lightstr, &light->ambient);
 
         sprintf(lightstr, "pointLights[%d].diffuse", light->index);
-        ar_shader_set_vec3f(shader, lightstr, light->diffuse);
+        ar_shader_set_uniform(shader, AR_SHADER_VEC3F, lightstr, &light->diffuse);
 
         sprintf(lightstr, "pointLights[%d].specular", light->index);
-        ar_shader_set_vec3f(shader, lightstr, light->specular);
+        ar_shader_set_uniform(shader, AR_SHADER_VEC3F, lightstr, &light->specular);
 
         sprintf(lightstr, "pointLights[%d].radius", light->index);
-        ar_shader_set_float(shader, lightstr, light->radius);
+        ar_shader_set_uniform(shader, AR_SHADER_FLOAT, lightstr, &light->radius);
         
         // Shadows
         sprintf(lightstr, "pointLights[%d].shadow_map", light->index);
-        ar_shader_set_int(shader, lightstr, 4+light->point_shadow.shadow_map_id);
+        const int temp1 = 4+light->point_shadow.shadow_map_id;
+        ar_shader_set_uniform(shader, AR_SHADER_INT, lightstr, &temp1);
         
         sprintf(lightstr, "pointLights[%d].shadow_far_plane", light->index);
-        ar_shader_set_float(shader, lightstr, light->point_shadow.far_plane);
+        ar_shader_set_uniform(shader, AR_SHADER_FLOAT, lightstr, &light->point_shadow.far_plane);
         
         sprintf(lightstr, "pointLights[%d].shadows_enabled", light->index);
-        ar_shader_set_float(shader, lightstr, light->use_shadows);
+        ar_shader_set_uniform(shader, AR_SHADER_FLOAT, lightstr, &light->use_shadows);
     }
     else {
         ar_log(AR_LOG_ERROR, "light type #%d not implemented\n", light->type);
@@ -158,22 +159,23 @@ void ar_light_update(ar_light_t *light, ar_shader_t *shader) {
     char lightstr[32];
     if (light->type == AR_LIGHT_DIRECTIONAL) {
         sprintf(lightstr, "dirLights[%d].direction", light->index);
-        ar_shader_set_vec3f(shader, lightstr, light->direction);
+        ar_shader_set_uniform(shader, AR_SHADER_VEC3F, lightstr, &light->direction);
     }
     else if (light->type == AR_LIGHT_POINT) {
         light->point_shadow.far_plane = light->radius;
         sprintf(lightstr, "pointLights[%d].position", light->index);
-        ar_shader_set_vec3f(shader, lightstr, light->position);
+        ar_shader_set_uniform(shader, AR_SHADER_VEC3F, lightstr, &light->position);
         
         if (light->use_shadows) {
             sprintf(lightstr, "pointLights[%d].shadow_map", light->index);
-            ar_shader_set_int(shader, lightstr, 4+light->point_shadow.shadow_map_id);
+            const int temp0 = 4+light->point_shadow.shadow_map_id;
+            ar_shader_set_uniform(shader, AR_SHADER_INT, lightstr, &temp0);
             
             sprintf(lightstr, "pointLights[%d].shadow_far_plane", light->index);
-            ar_shader_set_float(shader, lightstr, light->point_shadow.far_plane);
+            ar_shader_set_uniform(shader, AR_SHADER_FLOAT, lightstr, &light->point_shadow.far_plane);
             
             sprintf(lightstr, "pointLights[%d].shadows_enabled", light->index);
-            ar_shader_set_float(shader, lightstr, light->use_shadows);
+            ar_shader_set_uniform(shader, AR_SHADER_FLOAT, lightstr, &light->use_shadows);
             
             shadows_point_update(&light->point_shadow, light->position);
             ar_light_shadow_render(light, shader);

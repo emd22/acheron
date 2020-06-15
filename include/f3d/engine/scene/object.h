@@ -4,7 +4,7 @@
 #include <f3d/engine/types.h>
 #include <f3d/engine/util.h>
 #include <f3d/engine/model/mesh.h>
-#include <f3d/engine/rendering/shader.h>
+#include <f3d/engine/renderer/rr_shader.h>
 #include <f3d/engine/rendering/camera.h>
 #include <f3d/engine/rendering/framebuffer.h>
 #include <f3d/engine/object/material.h>

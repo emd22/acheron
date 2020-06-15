@@ -1,5 +1,5 @@
 #include <f3d/engine/object/material.h>
-#include <f3d/engine/rendering/shader.h>
+#include <f3d/engine/renderer/rr_shader.h>
 #include <f3d/engine/core/handles.h>
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/util.h>
@@ -57,13 +57,22 @@ void material_update(material_t *mat, ar_shader_t *shader) {
         mat->flags |= MATERIAL_NO_NORMALMAP;
     
 setup_material:;
-    ar_shader_set_int(shader, "material.use_normalmap",   !(mat->flags & MATERIAL_NO_NORMALMAP));
-    ar_shader_set_int(shader, "material.use_specularmap", !(mat->flags & MATERIAL_NO_SPECULARMAP));
-    ar_shader_set_int(shader, "material.use_diffuse",     !(mat->flags & MATERIAL_NO_DIFFUSE));
-    ar_shader_set_int(shader, "material.diffuse",  0);
-    ar_shader_set_int(shader, "material.specular", 1);
-    ar_shader_set_int(shader, "material.normal",   2);
-    ar_shader_set_float(shader, "material.shininess", mat->shininess);
+    int temp0;
+    temp0 = !(mat->flags & MATERIAL_NO_NORMALMAP);
+    ar_shader_set_uniform(shader, AR_SHADER_INT, "material.use_normalmap",   &temp0);
+    temp0 = !(mat->flags & MATERIAL_NO_SPECULARMAP);
+    ar_shader_set_uniform(shader, AR_SHADER_INT, "material.use_specularmap", &temp0);
+    temp0 = !(mat->flags & MATERIAL_NO_DIFFUSE);
+    ar_shader_set_uniform(shader, AR_SHADER_INT, "material.use_diffuse",     &temp0);
+    
+    temp0 = 0;
+    ar_shader_set_uniform(shader, AR_SHADER_INT, "material.diffuse", &temp0);
+    temp0 = 1;
+    ar_shader_set_uniform(shader, AR_SHADER_INT, "material.specular", &temp0);
+    temp0 = 2;
+    ar_shader_set_uniform(shader, AR_SHADER_INT, "material.normal", &temp0);
+
+    ar_shader_set_uniform(shader, AR_SHADER_FLOAT, "material.shininess", &mat->shininess);
 }
 
 material_t *material_get(const char *name) {

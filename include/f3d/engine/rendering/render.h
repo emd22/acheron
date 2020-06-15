@@ -2,7 +2,7 @@
 #define F3D_RENDER_H
 
 
-#include <f3d/engine/rendering/shader.h>
+#include <f3d/engine/renderer/rr_shader.h>
 #include <f3d/engine/scene/object.h>
 #include <f3d/engine/scene/scene.h>
 

@@ -1,6 +1,5 @@
 #include <f3d/engine/acheron.h>
 #include <f3d/engine/core/controls.h>
-#include <f3d/engine/renderer/renderer.h>
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/types.h>
 
@@ -68,4 +67,5 @@ void ar_cleanup(void) {
     ar_object_buffer_destroy();
     ar_scene_buffer_destroy();
     ar_window_buffer_destroy();
+    ar_shader_buffer_destroy();
 }

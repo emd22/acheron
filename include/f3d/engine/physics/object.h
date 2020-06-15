@@ -3,7 +3,7 @@
 
 #include <f3d/engine/types.h>
 #include <f3d/engine/model/mesh.h>
-#include <f3d/engine/rendering/shader.h>
+#include <f3d/engine/renderer/rr_shader.h>
 #include <stdbool.h>
 
 typedef enum {

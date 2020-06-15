@@ -6,7 +6,7 @@
 #include <f3d/engine/model/obj.h>
 #include <f3d/engine/types.h>
 #include <f3d/engine/rendering/camera.h>
-#include <f3d/engine/rendering/shader.h>
+#include <f3d/engine/renderer/rr_shader.h>
 
 #define MESH_NO_TANGENTS 0x01
 #define MESH_KEEP_DATA   0x02

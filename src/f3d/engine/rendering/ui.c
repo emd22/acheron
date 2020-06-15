@@ -1,6 +1,6 @@
 #include <f3d/engine/model/mesh.h>
+#include <f3d/engine/renderer/rr_shaderman.h>
 #include <f3d/engine/rendering/camera.h>
-#include <f3d/engine/rendering/shader.h>
 #include <f3d/engine/image/texture.h>
 #include <f3d/engine/rendering/ui.h>
 #include <f3d/engine/math/mt_math.h>
@@ -19,8 +19,8 @@ ar_shader_t *shader_ui;
 
 void ui_init() {
     shader_ui = ar_shader_new("UI");
-    ar_shader_attach(shader_ui, SHADER_VERTEX, "../shaders/ui/ui_vert.glsl");
-    ar_shader_attach(shader_ui, SHADER_FRAGMENT, "../shaders/ui/ui_frag.glsl");
+    ar_shader_attach(shader_ui, AR_SHADER_VERTEX, "../shaders/ui/ui_vert.glsl");
+    ar_shader_attach(shader_ui, AR_SHADER_FRAGMENT, "../shaders/ui/ui_frag.glsl");
     
     //node.mesh = mesh_load(NULL, "../models/cube.obj", MODEL_OBJ, 0);
     node.mesh = mesh_new();

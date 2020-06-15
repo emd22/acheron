@@ -12,7 +12,7 @@
 
 #include <f3d/engine/rendering/render.h>
 #include <f3d/engine/rendering/camera.h>
-#include <f3d/engine/rendering/shader.h>
+#include <f3d/engine/renderer/rr_shader.h>
 #include <f3d/engine/rendering/shadows.h>
 #include <f3d/engine/rendering/cubemap.h>
 #include <f3d/engine/rendering/ui.h>

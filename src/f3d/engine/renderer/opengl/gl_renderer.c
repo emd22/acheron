@@ -1,8 +1,9 @@
+#ifdef AR_USE_OPENGL
+
 #include <f3d/engine/renderer/rr_renderer.h>
 #include <f3d/engine/core/window.h>
+#include <f3d/engine/core/log.h>
 #include <f3d/engine/acheron.h>
-
-#ifdef AR_USE_OPENGL
 
 #include <GL/glew.h>
 #include <GL/gl.h>
@@ -71,8 +72,8 @@ const char *ar_renderer_check_error(void) {
     return NULL;
 }
 
-void ar_renderer_intern_init(ar_render_instance_t *instance) {
-    memset(&instance, 0, sizeof(ar_renderer_instance_t));
+void ar_renderer_intern_init(ar_renderer_instance_t *instance) {
+    memset(instance, 0, sizeof(ar_renderer_instance_t));
 
     glewExperimental = 1;
     if (glewInit() != GLEW_OK) {
@@ -88,6 +89,7 @@ void ar_renderer_intern_init(ar_render_instance_t *instance) {
     ar_renderer_enable(AR_RENDERER_CULL_FACE);
     glDepthFunc(GL_LESS);
     
+    ar_log(AR_LOG_INFO, "got here\n", 0);
     instance->renderer_type = AR_RENDERER_OPENGL;
 }
 

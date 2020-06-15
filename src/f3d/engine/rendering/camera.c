@@ -1,5 +1,5 @@
 #include <f3d/engine/rendering/camera.h>
-#include <f3d/engine/rendering/shader.h>
+#include <f3d/engine/renderer/rr_shader.h>
 #include <f3d/engine/core/window.h>
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/math/mt_math.h>
@@ -136,5 +136,5 @@ void camera_update(camera_t *camera) {
     
     camera->mat_view = math_lookat(camera->position, lookto, camera->up);
     
-    ar_shader_set_vec3f(shader_main, "view_pos", selected_camera->position);
+    ar_shader_set_uniform(shader_main, AR_SHADER_VEC3F, "view_pos", &selected_camera->position);
 }

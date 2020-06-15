@@ -8,14 +8,15 @@
 #include <SDL2/SDL.h>
 
 ar_renderer_instance_t ar_renderer_init() {
-    ar_render_instance_t instance;
-    ar_renderer_intern_init();
+    ar_renderer_instance_t instance;
+    ar_renderer_intern_init(&instance);
     
     // TODO: replace with renderer independent functions
     SDL_GL_SetSwapInterval(1);
     
     //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
-    //glEnable(GL_MULTISAMPLE);
+    //glEnable(GL_MULTISAMPLE);'
+    return instance;
 }
 
 void ar_renderer_destroy(ar_renderer_instance_t *instance) {

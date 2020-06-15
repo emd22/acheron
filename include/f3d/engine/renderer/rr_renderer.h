@@ -1,5 +1,5 @@
-#ifndef AR_RENDERER_H
-#define AR_RENDERER_H
+#ifndef AR_RR_RENDERER_H
+#define AR_RR_RENDERER_H
 
 typedef enum {
     AR_RENDERER_BLEND,
@@ -21,7 +21,7 @@ typedef struct {
 } ar_renderer_instance_t;
 
 ar_renderer_instance_t ar_renderer_init(void);
-void ar_renderer_intern_init(ar_render_instance_t *instance);
+void ar_renderer_intern_init(ar_renderer_instance_t *instance);
 void ar_renderer_destroy(ar_renderer_instance_t *instance);
 
 const char *ar_renderer_check_error(void);

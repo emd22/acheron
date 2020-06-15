@@ -1,7 +1,7 @@
 #include <f3d/engine/acheron.h>
 #include <f3d/engine/core/log.h>
 #include <f3d/engine/engine.h>
-#include <f3d/engine/rendering/shader.h>
+#include <f3d/engine/renderer/rr_shader.h>
 #include <f3d/game/player.h>
 
 #include <f3d/engine/rendering/render.h>
@@ -40,12 +40,12 @@ void init_objects(ar_scene_t *scene) {
 }
 
 int main() {
+    engine_setup_signals();
     ar_instance_t *instance = ar_instance_new(AR_INSTANCE_GRAPHICS);
     ar_window_t *window = ar_window_new("Acheron3d", 700, 700, 0);
     ar_instance_attach(instance, AR_INSTANCE_ATTACH_WINDOW, window);
     ar_init(instance);
     
-    engine_setup_signals();
     
     render_init();
 

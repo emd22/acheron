@@ -143,7 +143,7 @@ obj_model_t obj_load(const char *path) {
 void obj_destroy(obj_model_t *model) {
     if (!model->inited)
         return;
-    // vertex    
+    // vertex
     ar_buffer_destroy(&model->vertices);
     ar_buffer_destroy(&model->uvs);
     ar_buffer_destroy(&model->normals);

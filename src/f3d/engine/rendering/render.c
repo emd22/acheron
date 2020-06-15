@@ -52,8 +52,8 @@ int render_all_objects(void *arg) {
 void render_init() {
     init_gl();
     shader_main = ar_shader_new("Main");
-    ar_shader_attach(shader_main, SHADER_VERTEX, "../shaders/m_vert.glsl");
-    ar_shader_attach(shader_main, SHADER_FRAGMENT, "../shaders/m_frag.glsl");
+    ar_shader_attach(shader_main, AR_SHADER_VERTEX, "../shaders/m_vert.glsl");
+    ar_shader_attach(shader_main, AR_SHADER_FRAGMENT, "../shaders/m_frag.glsl");
     
     ar_shader_use(shader_main);
     

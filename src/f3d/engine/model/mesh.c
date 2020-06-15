@@ -1,9 +1,9 @@
 #include <f3d/engine/model/mesh.h>
 #include <f3d/engine/model/obj.h>
 #include <f3d/engine/core/log.h>
-#include <f3d/engine/rendering/shader.h>
+#include <f3d/engine/renderer/rr_shader.h>
 #include <f3d/engine/core/memory/mm_memory.h>
-#include <f3d/engine/math/mt_vector.h>
+#include <f3d/engine/math/mt_math.h>
 #include <f3d/engine/limits.h>
 #include <f3d/engine/engine.h>
 
@@ -189,6 +189,7 @@ mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags) {
         generate_packed_vertices(mesh, &obj.vertices, &obj.uvs, &obj.normals);
         generate_indices(mesh);
         mesh->type = MODEL_OBJ;
+        obj_destroy(mesh->obj);
         ar_memory_free(mesh->obj);
     }
     else {
@@ -206,9 +207,12 @@ void mesh_draw(mesh_t *mesh, mat4_t *matrix, camera_t *camera, ar_shader_t *shad
         return;
         
     if (camera != NULL && matrix != NULL && shader != NULL) {
-        ar_shader_set_mat4(shader, "m", matrix);
-        ar_shader_set_mat4(shader, "v", &camera->mat_view);
-        ar_shader_set_mat4(shader, "p", &camera->mat_projection);    
+        //ar_shader_set_mat4(shader, "m", matrix);
+        //ar_shader_set_mat4(shader, "v", &camera->mat_view);
+        //ar_shader_set_mat4(shader, "p", &camera->mat_projection);    
+        ar_shader_set_uniform(shader, AR_SHADER_MAT4, "m", matrix);
+        ar_shader_set_uniform(shader, AR_SHADER_MAT4, "v", &camera->mat_view);
+        ar_shader_set_uniform(shader, AR_SHADER_MAT4, "p", &camera->mat_projection);
     }
     
     glBindVertexArray(mesh->vao);
@@ -282,9 +286,6 @@ void mesh_destroy(mesh_t *mesh) {
         return;
     //log_msg(LOG_INFO, "Deleting mesh(idx: %d)\n", mesh->index);
         
-    if (mesh->type == MODEL_OBJ) {
-        obj_destroy(mesh->obj);
-    }
     ar_buffer_destroy(&mesh->indices);
     ar_buffer_destroy(&mesh->vertices);
     mesh->type = MODEL_NONE;

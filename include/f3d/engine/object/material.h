@@ -4,7 +4,7 @@
 #define MATERIALS_MAX 128
 
 #include <f3d/engine/image/texture.h>
-#include <f3d/engine/rendering/shader.h>
+#include <f3d/engine/renderer/rr_shader.h>
 #include <f3d/engine/util.h>
 
 #include <stdbool.h>

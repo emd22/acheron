@@ -58,9 +58,9 @@ shadows_point_t shadows_point_init(ar_vector3f_t position, int width, int height
     shadows_point_t shadow;
     if (shader_point_shadow == NULL) {
         shader_point_shadow = ar_shader_new("Point Shadow");
-        ar_shader_attach(shader_point_shadow, SHADER_VERTEX, "../shaders/shadows/point_vert.glsl");
-        ar_shader_attach(shader_point_shadow, SHADER_FRAGMENT, "../shaders/shadows/point_frag.glsl");
-        ar_shader_attach(shader_point_shadow, SHADER_GEOMETRY, "../shaders/shadows/point_geom.glsl");
+        ar_shader_attach(shader_point_shadow, AR_SHADER_VERTEX, "../shaders/shadows/point_vert.glsl");
+        ar_shader_attach(shader_point_shadow, AR_SHADER_FRAGMENT, "../shaders/shadows/point_frag.glsl");
+        ar_shader_attach(shader_point_shadow, AR_SHADER_GEOMETRY, "../shaders/shadows/point_geom.glsl");
     }
     shadow.shader = shader_point_shadow;
     
@@ -97,9 +97,9 @@ void shadows_send_uniforms(shadows_point_t *shadow, ar_vector3f_t position) {
     int i;
     for (i = 0; i < 6; i++) {
         sprintf(str, "shadow_matrices[%d]", i);
-        ar_shader_set_mat4(shadow->shader, str, &shadow->point_vps[i]);
+        ar_shader_set_uniform(shadow->shader, AR_SHADER_MAT4, str, &shadow->point_vps[i]);
     }
-    ar_shader_set_vec3f(shadow->shader, "light_pos", position);
+    ar_shader_set_uniform(shadow->shader, AR_SHADER_VEC3F, "light_pos", &position);
 }
 
 void shadows_point_render(shadows_point_t *shadow, ar_vector3f_t position, ar_shader_t *shader_main) {
@@ -122,9 +122,9 @@ void shadows_point_render(shadows_point_t *shadow, ar_vector3f_t position, ar_sh
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     ar_shader_use(shader_main);
-    ar_shader_set_mat4(shader_main, "shadow_bias", &shadow_mat_bias);
+    ar_shader_set_uniform(shader_main, AR_SHADER_MAT4, "shadow_bias", &shadow_mat_bias);
     ar_shader_use(shadow->shader);
-    ar_shader_set_float(shadow->shader, "far_plane", shadow->far_plane);
+    ar_shader_set_uniform(shader_main, AR_SHADER_FLOAT, "far_plane", &shadow->far_plane);
     shadows_send_uniforms(shadow, position);
     
     //objects_draw(shadow->shader, &shadow_cam, false);

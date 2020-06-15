@@ -1,7 +1,7 @@
 #ifndef F3D_SHADOWS_H
 #define F3D_SHADOWS_H
 
-#include <f3d/engine/rendering/shader.h>
+#include <f3d/engine/renderer/rr_shaderman.h>
 #include <f3d/engine/rendering/camera.h>
 #include <f3d/engine/rendering/framebuffer.h>
 #include <f3d/engine/rendering/cubemap.h>

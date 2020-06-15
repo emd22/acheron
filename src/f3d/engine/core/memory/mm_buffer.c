@@ -153,6 +153,7 @@ void ar_buffer_destroy(ar_buffer_t *buffer) {
         return;
     
     buffer_mfree(buffer);
+    buffer->flags &= ~AR_BUFFER_INITIALIZED;
     buffer->data = NULL;
     buffer->size = 0;
     buffer->index = 0;
@@ -166,16 +167,12 @@ void ar_buffer_destroy(ar_buffer_t *buffer) {
 static void *buffer_malloc(ar_buffer_t *buffer, size_t size) {
     if (buffer->flags & AR_BUFFER_UNTRACKED)
         return malloc(size);
-    (void)buffer;
-        
     return ar_memory_alloc(size);
 }
 
 static void *buffer_mrealloc(ar_buffer_t *buffer, size_t new_size) {
     if (buffer->flags & AR_BUFFER_UNTRACKED)
         return realloc(buffer->data, new_size);
-    (void)buffer;
-        
     return ar_memory_realloc(buffer->data, new_size);
 }
 

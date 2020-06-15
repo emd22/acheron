@@ -1,7 +1,10 @@
 #ifdef AR_USE_OPENGL
-#include <f3d/engine/renderer/rr_shader.h>
 
-#include <f3d/engine/rendering/shader.h>
+#include <f3d/engine/renderer/rr_renderer.h>
+#include <f3d/engine/renderer/rr_shader.h>
+#include <f3d/engine/renderer/opengl/gl_shader.h>
+
+#include <f3d/engine/renderer/rr_shader.h>
 #include <f3d/engine/core/memory/mm_memory.h>
 #include <f3d/engine/core/handles.h>
 #include <f3d/engine/core/log.h>
@@ -18,13 +21,13 @@
 #include <GL/gl.h>
 
 const char *get_shader_type_name(int type) {
-    if (type == SHADER_NONE)
+    if (type == AR_SHADER_NONE)
         return "None";
-    else if (type == SHADER_FRAGMENT)
+    else if (type == AR_SHADER_FRAGMENT)
         return  "Fragment";
-    else if (type == SHADER_VERTEX)
+    else if (type == AR_SHADER_VERTEX)
         return "Vertex";
-    else if (type == SHADER_GEOMETRY)
+    else if (type == AR_SHADER_GEOMETRY)
         return "Geometry";
         
     return "Unknown";
@@ -42,7 +45,7 @@ static void check_shader_status(unsigned id, int type) {
 }
 
 static void link_shader_check(ar_shader_t *shader) {
-    if (!(shader->program != SHADER_NONE))
+    if (!(shader->program != AR_SHADER_NONE))
         ar_shader_link(shader);
 }
 
@@ -53,35 +56,35 @@ void ar_shader_use(ar_shader_t *shader) {
 
 void ar_shader_link(ar_shader_t *shader) {
     // shader already linked
-    if (shader->program != SHADER_NONE)
+    if (shader->program != AR_SHADER_NONE)
         return;
         
     shader->program = glCreateProgram();
     
     // attach shaders for linking
-    if (shader->vertex != SHADER_NONE)
+    if (shader->vertex != AR_SHADER_NONE)
         glAttachShader(shader->program, shader->vertex);
         
-    if (shader->fragment != SHADER_NONE)
+    if (shader->fragment != AR_SHADER_NONE)
         glAttachShader(shader->program, shader->fragment);
 
-    if (shader->geometry != SHADER_NONE)
+    if (shader->geometry != AR_SHADER_NONE)
         glAttachShader(shader->program, shader->geometry);
 
     glLinkProgram(shader->program);
     
     // detach shaders from program
-    if (shader->vertex != SHADER_NONE) {
+    if (shader->vertex != AR_SHADER_NONE) {
         glDetachShader(shader->program, shader->vertex);
         glDeleteShader(shader->vertex);
     }
     
-    if (shader->fragment != SHADER_NONE) {
+    if (shader->fragment != AR_SHADER_NONE) {
         glDetachShader(shader->program, shader->fragment);
         glDeleteShader(shader->fragment);
     }
     
-    if (shader->geometry != SHADER_NONE) {
+    if (shader->geometry != AR_SHADER_NONE) {
         glDetachShader(shader->program, shader->geometry);
         glDeleteShader(shader->geometry);
     }
@@ -91,7 +94,7 @@ void ar_shader_link(ar_shader_t *shader) {
     if (!is_linked) {
         // free our program memory in OpenGL if the link has failed
         glDeleteProgram(shader->program);
-        shader->program = SHADER_NONE;
+        shader->program = AR_SHADER_NONE;
         return;
     }
     
@@ -99,7 +102,7 @@ void ar_shader_link(ar_shader_t *shader) {
 }
 
 void ar_shader_destroy(ar_shader_t *shader) {
-    if (shader->program != SHADER_NONE)
+    if (shader->program != AR_SHADER_NONE)
         glDeleteProgram(shader->program);
 }
 
@@ -108,7 +111,7 @@ static long load_shader(const char *path, int type) {
     FILE *fp = fopen(path, "rb");
     if (fp == NULL) {
         ar_log(AR_LOG_ERROR, "%s shader could not be opened\n", get_shader_type_name(type));
-        return SHADER_NONE;
+        return AR_SHADER_NONE;
     }
     // seek file pointer to end of file, get pointer location
     fseek(fp, 0, SEEK_END);
@@ -126,28 +129,18 @@ static long load_shader(const char *path, int type) {
     glShaderSource(shader_id, 1, (const char **)&data, NULL);
     glCompileShader(shader_id);
     ar_memory_free(data);
-    check_status(shader_id, type);
+    check_shader_status(shader_id, type);
     return shader_id;
 }
 
-ar_shader_t *ar_shader_get(const char *name) {
-    int i;
-    hash_t hash = util_hash_str(name);
-    for (i = 0; i < shaders_index; i++) {
-        if (hash == shaders[i].hash)
-            return &shaders[i];
-    }
-    return NULL;
-}
-
 void ar_shader_attach(ar_shader_t *shader, int type, const char *path) {
-    if (type == SHADER_VERTEX) {
+    if (type == AR_SHADER_VERTEX) {
         shader->vertex = load_shader(path, type);
     }
-    else if (type == SHADER_FRAGMENT) {
+    else if (type == AR_SHADER_FRAGMENT) {
         shader->fragment = load_shader(path, type);
     }
-    else if (type == SHADER_GEOMETRY) {
+    else if (type == AR_SHADER_GEOMETRY) {
         shader->geometry = load_shader(path, type);
     }
     else {
@@ -187,14 +180,15 @@ unsigned shader_get_uniform_location(ar_shader_t *shader, const char *var, int *
     return new_uniform.location;
 }
 
-void ar_shader_set_uniform(ar_shader_t *shader, ar_shader_uniform_type_t uniform_type, const char *uniform_name, void *value) {
+void ar_shader_set_uniform(ar_shader_t *shader, ar_shader_uniform_type_t uniform_type, const char *uniform_name, const void *value) {
     int uniform_index = 0;
     unsigned uniform_location = shader_get_uniform_location(shader, uniform_name, &uniform_index);
     
     (void)uniform_index;
+    ar_renderer_check_error();
     
     if (uniform_type == AR_SHADER_VEC3F) {
-        ar_vector3f_t *vec = (ar_vector3f_t)value;
+        ar_vector3f_t *vec = (ar_vector3f_t *)value;
         glUniform3f(uniform_location, vec->x, vec->y, vec->z);
     }
     else if (uniform_type == AR_SHADER_MAT4) {
@@ -203,16 +197,16 @@ void ar_shader_set_uniform(ar_shader_t *shader, ar_shader_uniform_type_t uniform
     }
     else if (uniform_type == AR_SHADER_FLOAT) {
         float *val = (float *)value;
-        glUniform1f(location, *val);
+        glUniform1f(uniform_location, *val);
     }
     else if (uniform_type == AR_SHADER_INT) {
         int *val = (int *)value;
-        glUniform1i(location, *val);
+        glUniform1i(uniform_location, *val);
     }
     
     const char *err = ar_renderer_check_error();
     if (err != NULL) {
-        ar_log(AR_LOG_ERROR, "OpenGL error: %s\n", err);
+        ar_log(AR_LOG_ERROR, "OpenGL error: %s : %s\n", err, uniform_name);
     }
 }
 

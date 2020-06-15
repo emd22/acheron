@@ -21,8 +21,8 @@ physics_collider_t physics_collider_new(physics_collider_type_t type) {
     
     if (shader_bounding == NULL) {
         shader_bounding = ar_shader_new("BoundingBox");
-        ar_shader_attach(shader_bounding, SHADER_VERTEX, "../shaders/debug/bounding_vert.glsl");
-        ar_shader_attach(shader_bounding, SHADER_FRAGMENT, "../shaders/debug/bounding_frag.glsl");
+        ar_shader_attach(shader_bounding, AR_SHADER_VERTEX, "../shaders/debug/bounding_vert.glsl");
+        ar_shader_attach(shader_bounding, AR_SHADER_FRAGMENT, "../shaders/debug/bounding_frag.glsl");
     }
     return collider;
 }
