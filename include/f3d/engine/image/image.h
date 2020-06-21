@@ -3,13 +3,13 @@
 
 #include <f3d/engine/image/bmp.h>
 
-enum {
-    IMAGE_NONE,
-    IMAGE_BMP,
-};
+typedef enum {
+    AR_IMAGE_NONE,
+    AR_IMAGE_BMP,
+} ar_image_type_t;
 
 typedef struct {
-    int type;
+    ar_image_type_t type;
     int width, height;
     int bpp; // bits per pixel
     uint8_t *data;
@@ -19,7 +19,7 @@ typedef struct {
     } image;
 } image_t;
 
-image_t image_load(const char *path, int type);
+image_t image_load(const char *path, ar_image_type_t type);
 void image_destroy(image_t *image);
 
 #endif

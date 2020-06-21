@@ -172,7 +172,10 @@ void mesh_init(mesh_t *mesh, int flags) {
     glVertexAttribPointer(4, 3, GL_FLOAT, 0, stride, (void *)offsetof(vertex_t, bitangent));
 }
 
-void mesh_set_data(mesh_t *mesh, ar_buffer_t *vertices, ar_buffer_t *uvs, ar_buffer_t *normals) {
+mesh_t *ar_mesh_from_data(mesh_t *mesh, ar_buffer_t *vertices, ar_buffer_t *uvs, ar_buffer_t *normals) {
+    if (mesh == NULL)
+        mesh = mesh_new();
+        
     generate_packed_vertices(mesh, vertices, uvs, normals);
     generate_indices(mesh);
 }

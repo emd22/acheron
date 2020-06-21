@@ -6,7 +6,7 @@ void load_bmp(image_t *image, const char *path) {
     image_bmp_t *bmp = &(image->image.bmp);
     (*bmp) = bmp_load(path);
     if (bmp->data == NULL) {
-        image->type = IMAGE_NONE;
+        image->type = AR_IMAGE_NONE;
         return;
     }
     image->type   = IMAGE_BMP;
@@ -16,10 +16,10 @@ void load_bmp(image_t *image, const char *path) {
     image->bpp    = bmp->info.header.pixel_bit_count;
 }
 
-image_t image_load(const char *path, int type) {
+image_t image_load(const char *path, ar_image_type_t type) {
     image_t image;
     image.flags = 0;
-    image.type = IMAGE_NONE;
+    image.type = AR_IMAGE_NONE;
     image.bpp = 0;
     switch (type) {
         case IMAGE_BMP:
@@ -30,9 +30,9 @@ image_t image_load(const char *path, int type) {
 }
 
 void image_destroy(image_t *image) {
-    if (image->data != NULL || image->type == IMAGE_NONE)
+    if (image->data != NULL || image->type == AR_IMAGE_NONE)
         free(image->data);
         
     image->data = NULL;
-    image->type = IMAGE_NONE;
+    image->type = AR_IMAGE_NONE;
 }

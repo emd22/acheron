@@ -63,13 +63,13 @@ void texture_set_data(texture_t *texture, int width, int height, int type_size, 
     glTexImage2D(texture->bind_type, 0, texture->draw_type, width, height, 0, texture->data_type, type_size, data);
 }
 
-texture_t *texture_load(texture_t *texture, const char *path, int type) {
+texture_t *texture_load(texture_t *texture, const char *path, ar_image_type_t image_type) {
     if (texture == NULL) {
         texture = texture_new();
         texture_init(texture);
     }
     
-    texture->image = image_load(path, type);
+    texture->image = image_load(path, image_type);
 
     if (texture->image.data == NULL) {
         ar_log(AR_LOG_ERROR, "Error loading image\n", 0);
@@ -97,13 +97,13 @@ texture_t *texture_load(texture_t *texture, const char *path, int type) {
     return texture;
 }
 
-texture_t *texture_load_data(texture_t *texture, const char *path, int type) {
+texture_t *texture_load_data(texture_t *texture, const char *path, ar_image_type_t image_type) {
     if (texture == NULL) {
         texture = texture_new();
         texture_init(texture);
     }
     
-    texture->image = image_load(path, type);
+    texture->image = image_load(path, image_type);
 
     if (texture->image.data == NULL) {
         ar_log(AR_LOG_ERROR, "Error loading image\n", 0);
