@@ -1,10 +1,10 @@
 #include <f3d/engine/2d/2d_sprite.h>
 #include <f3d/engine/model/mesh.h>
-#include <f3d/engine/core/mm_memory.h>
 #include <f3d/engine/image/texture.h>
 #include <f3d/engine/math/mt_math.h>
 #include <f3d/engine/model/mesh.h>
 
+/*
 static mesh_t *sprite_mesh = NULL;
 static ar_buffer_t sprite_buffer;
 
@@ -49,4 +49,4 @@ ar_sprite_t *ar_sprite_load(ar_sprite_t *sprite, const char *path, ar_image_type
     if (sprite_mesh == NULL) {
         
     }
-}
+}*/

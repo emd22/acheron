@@ -5,7 +5,7 @@
 #include <f3d/game/player.h>
 
 #include <f3d/engine/rendering/render.h>
-#include <f3d/engine/scene/scene.h>
+#include <f3d/engine/scene/sc_scene.h>
 #include <f3d/engine/core/time.h>
 
 #include <GL/glew.h>
@@ -30,6 +30,7 @@ void init_lights(ar_scene_t *scene) {
     light2->diffuse = (ar_vector3f_t){1.0, 0.2, 0.2};
     ar_scene_attach(scene, AR_SCENE_ATTACH_LIGHT, light2);
     ar_light_shadow_new(light2, 700, 700);
+    ar_log(AR_LOG_INFO, "light2 shadows: %d\n", light2->use_shadows);
 }
 
 void init_objects(ar_scene_t *scene) {

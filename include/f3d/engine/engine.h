@@ -17,10 +17,10 @@
 #include <f3d/engine/rendering/cubemap.h>
 #include <f3d/engine/rendering/ui.h>
 
-#include <f3d/engine/scene/scene.h>
-#include <f3d/engine/scene/light.h>
-#include <f3d/engine/scene/skybox.h>
-#include <f3d/engine/scene/object.h>
+#include <f3d/engine/scene/sc_scene.h>
+#include <f3d/engine/scene/sc_light.h>
+#include <f3d/engine/scene/sc_skybox.h>
+#include <f3d/engine/scene/sc_object.h>
 
 #include <f3d/engine/object/material.h>
 

@@ -3,8 +3,8 @@
 
 
 #include <f3d/engine/renderer/rr_shader.h>
-#include <f3d/engine/scene/object.h>
-#include <f3d/engine/scene/scene.h>
+#include <f3d/engine/scene/sc_object.h>
+#include <f3d/engine/scene/sc_scene.h>
 
 extern ar_shader_t *shader_main;
 

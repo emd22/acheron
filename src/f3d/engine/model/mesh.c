@@ -178,6 +178,7 @@ mesh_t *ar_mesh_from_data(mesh_t *mesh, ar_buffer_t *vertices, ar_buffer_t *uvs,
         
     generate_packed_vertices(mesh, vertices, uvs, normals);
     generate_indices(mesh);
+    return mesh;
 }
 
 mesh_t *mesh_load(mesh_t *mesh, const char *path, int type, int flags) {

@@ -89,7 +89,6 @@ void ar_renderer_intern_init(ar_renderer_instance_t *instance) {
     ar_renderer_enable(AR_RENDERER_CULL_FACE);
     glDepthFunc(GL_LESS);
     
-    ar_log(AR_LOG_INFO, "got here\n", 0);
     instance->renderer_type = AR_RENDERER_OPENGL;
 }
 

@@ -1,6 +1,6 @@
 #include <f3d/engine/rendering/render.h>
 #include <f3d/engine/rendering/render_view.h>
-#include <f3d/engine/scene/scene.h>
+#include <f3d/engine/scene/sc_scene.h>
 #include <f3d/engine/engine.h>
 #include <f3d/engine/acheron.h>
 

@@ -9,7 +9,7 @@ void load_bmp(image_t *image, const char *path) {
         image->type = AR_IMAGE_NONE;
         return;
     }
-    image->type   = IMAGE_BMP;
+    image->type   = AR_IMAGE_BMP;
     image->data   = bmp->data;
     image->width  = bmp->info.header.image_width;
     image->height = bmp->info.header.image_height;
@@ -22,8 +22,10 @@ image_t image_load(const char *path, ar_image_type_t type) {
     image.type = AR_IMAGE_NONE;
     image.bpp = 0;
     switch (type) {
-        case IMAGE_BMP:
+        case AR_IMAGE_BMP:
             load_bmp(&image, path);
+            break;
+        default:
             break;
     };
     return image;

@@ -42,7 +42,7 @@ void mtl_load(const char *path) {
             
             strcat(image_path, temp);
             ar_log(AR_LOG_INFO, "load image %s\n", image_path);
-            mat->diffuse = texture_load(NULL, image_path, IMAGE_BMP);
+            mat->diffuse = texture_load(NULL, image_path, AR_IMAGE_BMP);
             mat->specular = mat->diffuse;
             mat->normal = NULL;
         }

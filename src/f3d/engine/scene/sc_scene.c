@@ -1,4 +1,4 @@
-#include <f3d/engine/scene/scene.h>
+#include <f3d/engine/scene/sc_scene.h>
 
 #include <f3d/engine/rendering/shadows.h>
 #include <f3d/engine/rendering/ui.h>

@@ -1,15 +1,15 @@
 #ifndef AR_SCENE_H
 #define AR_SCENE_H
 
-#include <f3d/engine/scene/scene.h>
+#include <f3d/engine/scene/sc_scene.h>
 
 #include <f3d/engine/limits.h>
 #include <f3d/engine/rendering/render_view.h>
 #include <f3d/engine/rendering/camera.h>
 #include <f3d/engine/rendering/shadows.h>
-#include <f3d/engine/scene/light.h>
-#include <f3d/engine/scene/skybox.h>
-#include <f3d/engine/scene/object.h>
+#include <f3d/engine/scene/sc_light.h>
+#include <f3d/engine/scene/sc_skybox.h>
+#include <f3d/engine/scene/sc_object.h>
 #include <f3d/engine/types.h>
 
 #define SCENE_ENABLE_SHADOWS 0x01
