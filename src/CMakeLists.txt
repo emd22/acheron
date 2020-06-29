@@ -4,6 +4,8 @@ set(BUILD_NAME f3d)
 
 project(${BUILD_NAME} C)
 
+find_package(Threads REQUIRED)
+
 set(DEBUG TRUE)
 set(CMAKE_CXX_COMPILER gcc)
 
@@ -31,5 +33,5 @@ include_directories(
   ${CMAKE_CURRENT_LIST_DIR}/../include
 )
 add_executable(${BUILD_NAME} ${SOURCES} ${HEADERS})
-target_link_libraries(${BUILD_NAME} ${DEBUG_LIBARIES} GLEW GL SDL2 m ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(${BUILD_NAME} ${DEBUG_LIBARIES} GLEW GL SDL2 m Threads::Threads)
 set_target_properties(${BUILD_NAME} PROPERTIES COMPILE_FLAGS ${C_FLAGS} LINK_FLAGS ${LINKER_FLAGS})

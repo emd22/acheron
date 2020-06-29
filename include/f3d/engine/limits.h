@@ -19,4 +19,9 @@
 
 #define MAX_LIGHTS 4
 
+#define AR_PATH_LENGTH 64
+#define AR_FILENAME_LENGTH 32
+
+#define AR_ASSET_QUEUE_SIZE 64
+
 #endif
