@@ -1,9 +1,9 @@
 #include <f3d/engine/rendering/camera.h>
 #include <f3d/engine/renderer/rr_shader.h>
-#include <f3d/engine/core/window.h>
-#include <f3d/engine/core/log.h>
+#include <f3d/engine/core/cr_window.h>
+#include <f3d/engine/core/cr_log.h>
+#include <f3d/engine/core/cr_time.h>
 #include <f3d/engine/math/mt_math.h>
-#include <f3d/engine/core/time.h>
 #include <f3d/engine/acheron.h>
 #include <f3d/engine/types.h>
 #include <f3d/engine/rendering/render.h>

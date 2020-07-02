@@ -1,5 +1,5 @@
-#include <f3d/engine/core/debug.h>
-#include <f3d/engine/core/log.h>
+#include <f3d/engine/core/cr_debug.h>
+#include <f3d/engine/core/cr_log.h>
 
 #include <stdlib.h>
 #include <stdio.h>

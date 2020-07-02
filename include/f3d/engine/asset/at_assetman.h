@@ -1,6 +1,9 @@
 #ifndef AR_AT_ASSETMAN_H
 #define AR_AT_ASSETMAN_H
 
+#include <f3d/engine/model/mesh.h>
+#include <f3d/engine/image/image.h>
+
 typedef enum {
     AR_ASSET_NONE,
     AR_ASSET_INCOMPLETE,
@@ -8,7 +11,7 @@ typedef enum {
     AR_ASSET_ERROR,
 } ar_asset_status_t;
 
-typedef struct {
+typedef enum {
     AR_ASSET_IMAGE,
     AR_ASSET_MESH,
 } ar_asset_type_t;

@@ -1,6 +1,6 @@
 #include <f3d/engine/math/matrix4.h>
 #include <f3d/engine/math/mt_vector.h>
-#include <f3d/engine/core/log.h>
+#include <f3d/engine/core/cr_log.h>
 
 #include <stdlib.h>
 #include <stdio.h>

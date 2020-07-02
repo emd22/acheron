@@ -1,7 +1,7 @@
 #include <f3d/engine/object/material.h>
 #include <f3d/engine/renderer/rr_shader.h>
-#include <f3d/engine/core/handles.h>
-#include <f3d/engine/core/log.h>
+#include <f3d/engine/core/cr_handles.h>
+#include <f3d/engine/core/cr_log.h>
 #include <f3d/engine/util.h>
 
 #include <string.h>

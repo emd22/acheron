@@ -1,6 +1,6 @@
 #include <f3d/engine/scene/sc_light.h>
 #include <f3d/engine/renderer/rr_shader.h>
-#include <f3d/engine/core/log.h>
+#include <f3d/engine/core/cr_log.h>
 
 #include <f3d/engine/rendering/render.h>
 

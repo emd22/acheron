@@ -4,7 +4,7 @@
 #include <f3d/engine/image/texture.h>
 #include <f3d/engine/rendering/ui.h>
 #include <f3d/engine/math/mt_math.h>
-#include <f3d/engine/core/log.h>
+#include <f3d/engine/core/cr_log.h>
 #include <f3d/engine/types.h>
 
 typedef struct {

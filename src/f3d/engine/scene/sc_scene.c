@@ -2,9 +2,9 @@
 
 #include <f3d/engine/rendering/shadows.h>
 #include <f3d/engine/rendering/ui.h>
-#include <f3d/engine/core/handles.h>
-#include <f3d/engine/core/log.h>
-#include <f3d/engine/core/time.h>
+#include <f3d/engine/core/cr_handles.h>
+#include <f3d/engine/core/cr_log.h>
+#include <f3d/engine/core/cr_time.h>
 #include <f3d/engine/limits.h>
 #include <f3d/engine/rendering/render.h>
 #include <string.h>

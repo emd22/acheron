@@ -1,7 +1,7 @@
 #include <f3d/engine/image/texture.h>
 #include <f3d/engine/image/image.h>
-#include <f3d/engine/core/handles.h>
-#include <f3d/engine/core/log.h>
+#include <f3d/engine/core/cr_handles.h>
+#include <f3d/engine/core/cr_log.h>
 #include <f3d/engine/types.h>
 #include <f3d/engine/limits.h>
 

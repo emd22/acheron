@@ -1,0 +1,1 @@
+typedef int this_is_for_iso_c_warning_t;

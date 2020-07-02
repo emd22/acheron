@@ -4,8 +4,8 @@
 #include <stdbool.h>
 
 #include <f3d/engine/renderer/rr_renderer.h>
-#include <f3d/engine/core/window.h>
-#include <f3d/engine/core/controls.h>
+#include <f3d/engine/core/cr_window.h>
+#include <f3d/engine/core/cr_controls.h>
 #include <f3d/engine/core/memory/mm_memory.h>
 
 typedef enum {

@@ -1,5 +1,5 @@
-#include <f3d/engine/core/time.h>
-#include <f3d/engine/core/log.h>
+#include <f3d/engine/core/cr_time.h>
+#include <f3d/engine/core/cr_log.h>
 
 #include <SDL2/SDL.h>
 

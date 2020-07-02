@@ -11,33 +11,17 @@ int render_all_objects(void *ptr);
 
 ar_shader_t *shader_main;
 
-void init_gl() {
-    glewExperimental = GL_TRUE;
-    if (glewInit() != GLEW_OK) {
-        ar_log(AR_LOG_FATAL, "Could not initialize GLEW\n", 0);
-        exit(1);
-    }
-    
-    // enable vsync
-    SDL_GL_SetSwapInterval(-1);
-    //SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
-    //glEnable(GL_MULTISAMPLE);
-
-    glClearColor(0.0, 0.0, 0.0, 1);
-    
-    ar_window_t *default_window = ar_instance_get_selected()->window;
-    glViewport(0, 0, default_window->width, default_window->height);
-    
+void init_gl() {    
     handles_init();
     meshes_init();
     
     glEnable(GL_FRAMEBUFFER_SRGB);
     
     // fix overlapping polygons
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
+    //glEnable(GL_DEPTH_TEST);
+    //glDepthFunc(GL_LESS);
     
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
 }
 
 int render_all_objects(void *arg) {

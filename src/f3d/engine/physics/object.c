@@ -1,7 +1,7 @@
 #include <f3d/engine/physics/object.h>
 #include <f3d/engine/rendering/render.h>
-#include <f3d/engine/core/log.h>
-#include <f3d/engine/core/time.h>
+#include <f3d/engine/core/cr_log.h>
+#include <f3d/engine/core/cr_time.h>
 
 #include <math.h>
 

@@ -1,5 +1,5 @@
 #include <f3d/engine/math/mt_math.h>
-#include <f3d/engine/core/log.h>
+#include <f3d/engine/core/cr_log.h>
 
 #include <math.h>
 #include <string.h>

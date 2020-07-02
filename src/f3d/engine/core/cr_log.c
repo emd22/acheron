@@ -1,4 +1,4 @@
-#include <f3d/engine/core/log.h>
+#include <f3d/engine/core/cr_log.h>
 
 #include <stdarg.h>
 #include <stdio.h>

@@ -1,7 +1,7 @@
 #include <f3d/engine/scene/sc_skybox.h>
 #include <f3d/engine/renderer/rr_shaderman.h>
 #include <f3d/engine/rendering/cubemap.h>
-#include <f3d/engine/core/log.h>
+#include <f3d/engine/core/cr_log.h>
 
 ar_shader_t *shader_skybox = NULL;
 //unsigned skybox_vao;

@@ -2,7 +2,7 @@
 
 #include <f3d/engine/engine.h>
 #include <f3d/engine/acheron.h>
-#include <f3d/engine/core/controls.h>
+#include <f3d/engine/core/cr_controls.h>
 
 #include <SDL2/SDL.h>
 

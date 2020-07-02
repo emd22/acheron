@@ -1,6 +1,6 @@
 #include <f3d/engine/renderer/rr_renderer.h>
 
-#include <f3d/engine/core/log.h>
+#include <f3d/engine/core/cr_log.h>
 #include <f3d/engine/types.h>
 
 #include <stdlib.h>

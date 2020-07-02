@@ -1,7 +1,7 @@
 #include <f3d/engine/acheron.h>
-#include <f3d/engine/core/controls.h>
-#include <f3d/engine/core/log.h>
 #include <f3d/engine/types.h>
+#include <f3d/engine/core/cr_controls.h>
+#include <f3d/engine/core/cr_log.h>
 
 #include <f3d/engine/scene/sc_scene.h>
 #include <f3d/engine/scene/sc_light.h>

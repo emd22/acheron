@@ -78,7 +78,7 @@ void main() {
     output_colour = vec4(result, 1.0f);
 }
 
-vec3 ShadowCalculation(PointLight light, vec3 matdiffuse)
+vec3 ShadowCalculation(PointLight light)
 {
     // get vector between fragment position and light position
     vec3 lightToFrag = frag_vertex - light.position;
@@ -89,7 +89,7 @@ vec3 ShadowCalculation(PointLight light, vec3 matdiffuse)
     float current_depth = length(lightToFrag);
     
     if (current_depth-bias > depth) {
-        return 0.1f*matdiffuse;
+        return vec3(0.0f);
     }
     return vec3(1.0f);
 }
@@ -167,9 +167,9 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 view_dir) {
     
     vec3 vis = vec3(1.0f);
     if (light.shadows_enabled) {
-        vis = ShadowCalculation(light, diffuse_tex);    
     }
-    
-    return ((vis) * (mat_diffuse + mat_specular)+mat_ambient);
+    vis = ShadowCalculation(light);
+    //return diffuse_tex*vis;
+    return (((mat_diffuse + mat_specular)+mat_ambient)*vis);
 }
 

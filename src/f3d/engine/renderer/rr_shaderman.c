@@ -1,9 +1,9 @@
 #include <f3d/engine/renderer/rr_shaderman.h>
 #include <f3d/engine/renderer/rr_shader.h>
 
-#include <f3d/engine/core/memory/mm_memory.h>
-#include <f3d/engine/core/log.h>
 #include <f3d/engine/limits.h>
+#include <f3d/engine/core/memory/mm_memory.h>
+#include <f3d/engine/core/cr_log.h>
 
 #include <f3d/engine/types.h>
 

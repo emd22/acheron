@@ -1,7 +1,7 @@
 #include <f3d/engine/rendering/cubemap.h>
 #include <f3d/engine/renderer/rr_shader.h>
 #include <f3d/engine/image/texture.h>
-#include <f3d/engine/core/log.h>
+#include <f3d/engine/core/cr_log.h>
 
 #include <GL/glew.h>
 #include <GL/gl.h>

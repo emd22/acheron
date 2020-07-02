@@ -1,12 +1,12 @@
 #ifndef F3D_ENGINE_H
 #define F3D_ENGINE_H
 
-#include <f3d/engine/core/window.h>
-#include <f3d/engine/core/log.h>
-#include <f3d/engine/core/time.h>
 #include <f3d/engine/math/mt_math.h>
-#include <f3d/engine/core/handles.h>
-#include <f3d/engine/core/debug.h>
+#include <f3d/engine/core/cr_handles.h>
+#include <f3d/engine/core/cr_debug.h>
+#include <f3d/engine/core/cr_window.h>
+#include <f3d/engine/core/cr_log.h>
+#include <f3d/engine/core/cr_time.h>
 
 #include <f3d/engine/image/texture.h>
 
