@@ -169,7 +169,7 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 view_dir) {
         vis = ShadowCalculation(light);
     }
     //return diffuse_tex*vis;
-    return (vis);
+    //return (vis);
     return (((mat_diffuse + mat_specular)+mat_ambient)*vis);
 }
 

@@ -1,4 +1,4 @@
-# f3d
+# Acheron 3D engine
 A 3d game engine written in C99. This is mainly a learning tool,
  but I hope to eventually get it to the point of being a working game!
 ### Requirements
@@ -27,7 +27,7 @@ A 3d game engine written in C99. This is mainly a learning tool,
 - [ ] Overhaul of error handling
 - [ ] Configuration files and/or settings
 - [ ] Post processing shaders
-- [ ] Add in f3d-img for JPEG and PNG image support
+- [ ] Add in custom image library for JPEG and PNG image support
 - [ ] HDR and tone mapping
 - [ ] Lua support
 - [ ] Add spotlight

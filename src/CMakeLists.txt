@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(BUILD_NAME f3d)
+set(BUILD_NAME acheron)
 
 project(${BUILD_NAME} C)
 
