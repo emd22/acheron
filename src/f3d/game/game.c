@@ -67,6 +67,7 @@ int main() {
     ar_scene_render_shadows(scene, shader_main);
     ar_window_option_set(window, AR_WINDOW_OPTION_MOUSE_VISIBLE, false);
     
+    
     while (instance->running) {
         time_tick();
         ar_controls_poll_events();

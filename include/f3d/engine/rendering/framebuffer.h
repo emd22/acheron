@@ -7,6 +7,7 @@
 #include <f3d/engine/image/texture.h>
 
 typedef struct {
+    bool initialized;
     unsigned fbo;
     unsigned depth_buffer;
     

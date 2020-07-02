@@ -38,6 +38,7 @@ ar_framebuffer_t ar_framebuffer_new(int width, int height, int attachment, bool 
     fb.texture_target = GL_TEXTURE_2D;
     
     ar_framebuffer_texture(&fb, attachment);
+    fb.initialized = true;
     
     if (depth_buffer) {
         glGenRenderbuffers(1, &fb.depth_buffer);
@@ -98,8 +99,9 @@ void ar_framebuffer_texture(ar_framebuffer_t *fb, int attachment) {
 }
 
 void ar_framebuffer_destroy(ar_framebuffer_t *fb) {
-    if (fb == NULL)
+    if (fb == NULL || fb->initialized == false)
         return;
+    fb->initialized = false;
     glDeleteFramebuffers(1, &fb->fbo);
     if (fb->texture->image.width != 0) {
         texture_destroy(fb->texture);

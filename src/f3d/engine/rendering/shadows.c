@@ -117,7 +117,7 @@ void shadows_point_render(shadows_point_t *shadow, ar_vector3f_t position, ar_sh
     shadows_send_uniforms(shadow, position);
     
     //ar_objects_draw(shadow->shader, &shadow_cam, false);
-    ar_scene_objects_render(ar_scene_get_selected(), shadow->shader, &shadow->camera, true);
+    ar_scene_objects_render(ar_scene_get_selected(), shadow->shader, &shadow->camera, false);
     
     ar_framebuffer_texture(&shadow->framebuffer, GL_DEPTH_ATTACHMENT);
     ar_shader_use(shader_main);
@@ -159,6 +159,8 @@ void shadows_destroy(shadows_point_t *shadow) {
     if (shadow->shader == NULL)
         return;
     ar_framebuffer_destroy(&shadow->framebuffer);
-    ar_shader_destroy(shadow->shader);
+    if (shader_point_shadow != NULL) {
+        ar_shader_destroy(shader_point_shadow);
+    }
     shadow->shader = NULL;
 }

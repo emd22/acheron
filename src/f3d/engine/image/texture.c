@@ -114,9 +114,10 @@ texture_t *texture_load_data(texture_t *texture, const char *path, ar_image_type
 }
 
 void texture_destroy(texture_t *texture) {
-    if (texture == NULL)
+    if (texture == NULL || texture->index < 0)
         return;
     image_destroy(&texture->image);
+    texture->index = -1;
     // delete texture from OpenGL
     glDeleteTextures(1, &texture->id);
 }

@@ -137,7 +137,7 @@ void ar_light_init(ar_light_t *light, ar_shader_t *shader) {
         
         // Shadows
         sprintf(lightstr, "pointLights[%d].shadow_map", light->index);
-        const int temp1 = 4+light->point_shadow.shadow_map_id;
+        int temp1 = 4+light->point_shadow.shadow_map_id;
         ar_shader_set_uniform(shader, AR_SHADER_INT, lightstr, &temp1);
         
         sprintf(lightstr, "pointLights[%d].shadow_far_plane", light->index);
@@ -168,7 +168,7 @@ void ar_light_update(ar_light_t *light, ar_shader_t *shader) {
         
         if (light->use_shadows) {
             sprintf(lightstr, "pointLights[%d].shadow_map", light->index);
-            const int temp0 = 4+light->point_shadow.shadow_map_id;
+            int temp0 = 4+light->point_shadow.shadow_map_id;
             ar_shader_set_uniform(shader, AR_SHADER_INT, lightstr, &temp0);
             
             sprintf(lightstr, "pointLights[%d].shadow_far_plane", light->index);
