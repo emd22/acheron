@@ -14,6 +14,7 @@ typedef struct {
 } ar_thread_t;
 
 ar_thread_t ar_thread_new(void *(*thread_func)(void *), void *arg);
+void ar_thread_sleep(unsigned msec);
 int ar_thread_join(ar_thread_t *thread, void **retval);
 void ar_thread_exit(void *arg);
 

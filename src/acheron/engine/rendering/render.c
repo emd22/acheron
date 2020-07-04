@@ -11,18 +11,6 @@ int render_all_objects(void *ptr);
 
 ar_shader_t *shader_main;
 
-void init_gl() {
-    ar_meshes_init();
-    
-    glEnable(GL_FRAMEBUFFER_SRGB);
-    
-    // fix overlapping polygons
-    //glEnable(GL_DEPTH_TEST);
-    //glDepthFunc(GL_LESS);
-    
-    //glEnable(GL_CULL_FACE);
-}
-
 int render_all_objects(void *arg) {
     camera_t *cam = (camera_t *)arg;
     
@@ -33,7 +21,6 @@ int render_all_objects(void *arg) {
 }
 
 void render_init() {
-    init_gl();
     shader_main = ar_shader_new("Main");
     ar_shader_attach(shader_main, AR_SHADER_VERTEX, "../shaders/m_vert.glsl");
     ar_shader_attach(shader_main, AR_SHADER_FRAGMENT, "../shaders/m_frag.glsl");

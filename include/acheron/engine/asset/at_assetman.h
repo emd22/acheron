@@ -6,14 +6,15 @@
 
 typedef enum {
     AR_ASSET_NONE,
-    AR_ASSET_INCOMPLETE,
-    AR_ASSET_LOADED,
+    AR_ASSET_LOAD,
+    AR_ASSET_DONE,
     AR_ASSET_ERROR,
 } ar_asset_status_t;
 
 typedef enum {
-    AR_ASSET_IMAGE,
-    AR_ASSET_MESH,
+    AR_ASSET_TYPE_IMAGE,
+    AR_ASSET_TYPE_MESH,
+    AR_ASSET_TYPE_RAW,
 } ar_asset_type_t;
 
 typedef struct ar_asset_s {

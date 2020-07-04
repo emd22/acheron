@@ -6,6 +6,10 @@ ar_thread_t ar_thread_new(void *(*thread_func)(void *), void *arg) {
     return thread;
 }
 
+void ar_thread_sleep(unsigned msec) {
+    ar_thread_intern_sleep(msec);
+}
+
 int ar_thread_join(ar_thread_t *thread, void **retval) {
     return ar_thread_intern_join(&thread->intern_thread, retval);
 }

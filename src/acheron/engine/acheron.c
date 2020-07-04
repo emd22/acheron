@@ -73,8 +73,8 @@ static void signal_handler(int sig) {
 }
 
 void ar_init(ar_instance_t *instance) {
-    // initialize handler functions
     ar_handles_init();
+    ar_meshes_init();
     
     // setup system signals
     signal(SIGINT,  &signal_handler);
@@ -110,4 +110,5 @@ void ar_cleanup(void) {
     ar_scene_buffer_destroy();
     ar_window_buffer_destroy();
     ar_shader_buffer_destroy();
+    ar_meshes_cleanup();
 }
