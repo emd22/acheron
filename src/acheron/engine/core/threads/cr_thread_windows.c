@@ -1,6 +1,6 @@
 #include <acheron/engine/core/cr_macros.h>
 
-#include <acheron/engine/core/threads/cr_threads_windows.h>
+#include <acheron/engine/core/threads/cr_thread_windows.h>
 
 typedef int dummy_typedef_for_iso_compilers_t;
 

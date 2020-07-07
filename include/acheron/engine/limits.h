@@ -24,4 +24,6 @@
 
 #define AR_ASSET_QUEUE_SIZE 64
 
+#define AR_MAX_THREADS 8
+
 #endif

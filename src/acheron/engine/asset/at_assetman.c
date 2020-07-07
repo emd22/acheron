@@ -2,20 +2,19 @@
 #include <acheron/engine/limits.h>
 
 #include <string.h>
+#include <stdlib.h>
 
 #include <acheron/engine/core/memory/mm_memory.h>
-#include <acheron/engine/core/threads/cr_threads.h>
-
-static ar_thread_t asset_thread;
-static char asset_folder[AR_PATH_LENGTH];
+#include <acheron/engine/core/threads/cr_threadman.h>
 
 typedef struct {
-    char filename[AR_PATH_LENGTH];
-    ar_asset_type_t asset_type;
-    ar_asset_status_t status;
-    ar_asset_t asset;
-} ar_asset_queue_item_t;
+    char path[AR_PATH_LENGTH];
+} ar_asset_type_info_t;
 
+static ar_thread_t asset_thread;
+static char asset_path[AR_PATH_LENGTH];
+
+static ar_asset_type_info_t asset_type_info[AR_ASSET_TYPE_AMT];
 static ar_buffer_t asset_queue;
 
 static void load_asset(ar_asset_queue_item_t *item) {
@@ -24,17 +23,31 @@ static void load_asset(ar_asset_queue_item_t *item) {
     }
 }
 
-void *ar_assetman_check_queue(void *arg) {
+static int asset_sort_func(const void *a, const void *b) {
+    ar_asset_t *asset0 = (ar_asset_t *)a;
+    ar_asset_t *asset1 = (ar_asset_t *)b;
+    // sort from highest to lowest
+    return (asset1->precedence-asset0->precedence);
+}
+
+static void *asset_thread(ar_thread_t *thread, void *arg) {
     (void)arg;
     int i;
     ar_asset_queue_item_t *item;
-    for (i = 0; i < AR_ASSET_QUEUE_SIZE; i++) {
-        item = ar_buffer_get(&asset_queue, i);
-        if (item->status == AR_ASSET_LOAD) {
+    while (thread->status == AR_THREAD_RUNNING) {
+        for (i = 0; i < AR_ASSET_QUEUE_SIZE; i++) {
+            item = ar_buffer_get(&asset_queue, i);
             
         }
+        
+        ar_thread_sleep(300);    
     }
-    ar_thread_sleep(500);
+    thread->status = AR_THREAD_STOPPED;
+    return NULL;
+}
+
+void *ar_assetman_check_queue(void *arg) {
+    
     return NULL;
 }
 
@@ -49,6 +62,23 @@ void ar_assetman_init(void) {
     }
 }
 
-void ar_assets_set_path(const char *folder_path) {
-    strcpy(asset_folder, folder_path);
+ar_asset_t *ar_asset_load() {
+    ar_asset_t *asset = buffer_new_item(&asset_queue);
+    qsort(&asset_queue.data, asset_queue.index, sizeof(ar_asset_t), &asset_sort_func);
+    
+    return asset;
+}
+
+void ar_asset_destroy(ar_asset_t *asset) {
+    asset->status = AR_ASSET_NONE;
+    
+    switch (asset->type) {
+        case AR_ASSET_IMAGE:
+        case AR_ASSET_MESH:
+    }
+    
+}
+
+void ar_assetman_set_path(const char *path) {
+    strncpy();
 }

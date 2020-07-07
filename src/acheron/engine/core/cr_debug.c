@@ -4,8 +4,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define BACKTRACE_NAMES
-
 #ifdef __linux__
 #define __USE_GNU
 #include <execinfo.h>
@@ -21,6 +19,13 @@ static char *get_location(char *str) {
     char ch;
     while ((ch = *(str++)) != '(');
     return str-1;
+}
+
+void _ar_assert(int cond, const char *calling_func, const char *assertstr, int calling_line) {
+    if (cond) {
+        ar_log(AR_LOG_FATAL, "Assertion '%s' failed in function %s at line %d\n");
+        ar_threads_force_kill_all(N);
+    }
 }
 
 void ar_debug_print_backtrace(void) {

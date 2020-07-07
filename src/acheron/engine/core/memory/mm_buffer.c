@@ -47,7 +47,7 @@ int ar_buffer_init(ar_buffer_t *buffer, ar_buffer_type_t type, uint16_t obj_sz, 
 bool ar_buffer_is_initialized(ar_buffer_t *buffer) {
     if (buffer == NULL || (!(buffer->flags & AR_BUFFER_INITIALIZED)) || buffer->data == NULL)
         return false;
-        
+    
     return true;   
 }
 
@@ -158,7 +158,6 @@ void ar_buffer_destroy(ar_buffer_t *buffer) {
     buffer->size = 0;
     buffer->index = 0;
 }
-
 
 /*
  * Local buffer memory functions

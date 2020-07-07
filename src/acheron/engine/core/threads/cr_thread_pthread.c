@@ -3,9 +3,9 @@
 #ifdef AR_OS_POSIX
 
 #include <unistd.h>
-#include <acheron/engine/core/threads/cr_threads_pthread.h>
+#include <acheron/engine/core/threads/cr_thread_pthread.h>
 
-int ar_thread_intern_new(ar_thread_intern_t *thread, void *(*thread_func)(void *), void *arg) {
+int ar_thread_intern_init(ar_thread_intern_t *thread, void *(*thread_func)(void *), void *arg) {
     int res;
     res = pthread_create(&thread->pthread, NULL, thread_func, arg);
     return res;
@@ -22,7 +22,5 @@ int ar_thread_intern_join(ar_thread_intern_t *thread, void **retval) {
 void ar_thread_intern_exit(void *arg) {
     pthread_exit(arg);
 }
-
-
 
 #endif

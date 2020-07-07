@@ -7,5 +7,4 @@
 #define AR_OS_WINDOWS
 #endif
 
-
 #endif

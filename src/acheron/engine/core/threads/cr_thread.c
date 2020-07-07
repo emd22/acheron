@@ -1,9 +1,8 @@
-#include <acheron/engine/core/threads/cr_threads.h>
+#include <acheron/engine/core/threads/cr_thread.h>
 
-ar_thread_t ar_thread_new(void *(*thread_func)(void *), void *arg) {
-    ar_thread_t thread;
-    ar_thread_intern_new(&thread.intern_thread, thread_func, arg);
-    return thread;
+void ar_thread_init(ar_thread_t *thread, ar_thread_update_func_t update_func, void *arg) {
+    thread->status = AR_THREAD_RUNNING;
+    ar_thread_intern_init(&thread->intern_thread, update_func, arg);
 }
 
 void ar_thread_sleep(unsigned msec) {
