@@ -32,6 +32,10 @@ file(GLOB_RECURSE HEADERS "../include/*.h")
 include_directories(
   ${CMAKE_CURRENT_LIST_DIR}/../include
 )
+link_directories(
+  ${CMAKE_CURRENT_LIST_DIR}/../lib
+)
+
 add_executable(${BUILD_NAME} ${SOURCES} ${HEADERS})
-target_link_libraries(${BUILD_NAME} ${DEBUG_LIBARIES} GLEW GL SDL2 m Threads::Threads)
+target_link_libraries(${BUILD_NAME} ${DEBUG_LIBARIES} ar_image GLEW GL SDL2 m Threads::Threads)
 set_target_properties(${BUILD_NAME} PROPERTIES COMPILE_FLAGS ${C_FLAGS} LINK_FLAGS ${LINKER_FLAGS})

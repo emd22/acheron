@@ -19,7 +19,7 @@ static ar_buffer_t asset_queue;
 
 static void load_asset(ar_asset_queue_item_t *item) {
     if (item->type == AR_ASSET_IMAGE) {
-        
+            
     }
 }
 
@@ -37,7 +37,7 @@ static void *asset_thread(ar_thread_t *thread, void *arg) {
     while (thread->status == AR_THREAD_RUNNING) {
         for (i = 0; i < AR_ASSET_QUEUE_SIZE; i++) {
             item = ar_buffer_get(&asset_queue, i);
-            
+            if (item->status == AR_ASSET_LOAD)
         }
         
         ar_thread_sleep(300);    
@@ -63,9 +63,9 @@ void ar_assetman_init(void) {
 }
 
 ar_asset_t *ar_asset_load() {
-    ar_asset_t *asset = buffer_new_item(&asset_queue);
     qsort(&asset_queue.data, asset_queue.index, sizeof(ar_asset_t), &asset_sort_func);
-    
+    ar_asset_t *asset = buffer_new_item(&asset_queue);
+    asset->status = AR_ASSET_LOAD;
     return asset;
 }
 
