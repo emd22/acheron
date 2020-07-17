@@ -7,15 +7,10 @@
 #include <acheron/engine/core/memory/mm_memory.h>
 #include <acheron/engine/core/threads/cr_threadman.h>
 
-typedef struct {
-    char path[AR_PATH_LENGTH];
-} ar_asset_type_info_t;
-
 static ar_thread_t asset_thread;
-static char asset_path[AR_PATH_LENGTH];
+static char asset_base_path[AR_PATH_LENGTH];
 
-static ar_asset_type_info_t asset_type_info[AR_ASSET_TYPE_AMT];
-static ar_buffer_t asset_queue;
+static ar_buffer_t op_queue; /* Operation queue */
 
 static void load_asset(ar_asset_queue_item_t *item) {
     if (item->type == AR_ASSET_IMAGE) {
@@ -23,11 +18,35 @@ static void load_asset(ar_asset_queue_item_t *item) {
     }
 }
 
-static int asset_sort_func(const void *a, const void *b) {
-    ar_asset_t *asset0 = (ar_asset_t *)a;
-    ar_asset_t *asset1 = (ar_asset_t *)b;
+static int operations_sort_func(const void *a, const void *b) {
+    ar_asset_t *asset0 = (ar_asset_operation_t *)a;
+    ar_asset_t *asset1 = (ar_asset_operation_t *)b;
     // sort from highest to lowest
-    return (asset1->precedence-asset0->precedence);
+    return (asset1->prec-asset0->prec);
+}
+
+static void operations_sort() {
+    qsort(&op_queue.data, op_queue.index, sizeof(ar_asset_operation_t), &operations_sort_func);
+}
+
+static void asset_load(ar_asset_operation_t *op) {
+    if (op->type == AR_ASSET_TYPE_IMAGE) {
+        
+    }
+}
+
+static void operations_check() {
+    unsigned i;
+    ar_asset_operation_t *op;
+    for (i = 0; i < op_queue.index; i++) {
+        op = ar_buffer_get(&op_queue, i);
+        if (op->type == AR_ASSET_OP_LOAD) {
+            
+        }
+        else if (op->type == AR_ASSET_OP_FREE) {
+            
+        }
+    }
 }
 
 static void *asset_thread(ar_thread_t *thread, void *arg) {
@@ -62,8 +81,11 @@ void ar_assetman_init(void) {
     }
 }
 
+static void sort_operation_queue() {
+    
+}
+
 ar_asset_t *ar_asset_load() {
-    qsort(&asset_queue.data, asset_queue.index, sizeof(ar_asset_t), &asset_sort_func);
     ar_asset_t *asset = buffer_new_item(&asset_queue);
     asset->status = AR_ASSET_LOAD;
     return asset;
