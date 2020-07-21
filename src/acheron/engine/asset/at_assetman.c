@@ -31,7 +31,6 @@ static void operations_sort() {
 
 static void asset_load(ar_asset_operation_t *op) {
     if (op->type == AR_ASSET_TYPE_IMAGE) {
-        
     }
 }
 
