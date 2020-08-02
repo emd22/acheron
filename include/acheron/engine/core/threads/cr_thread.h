@@ -9,8 +9,6 @@
 #include <acheron/engine/core/threads/cr_thread_windows.h>
 #endif
 
-typedef void *(*ar_thread_update_func_t)(ar_thread_t *, void *);
-
 typedef enum {
     AR_THREAD_STOPPED,
     AR_THREAD_STOPPING,
@@ -20,8 +18,10 @@ typedef enum {
 typedef struct ar_thread_s {
     ar_thread_status_t status;
     ar_thread_intern_t intern_thread;
-    ar_thread_update_func_t update_func;
+    void *(*update_func)(void *);
 } ar_thread_t;
+
+typedef void *(*ar_thread_update_func_t)(void *);
 
 void ar_thread_init(ar_thread_t *thread, ar_thread_update_func_t update_func, void *arg);
 void ar_thread_sleep(unsigned msec);

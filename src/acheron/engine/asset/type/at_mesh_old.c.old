@@ -1,5 +1,5 @@
 #include <acheron/engine/asset/type/at_mesh.h>
-#include <acheron/engine/asset/type/model/at_model_obj.h>
+//#include <acheron/engine/asset/type/model/at_model_obj.h>
 
 #include <acheron/engine/renderer/rr_shader.h>
 #include <acheron/engine/math/mt_math.h>

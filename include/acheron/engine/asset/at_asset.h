@@ -1,7 +1,11 @@
 #ifndef AR_AT_ASSET_H
 #define AR_AT_ASSET_H
 
-#include <acheron/engine/asset/type/at_image.h>
+typedef int iso_warning2_t;
+
+#if 0
+
+//#include <acheron/engine/asset/type/at_image.h>
 #include <acheron/engine/asset/type/at_mesh.h>
 
 #include <ar_image/ar_image.h>
@@ -50,4 +54,5 @@ typedef struct {
 ar_asset_type_t *ar_asset_type_get(ar_asset_type_e_t type_index);
 
 
+#endif
 #endif

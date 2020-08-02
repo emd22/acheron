@@ -12,10 +12,12 @@ typedef struct {
 
 static ar_buffer_t thread_buffer;
 
+#if 0
 static void *thread_update(void *ptr) {
     ar_thread_arg_t *this_thread = (ar_thread_arg_t *)ptr;
-    this_thread->thread->update_func(this_thread->thread, this_thread->arg);
+    //this_thread->thread->update_func(this_thread->thread, this_thread->arg);
 }
+#endif
 
 static void init_thread_buffer() {
     ar_buffer_init(&thread_buffer, AR_BUFFER_STATIC, sizeof(ar_thread_t), AR_MAX_THREADS, 0);

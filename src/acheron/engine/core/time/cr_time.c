@@ -1,5 +1,5 @@
-typedef int temp_t;
-/*#include <acheron/engine/core/cr_time.h>
+//typedef int temp_t;
+#include <acheron/engine/core/cr_time.h>
 #include <acheron/engine/core/cr_log.h>
 
 #include <SDL2/SDL.h>
@@ -7,10 +7,6 @@ typedef int temp_t;
 static float now, last;
 float delta_time = 0;
 unsigned long frames_rendered = 0;
-
-typedef struct {
-    
-} ar_time_t;
 
 
 void time_init(void) {
@@ -31,4 +27,4 @@ float ar_time_get_delta(void) {
 }
 
 void time_end(void) {
-}*/
+}

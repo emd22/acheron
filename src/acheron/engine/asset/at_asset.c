@@ -2,6 +2,7 @@
 #include <acheron/engine/asset/at_asset.h>
 #include <ar_image/ar_image.h>
 
+#if 0
 void ar_asset_load_image(const char *path, ar_asset_t *asset, ari_image_type_t image_type) {
     ar_image_load(path, &asset->data.image, image_type);
 }
@@ -16,3 +17,4 @@ ar_asset_t ar_asset_load(const char *path, ar_asset_type_t type) {
     }
      
 }
+#endif

@@ -23,8 +23,8 @@ static char *get_location(char *str) {
 
 void _ar_assert(int cond, const char *calling_func, const char *assertstr, int calling_line) {
     if (cond) {
-        ar_log(AR_LOG_FATAL, "Assertion '%s' failed in function %s at line %d\n");
-        ar_threads_force_kill_all(N);
+        ar_log(AR_LOG_FATAL, "Assertion '%s' failed in function %s at line %d\n", assertstr, calling_func, calling_line);
+        //ar_threads_force_kill_all(N);
     }
 }
 

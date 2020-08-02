@@ -7,6 +7,9 @@
 #include <acheron/engine/core/memory/mm_memory.h>
 #include <acheron/engine/core/threads/cr_threadman.h>
 
+typedef int iso_warning_t;
+
+#if 0
 static ar_thread_t asset_thread;
 static char asset_base_path[AR_PATH_LENGTH];
 
@@ -103,3 +106,4 @@ void ar_asset_destroy(ar_asset_t *asset) {
 void ar_assetman_set_path(const char *path) {
     strncpy();
 }
+#endif

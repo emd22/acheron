@@ -1,9 +1,6 @@
 #ifndef AR_OB_MATERIAL_H
 #define AR_OB_MATERIAL_H
 
-
-
-
 #define MATERIALS_MAX 128
 
 #include <acheron/engine/image/texture.h>
@@ -39,9 +36,5 @@ material_t *material_new(material_t material);
 void material_update(material_t *mat, ar_shader_t *shader);
 material_t *material_get(const char *name);
 void material_destroy(material_t *material);
-
-#endif
-
-
 
 #endif

@@ -26,13 +26,13 @@ void init_lights(ar_scene_t *scene) {
     light->position = (ar_vector3f_t){-1.37f, 3.0f, -6.13f};
     light->diffuse = (ar_vector3f_t){0.2, 1.0, 0.2};
     ar_scene_attach(scene, AR_SCENE_ATTACH_LIGHT, light);
-    ar_light_shadow_new(light, 700, 700);
+    //ar_light_shadow_new(light, 700, 700);
     
     ar_light_t *light2 = ar_light_new(AR_LIGHT_POINT);
     light2->position = (ar_vector3f_t){1.32f, 3.0f, 5.2f};
     light2->diffuse = (ar_vector3f_t){1.0, 0.2, 0.2};
     ar_scene_attach(scene, AR_SCENE_ATTACH_LIGHT, light2);
-    ar_light_shadow_new(light2, 700, 700);
+    //ar_light_shadow_new(light2, 700, 700);
 }
 
 void init_objects(ar_scene_t *scene) {
@@ -43,12 +43,16 @@ void init_objects(ar_scene_t *scene) {
 }
 
 int main() {
+    // create a new instance for graphics
     ar_instance_t *instance = ar_instance_new(AR_INSTANCE_GRAPHICS);
     ar_window_t *window = ar_window_new("Acheron3d", 640, 480, 0);
+    // attach window to engine instance
     ar_instance_attach(instance, AR_INSTANCE_ATTACH_WINDOW, window);
+    // initialize instance
     ar_init(instance);
 
     render_init();
+    time_init();
 
     camera_t camera = camera_new(CAMERA_PERSPECTIVE);
     camera.move_speed = 6.0f;
@@ -85,7 +89,6 @@ int main() {
         player_move(&camera);
         camera_update(selected_camera);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
         render_all();
         ar_window_buffers_swap(window);
         time_end();
