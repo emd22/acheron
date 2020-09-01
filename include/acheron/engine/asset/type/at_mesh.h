@@ -11,13 +11,6 @@
 #define AR_MESH_NO_TANGENTS 0x01
 #define AR_MESH_KEEP_DATA   0x02
 
-#include <assimp/types.h>
-
-
-typedef struct aiVector3D aiVector3D;
-typedef struct aiScene aiScene;
-typedef struct aiMesh aiMesh;
-
 typedef struct {
     ar_vector3f_t position;
     ar_vector2f_t uv;
@@ -52,7 +45,7 @@ void ar_meshes_init(void);
 ar_mesh_t *ar_mesh_new(void);
 ar_mesh_t *ar_mesh_from_data(ar_mesh_t *mesh, ar_buffer_t *vertices, ar_buffer_t *uvs, ar_buffer_t *normals);
 ar_mesh_t *ar_mesh_load(ar_mesh_t *mesh, const char *path, int type, int flags);
-void ar_mesh_draw(ar_mesh_t *mesh, mat4_t *matrix, camera_t *camera, ar_shader_t *shader);
+void ar_mesh_draw(ar_mesh_t *mesh, mat4_t *matrix, ar_quat_t *rotation, camera_t *camera, ar_shader_t *shader);
 void ar_meshes_cleanup(void);
 void ar_mesh_destroy(ar_mesh_t *mesh);
 

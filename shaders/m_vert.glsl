@@ -7,8 +7,7 @@ layout(location = 3) in vec3 vert_tangent;
 layout(location = 4) in vec3 vert_bitangent;
 
 uniform mat4 m;
-uniform mat4 v;
-uniform mat4 p;
+uniform mat4 mvp;
 
 uniform mat4 shadow_bias;
 
@@ -23,7 +22,6 @@ out vec3 frag_tangent;
 out vec3 frag_bitangent;
 
 void main() {
-    mat4 mvp = p*v*m;
     // vertex position
     frag_vertex = (m*vec4(vert_position, 1.0)).xyz;
     vec3 eye_direction = vec3(0.0f, 0.0f, 0.0f)-frag_vertex;

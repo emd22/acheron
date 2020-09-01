@@ -10,6 +10,8 @@
 #include <acheron/engine/object/material.h>
 #include <acheron/engine/physics/object.h>
 
+#include <acheron/engine/math/mt_quat.h>
+
 #include <stdbool.h>
 
 #define AR_OBJECT_FLAG_UPDATE 0x01
@@ -42,7 +44,9 @@ typedef struct object_s {
     ar_vector3f_t position;
     ar_vector3f_t rotation;
     ar_vector3f_t scale;
+    
     mat4_t matrix;
+    ar_quat_t quat_rotation;
     
     physics_object_t physics;
     

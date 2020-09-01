@@ -26,13 +26,13 @@ void init_lights(ar_scene_t *scene) {
     light->position = (ar_vector3f_t){-1.37f, 3.0f, -6.13f};
     light->diffuse = (ar_vector3f_t){0.2, 1.0, 0.2};
     ar_scene_attach(scene, AR_SCENE_ATTACH_LIGHT, light);
-    //ar_light_shadow_new(light, 700, 700);
+    ar_light_shadow_new(light, 700, 700);
     
     ar_light_t *light2 = ar_light_new(AR_LIGHT_POINT);
     light2->position = (ar_vector3f_t){1.32f, 3.0f, 5.2f};
     light2->diffuse = (ar_vector3f_t){1.0, 0.2, 0.2};
     ar_scene_attach(scene, AR_SCENE_ATTACH_LIGHT, light2);
-    //ar_light_shadow_new(light2, 700, 700);
+    ar_light_shadow_new(light2, 700, 700);
 }
 
 void init_objects(ar_scene_t *scene) {
@@ -97,9 +97,9 @@ int main() {
     render_destroy();
     ar_scene_destroy(scene);
     ar_window_destroy(window);
-    ar_instance_destroy();
     
     ar_cleanup();
+    ar_instance_destroy();
 
     ar_memory_cleanup();
 }

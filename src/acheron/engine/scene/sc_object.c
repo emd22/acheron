@@ -44,7 +44,7 @@ void render_set_target(int target, void *ptr) {
     }
 }
 
-void scale_object(ar_object_t *object) {
+/*void scale_object(ar_object_t *object) {
     mat4_t *mat = &object->matrix;
     // x
     mat->val[0] *= object->scale.x;
@@ -61,7 +61,7 @@ void scale_object(ar_object_t *object) {
     mat->val[9] *= object->scale.z;
     mat->val[10] *= object->scale.z;
     //mat->val[11] *= object->scale.z;
-}
+}*/
 
 void object_move_v(ar_object_t *object, ar_vector3f_t val) {
     object->position = val;
@@ -94,11 +94,13 @@ void ar_object_update(ar_object_t *object) {
     mat4_translate(&object->matrix, object->position);
     
     // do rotations
-    object->matrix = mat4_rotate_x(object->matrix, object->rotation.x);
-    object->matrix = mat4_rotate_y(object->matrix, object->rotation.y);
-    object->matrix = mat4_rotate_z(object->matrix, object->rotation.z);
+    //object->matrix = mat4_rotate_x(object->matrix, object->rotation.x);
+    //object->matrix = mat4_rotate_y(object->matrix, object->rotation.y);
+    //object->matrix = mat4_rotate_z(object->matrix, object->rotation.z);
     
-    scale_object(object);
+    ar_quat_from_euler(&object->quat_rotation, object->rotation);
+
+    //scale_object(object);
     object->physics.collider.position = object->position;
     object->physics.collider.scale = object->scale;
 }
@@ -139,7 +141,7 @@ void ar_object_draw(ar_object_t *object, ar_shader_t *shader, camera_t *camera) 
         ar_object_update(object);
     }
     if (object->mesh != NULL) {
-        ar_mesh_draw(object->mesh, &object->matrix, camera, shader);
+        ar_mesh_draw(object->mesh, &object->matrix, &object->quat_rotation, camera, shader);
     }
 }
 

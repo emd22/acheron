@@ -48,7 +48,6 @@ void render_all() {
 }
 
 void render_destroy(void) {
-    ar_meshes_cleanup();
     textures_cleanup();
     ar_shader_destroy(shader_main);
 }

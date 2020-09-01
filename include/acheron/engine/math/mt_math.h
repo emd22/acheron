@@ -2,6 +2,7 @@
 #define AR_M_MATH_H
 
 #include <acheron/engine/math/mt_vector.h>
+#include <acheron/engine/math/mt_quat.h>
 #include <acheron/engine/math/matrix3.h>
 #include <acheron/engine/math/matrix4.h>
 

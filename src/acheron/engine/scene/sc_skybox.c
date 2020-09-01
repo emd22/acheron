@@ -35,7 +35,7 @@ void skybox_render(skybox_t *skybox, camera_t *camera) {
     glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubemap.map->id);
     ar_shader_set_uniform(shader_skybox, AR_SHADER_INT, "skybox", 0);
     
-    ar_mesh_draw(skybox->mesh, NULL, NULL, NULL);
+    ar_mesh_draw(skybox->mesh, NULL, NULL, NULL, NULL);
     
     glEnable(GL_CULL_FACE);
     glDepthFunc(GL_LESS);

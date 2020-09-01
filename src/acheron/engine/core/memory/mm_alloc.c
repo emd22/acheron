@@ -5,13 +5,13 @@
 #include <stdbool.h>
 #include <string.h>
 
-#define AR_MEMORY_DEBUG
-
 #define STARTING_ALLOCS 256
 
 static ar_buffer_t memory_allocs;
 
 void *_ar_memory_alloc(const char *func, size_t size) {
+    (void)func;
+
     void *ptr = NULL;
     ptr = malloc(size);
 #ifdef AR_MEMORY_DEBUG
@@ -24,6 +24,7 @@ void *_ar_memory_alloc(const char *func, size_t size) {
     alloc->ptr = ptr;
     alloc->size = size;
     strcpy(alloc->calling_func, func);
+
     //ar_memory_alloc_t alloc;
     //alloc.ptr = ptr;
     //alloc.size = size;
@@ -60,6 +61,8 @@ ar_memory_alloc_t *ar_memory_get_alloc(void *ptr) {
 }
 
 size_t ar_memory_used(void) {
+    (void)memory_allocs;
+#ifdef AR_MEMORY_DEBUG
     size_t used = 0;
     unsigned i;
     ar_memory_alloc_t *alloc;
@@ -70,6 +73,9 @@ size_t ar_memory_used(void) {
         }
     }
     return used;
+#else
+    return 0;
+#endif
 }
 
 void *ar_memory_realloc(void *ptr, size_t size) {
@@ -108,12 +114,7 @@ void ar_memory_cleanup(void) {
 #endif
 }
 
-void ar_memory_free(void *ptr) {
-    if (ptr == NULL) {
-        ar_log(AR_LOG_ERROR, "Memory pointer == NULL\n", 0);
-        return;
-    }
-    
+void ar_memory_free(void *ptr) {    
 #ifdef AR_MEMORY_DEBUG
     ar_memory_alloc_t *alloc = find_alloc(ptr);
     if (alloc != NULL && alloc->ptr != NULL) {
@@ -121,8 +122,8 @@ void ar_memory_free(void *ptr) {
         free(alloc->ptr);
         alloc->ptr = NULL;
     }
-#else
-    free(ptr);
+    return;
 #endif
+    free(ptr);
 }
 
