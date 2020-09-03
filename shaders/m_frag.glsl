@@ -165,9 +165,9 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 view_dir) {
     mat_specular *= attenuation;
     
     vec3 vis = vec3(1.0f);
-    if (light.shadows_enabled) {
-        vis = ShadowCalculation(light);
-    }
+    //if (light.shadows_enabled) {
+    //    vis = ShadowCalculation(light);
+    //}
     //return diffuse_tex*vis;
     //return (vis);
     return (((mat_diffuse + mat_specular)+mat_ambient)*vis);

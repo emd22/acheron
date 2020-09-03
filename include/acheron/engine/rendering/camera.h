@@ -2,7 +2,7 @@
 #define F3D_CAMERA_H
 
 #include <acheron/engine/types.h>
-
+/*
 #define CAMERA_FORWARD   0
 #define CAMERA_BACKWARD  1
 #define CAMERA_LEFT      2
@@ -25,7 +25,7 @@ typedef struct {
     ar_vector3f_t move_mul;
     float fov;
     
-    mat4_t mat_view, mat_projection;
+    ar_mat4_t mat_view, mat_projection;
 } camera_t;
 
 extern camera_t *selected_camera;
@@ -35,5 +35,5 @@ void camera_select(camera_t *camera);
 void camera_clamp_rotation(camera_t *camera);
 void camera_move(camera_t *camera, int direction);
 void camera_update(camera_t *camera);
-
+*/
 #endif

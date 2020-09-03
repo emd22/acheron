@@ -18,8 +18,8 @@ static ar_shader_t *shader_point_shadow = NULL;
 void generate_point_vp(int index, ar_vector3f_t position, shadows_point_t *shadow, ar_vector3f_t offset, ar_vector3f_t upvec) {
     ar_vector3f_t to;
     ar_vector_add(AR_VEC3F, &position, &offset, &to);
-    shadow->point_vps[index] = math_lookat(position, to, upvec);
-    shadow->point_vps[index] = mat4_mul(shadow->mat_perspective, shadow->point_vps[index]);
+    shadow->point_vps[index] = ar_math_lookat(position, to, upvec);
+    shadow->point_vps[index] = ar_mat4_mul(shadow->mat_perspective, shadow->point_vps[index]);
 }
 
 void generate_point_vps(shadows_point_t *shadow, ar_vector3f_t position) {
@@ -35,8 +35,8 @@ void shadows_point_update(shadows_point_t *shadow, ar_vector3f_t position) {
     // recalculate View/Projection matrices
     generate_point_vps(shadow, position);
     //shadow->collider.position = position;
-    shadow->camera.position = position;
-    camera_update(&shadow->camera);
+    shadow->camera.camera.position = position;
+    ar_camera_update(&shadow->camera.camera);
 }
 
 shadows_point_t shadows_point_init(ar_vector3f_t position, int width, int height, float far_plane) {
@@ -55,7 +55,7 @@ shadows_point_t shadows_point_init(ar_vector3f_t position, int width, int height
     const float near = 1.0f;
     shadow.far_plane = far_plane;
     // generate perspective matrix
-    math_perspective(&shadow.mat_perspective, math_deg_to_rad(90.0f), (float)width/(float)height, near, far_plane);
+    ar_math_perspective(&shadow.mat_perspective, math_deg_to_rad(90.0f), (float)width/(float)height, near, far_plane);
     
     ar_framebuffer_cubemap_init(&shadow.cubemap, width, height);
     generate_point_vps(&shadow, position);
@@ -72,9 +72,9 @@ shadows_point_t shadows_point_init(ar_vector3f_t position, int width, int height
     //shadow.collider.position = position;
     //shadow.collider.dimensions = (ar_vector3f_t){far_plane, far_plane, far_plane};
     
-    shadow.camera = camera_new(CAMERA_PERSPECTIVE);
-    shadow.camera.position = position;
-    camera_update(&shadow.camera);
+    shadow.camera = ar_camera_perspective_new();
+    shadow.camera.camera.position = position;
+    ar_camera_update(&shadow.camera.camera);
     
     shadow.shadow_map_id = 0;
     
@@ -95,8 +95,8 @@ void shadows_point_render(shadows_point_t *shadow, ar_vector3f_t position, ar_sh
     if (shadow->shader == NULL)
         return;
         
-    mat4_t shadow_mat_bias;
-    mat4_set(
+    ar_mat4_t shadow_mat_bias;
+    ar_mat4_set(
         &shadow_mat_bias,
         (float []){
             0.5f, 0.0f, 0.0f, 0.0f,
@@ -105,7 +105,7 @@ void shadows_point_render(shadows_point_t *shadow, ar_vector3f_t position, ar_sh
             0.5f, 0.5f, 0.5f, 1.0f
         }
     );
-    shadow_mat_bias = mat4_mul(shadow_mat_bias, shadow->point_vps[0]);
+    shadow_mat_bias = ar_mat4_mul(shadow_mat_bias, shadow->point_vps[0]);
         
     ar_framebuffer_bind(&shadow->framebuffer);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -117,7 +117,7 @@ void shadows_point_render(shadows_point_t *shadow, ar_vector3f_t position, ar_sh
     shadows_send_uniforms(shadow, position);
     
     //ar_objects_draw(shadow->shader, &shadow_cam, false);
-    ar_scene_objects_render(ar_scene_get_selected(), shadow->shader, &shadow->camera, false);
+    ar_scene_objects_render(ar_scene_get_selected(), shadow->shader, &shadow->camera.camera, false);
     
     ar_framebuffer_texture(&shadow->framebuffer, GL_DEPTH_ATTACHMENT);
     ar_shader_use(shader_main);

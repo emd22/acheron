@@ -5,8 +5,8 @@
 
 #include <acheron/engine/limits.h>
 #include <acheron/engine/rendering/render_view.h>
-#include <acheron/engine/rendering/camera.h>
 #include <acheron/engine/rendering/shadows.h>
+#include <acheron/engine/scene/sc_camera.h>
 #include <acheron/engine/scene/sc_light.h>
 #include <acheron/engine/scene/sc_skybox.h>
 #include <acheron/engine/scene/sc_object.h>
@@ -43,13 +43,13 @@ extern ar_buffer_t scenes;
 
 ar_scene_t *ar_scene_new(const char *name);
 void ar_scene_render_shadows(ar_scene_t *scene, ar_shader_t *shader_main);
-void ar_scene_objects_render(ar_scene_t *scene, ar_shader_t *shader, camera_t *camera, bool render_materials);
+void ar_scene_objects_render(ar_scene_t *scene, ar_shader_t *shader, ar_camera_t *camera, bool render_materials);
 void ar_scene_select(ar_scene_t *scene, ar_shader_t *shader_main);
 ar_scene_t *ar_scene_get_selected(void);
-render_view_t *ar_scene_new_view(ar_scene_t *scene, camera_t *camera, int width, int height, int attachment);
+render_view_t *ar_scene_new_view(ar_scene_t *scene, ar_camera_t *camera, int width, int height, int attachment);
 void ar_scene_object_update(ar_scene_t *scene, ar_object_t *object, ar_shader_t *shader_main);
 void *ar_scene_attach(ar_scene_t *scene, ar_scene_attach_type_t type, void *ptr);
-void ar_scene_render(ar_shader_t *shader_main, ar_scene_t *scene);
+void ar_scene_render(ar_shader_t *shader_main, ar_scene_t *scene, ar_camera_t *camera);
 
 void ar_scene_destroy(ar_scene_t *scene);
 void ar_scene_buffer_destroy(void);

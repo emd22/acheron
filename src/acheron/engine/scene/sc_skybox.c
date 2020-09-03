@@ -19,7 +19,7 @@ skybox_t skybox_new(texture_t **textures) {
     return skybox;
 }
 
-void skybox_render(skybox_t *skybox, camera_t *camera) {
+void skybox_render(skybox_t *skybox, ar_camera_t *camera) {
     if (shader_skybox == NULL) {
         ar_log(AR_LOG_ERROR, "shader null\n", 0);
     }
@@ -28,8 +28,8 @@ void skybox_render(skybox_t *skybox, camera_t *camera) {
     glDepthFunc(GL_LEQUAL);
     ar_shader_use(shader_skybox);
     
-    ar_shader_set_uniform(shader_skybox, AR_SHADER_MAT4, "projection", &camera->mat_projection);
-    ar_shader_set_uniform(shader_skybox, AR_SHADER_MAT4, "view", &camera->mat_view);
+    ar_shader_set_uniform(shader_skybox, AR_SHADER_MAT4, "projection", &camera->projection);
+    ar_shader_set_uniform(shader_skybox, AR_SHADER_MAT4, "view", &camera->view);
     
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, skybox->cubemap.map->id);

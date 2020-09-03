@@ -15,8 +15,10 @@
 
 #define RADIAN_MAX 6.2831
 
-camera_t *selected_camera = NULL;
+typedef int isoerr_t;
 
+/*
+camera_t *selected_camera = NULL;
 camera_t camera_new(camera_type_t type) {
     camera_t camera;
     memset(&camera, 0, sizeof(camera_t));
@@ -138,3 +140,4 @@ void camera_update(camera_t *camera) {
     
     ar_shader_set_uniform(shader_main, AR_SHADER_VEC3F, "view_pos", &selected_camera->position);
 }
+*/

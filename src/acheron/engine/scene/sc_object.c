@@ -45,7 +45,7 @@ void render_set_target(int target, void *ptr) {
 }
 
 /*void scale_object(ar_object_t *object) {
-    mat4_t *mat = &object->matrix;
+    ar_mat4_t *mat = &object->matrix;
     // x
     mat->val[0] *= object->scale.x;
     mat->val[1] *= object->scale.x;
@@ -91,7 +91,7 @@ void object_scale(ar_object_t *object, float x, float y, float z) {
 
 void ar_object_update(ar_object_t *object) {
     // translations
-    mat4_translate(&object->matrix, object->position);
+    ar_mat4_translate(&object->matrix, object->position);
     
     // do rotations
     //object->matrix = mat4_rotate_x(object->matrix, object->rotation.x);
@@ -136,7 +136,7 @@ void ar_objects_sort(ar_object_t *objects, int objects_size) {
     qsort(obj_buffer, objects_size, sizeof(ar_object_t), &compare_materials);
 }
 
-void ar_object_draw(ar_object_t *object, ar_shader_t *shader, camera_t *camera) {
+void ar_object_draw(ar_object_t *object, ar_shader_t *shader, ar_camera_t *camera) {
     if (object->flags & AR_OBJECT_FLAG_UPDATE) {
         ar_object_update(object);
     }
@@ -145,7 +145,7 @@ void ar_object_draw(ar_object_t *object, ar_shader_t *shader, camera_t *camera) 
     }
 }
 
-void ar_objects_draw(ar_object_t *objects, int objects_size, ar_shader_t *shader, camera_t *camera, bool render_materials) {
+void ar_objects_draw(ar_object_t *objects, int objects_size, ar_shader_t *shader, ar_camera_t *camera, bool render_materials) {
     if (objects_sorted == false)
         ar_objects_sort(objects, objects_size);
     

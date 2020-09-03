@@ -1,4 +1,4 @@
-#include <acheron/engine/math/matrix4.h>
+#include <acheron/engine/math/mt_mat4.h>
 #include <acheron/engine/math/mt_vector.h>
 #include <acheron/engine/core/cr_log.h>
 
@@ -12,7 +12,7 @@
 // TODO: Some optimizations and loop unrolling
 // code should be changed to modify pointer instead of returning new matrix.
 
-inline void mat4_set(mat4_t *mat, float *data) {
+inline void ar_mat4_set(ar_mat4_t *mat, float *data) {
     mat->val[0] = data[0];
     mat->val[1] = data[1];
     mat->val[2] = data[2];
@@ -32,20 +32,20 @@ inline void mat4_set(mat4_t *mat, float *data) {
 }
 
 // https://github.com/datenwolf/linmath.h/blob/master/linmath.h
-void mat4_identity(mat4_t *mat) {
+void ar_mat4_identity(ar_mat4_t *mat) {
     int i, j;
     for (i = 0; i < 4; i++)
         for (j = 0; j < 4; j++)
             mat->val[MAT4_INDEX(i, j)] = (i == j) ? 1.0f : 0.0f;
 }
 
-void mat4_row(ar_vector4f_t *vec, mat4_t *mat, int i) {
+void ar_mat4_row(ar_vector4f_t *vec, ar_mat4_t *mat, int i) {
     int k;
     for (k = 0; k < 4; k++)
         ar_vectorf_set(AR_VEC4F, vec, k, mat->val[MAT4_INDEX(k, i)]);
 }
 
-void mat4_print(mat4_t *mat) {
+void ar_mat4_print(ar_mat4_t *mat) {
     int i;
     printf("=== MAT DEBUG ===\n");
     for (i = 0; i < 16; i++) {
@@ -56,38 +56,38 @@ void mat4_print(mat4_t *mat) {
     printf("=== MAT DEBUG END ===\n");
 }
 
-void mat4_translate(mat4_t *mat, ar_vector3f_t v) {
-    mat4_identity(mat);
+void ar_mat4_translate(ar_mat4_t *mat, ar_vector3f_t v) {
+    ar_mat4_identity(mat);
     mat->val[MAT4_INDEX(3, 0)] = v.x;
     mat->val[MAT4_INDEX(3, 1)] = v.y;
     mat->val[MAT4_INDEX(3, 2)] = v.z;
 }
 
-void mat4_translate_in_place(mat4_t *mat, ar_vector3f_t t) {
+void ar_mat4_translate_in_place(ar_mat4_t *mat, ar_vector3f_t t) {
     ar_vector4f_t new = {t.x, t.y, t.z, 0};
     ar_vector4f_t r;
     int i;
     for (i = 0; i < 4; i++) {
-        mat4_row(&r, mat, i);
+        ar_mat4_row(&r, mat, i);
         mat->val[MAT4_INDEX(3, i)] += ar_vector_dot(AR_VEC4F, &r, &new);
     }
 }
 
-void mat4_sub(mat4_t *mat0, mat4_t mat1) {
+void ar_mat4_sub(ar_mat4_t *mat0, ar_mat4_t mat1) {
     int i;
     for (i = 0; i < 4; i++)
         ar_vector_sub(AR_VEC4F, (mat0->val+i*4), (mat1.val+i*4), (mat0->val+i*4));
 }
 
-void mat4_add(mat4_t *mat0, mat4_t mat1) {
+void ar_mat4_add(ar_mat4_t *mat0, ar_mat4_t mat1) {
     int i;
     for (i = 0; i < 4; i++)
         ar_vector_add(AR_VEC4F, (mat0->val+i*4), (mat1.val+i*4), (mat0->val+i*4));
 }
 
 // TODO: pass in result matrix as pointer instead
-mat4_t mat4_mul(mat4_t mat0, mat4_t mat1) {
-    mat4_t res;
+ar_mat4_t ar_mat4_mul(ar_mat4_t mat0, ar_mat4_t mat1) {
+    ar_mat4_t res;
     int i, j, k;
     for (i = 0; i < 4; i++) {
         for (j = 0; j < 4; j++) {
@@ -100,8 +100,8 @@ mat4_t mat4_mul(mat4_t mat0, mat4_t mat1) {
     return res;
 }
 
-mat4_t mat4_mul_vec4(mat4_t mat, ar_vector4f_t vec) {
-    mat4_t res;
+ar_mat4_t ar_mat4_mul_vec4(ar_mat4_t mat, ar_vector4f_t vec) {
+    ar_mat4_t res;
     int i;
     for (i = 0; i < 16; i++)
         res.val[i] = mat.val[i]*ar_vectorf_get(AR_VEC4F, &vec, i % 4);
@@ -109,38 +109,38 @@ mat4_t mat4_mul_vec4(mat4_t mat, ar_vector4f_t vec) {
     return res;
 }
 
-void mat4_from_vec3_mul_outer(mat4_t *mat, ar_vector3f_t a, ar_vector3f_t b) {
-	int i, j;
-	for (i = 0; i < 4; i++) 
-	    for (j = 0; j < 4; j++)
-		    mat->val[MAT4_INDEX(i, j)] = (i < 3 && j < 3) 
-		                    ? ar_vectorf_get(AR_VEC3F, &a, i)*ar_vectorf_get(AR_VEC3F, &b, j) 
-		                    : 0.0f;
+void ar_mat4_from_vec3_mul_outer(ar_mat4_t *mat, ar_vector3f_t a, ar_vector3f_t b) {
+    int i, j;
+    for (i = 0; i < 4; i++) 
+        for (j = 0; j < 4; j++)
+            mat->val[MAT4_INDEX(i, j)] = (i < 3 && j < 3) 
+                            ? ar_vectorf_get(AR_VEC3F, &a, i)*ar_vectorf_get(AR_VEC3F, &b, j) 
+                            : 0.0f;
 }
 
-void mat4_scale(mat4_t *mat, mat4_t a, float k) {
+void ar_mat4_scale(ar_mat4_t *mat, ar_mat4_t a, float k) {
     int i;
-	for (i = 0; i < 4; i++) {
-	    mat->val[i] = a.val[i]*k;
-	    mat->val[i+1] = a.val[i+1]*k;
-	    mat->val[i+2] = a.val[i+2]*k;
-	    mat->val[i+3] = a.val[i+3]*k;
-	}
-	mat->val[15] = 1;
-		//vec4f_scale((vector4f_t *)(mat->val+(i*4)), *((vector4f_t *)(a.val+(i*4))), k);
+    for (i = 0; i < 4; i++) {
+        mat->val[i] = a.val[i]*k;
+        mat->val[i+1] = a.val[i+1]*k;
+        mat->val[i+2] = a.val[i+2]*k;
+        mat->val[i+3] = a.val[i+3]*k;
+    }
+    mat->val[15] = 1;
+        //vec4f_scale((vector4f_t *)(mat->val+(i*4)), *((vector4f_t *)(a.val+(i*4))), k);
 }
 
-mat4_t mat4_rotate(mat4_t *mat, ar_vector3f_t r, float angle) {
+ar_mat4_t ar_mat4_rotate(ar_mat4_t *mat, ar_vector3f_t r, float angle) {
     float sn = sinf(angle);
     float cn = cosf(angle);
     (void)cn;
     
-    mat4_t res, t;
+    ar_mat4_t res, t;
     
     if (ar_vector_length(AR_VEC3F, &r) > 1e-4) {
         ar_vector_normalize(AR_VEC3F, &r, &r);
-        mat4_t s;
-        mat4_set(
+        ar_mat4_t s;
+        ar_mat4_set(
             &s, 
             (float []){
                  0.0f,  r.z,  -r.y,  0.0f,
@@ -149,17 +149,17 @@ mat4_t mat4_rotate(mat4_t *mat, ar_vector3f_t r, float angle) {
                  0.0f,  0.0f,  0.0f, 0.0f
             }
         );
-        mat4_from_vec3_mul_outer(&t, r, r);
+        ar_mat4_from_vec3_mul_outer(&t, r, r);
         
-        mat4_scale(&s, s, sn);
-        mat4_t c;
-        mat4_identity(&c);
-        mat4_sub(&c, t);
-        mat4_scale(&c, c, cn);
-        mat4_add(&t, c);
-        mat4_add(&t, s);
+        ar_mat4_scale(&s, s, sn);
+        ar_mat4_t c;
+        ar_mat4_identity(&c);
+        ar_mat4_sub(&c, t);
+        ar_mat4_scale(&c, c, cn);
+        ar_mat4_add(&t, c);
+        ar_mat4_add(&t, s);
         t.val[15] = 1;
-        res = mat4_mul(*mat, t);
+        res = ar_mat4_mul(*mat, t);
         return res;
     }
     else {
@@ -168,12 +168,12 @@ mat4_t mat4_rotate(mat4_t *mat, ar_vector3f_t r, float angle) {
     return res;
 }
 
-mat4_t mat4_rotate_x(mat4_t mat, float angle) {
+ar_mat4_t ar_mat4_rotate_x(ar_mat4_t mat, float angle) {
     const float sn = sinf(angle);
     const float cn = cosf(angle);
     
-    mat4_t rot, res;
-    mat4_set(
+    ar_mat4_t rot, res;
+    ar_mat4_set(
         &rot, 
         (float []){
             1.0f, 0.0f, 0.0f, 0.0f,
@@ -182,16 +182,16 @@ mat4_t mat4_rotate_x(mat4_t mat, float angle) {
             0.0f, 0.0f, 0.0f, 1.0f
         }
     );
-    res = mat4_mul(mat, rot);
+    res = ar_mat4_mul(mat, rot);
     return res;
 }
 
-mat4_t mat4_rotate_y(mat4_t mat, float angle) {
+ar_mat4_t ar_mat4_rotate_y(ar_mat4_t mat, float angle) {
     const float sn = sinf(angle);
     const float cn = cosf(angle);
     
-    mat4_t rot;
-    mat4_set(
+    ar_mat4_t rot;
+    ar_mat4_set(
         &rot,
         (float []){
               cn, 0.0f,   sn, 0.0f,
@@ -200,16 +200,16 @@ mat4_t mat4_rotate_y(mat4_t mat, float angle) {
             0.0f, 0.0f, 0.0f, 1.0f
         }
     );
-    rot = mat4_mul(mat, rot);
+    rot = ar_mat4_mul(mat, rot);
     return rot;
 }
 
-mat4_t mat4_rotate_z(mat4_t mat, float angle) {
+ar_mat4_t ar_mat4_rotate_z(ar_mat4_t mat, float angle) {
     const float sn = sinf(angle);
     const float cn = cosf(angle);
     
-    mat4_t rot;
-    mat4_set(
+    ar_mat4_t rot;
+    ar_mat4_set(
         &rot,
         (float []){
               cn,   sn, 0.0f, 0.0f,
@@ -218,6 +218,6 @@ mat4_t mat4_rotate_z(mat4_t mat, float angle) {
             0.0f, 0.0f, 0.0f, 1.0f
         }
     );
-    rot = mat4_mul(mat, rot);
+    rot = ar_mat4_mul(mat, rot);
     return rot;
 }

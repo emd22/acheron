@@ -206,7 +206,7 @@ ar_mesh_t *ar_mesh_load(ar_mesh_t *mesh, const char *path, int type, int flags) 
     return mesh;
 }
 
-void ar_mesh_draw(ar_mesh_t *mesh, mat4_t *matrix, camera_t *camera, ar_shader_t *shader) {
+void ar_mesh_draw(ar_mesh_t *mesh, ar_mat4_t *matrix, camera_t *camera, ar_shader_t *shader) {
     if (mesh == NULL || mesh->type == MODEL_NONE)
         return;
         

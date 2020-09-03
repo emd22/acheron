@@ -1,0 +1,11 @@
+#ifndef AR_RR_TEXTURETARGET_H
+#define AR_RR_TEXTURETARGET_H
+
+typedef enum {
+    AR_TEXTURE_TARGET_TEXTURE2D,
+    AR_TEXTURE_TARGET_TEXTURE3D,
+    AR_TEXTURE_TARGET_CUBEMAP,
+} ar_texture_target_t;
+
+
+#endif

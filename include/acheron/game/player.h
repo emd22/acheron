@@ -1,8 +1,8 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include <acheron/engine/rendering/camera.h>
+#include <acheron/engine/scene/sc_camera.h>
 
-int player_move(camera_t *camera);
+int player_move(ar_camera_t *camera);
 
 #endif

@@ -192,7 +192,7 @@ void ar_shader_set_uniform(ar_shader_t *shader, ar_shader_uniform_type_t uniform
         glUniform3f(uniform_location, vec->x, vec->y, vec->z);
     }
     else if (uniform_type == AR_SHADER_MAT4) {
-        mat4_t *mat = (mat4_t *)value;
+        ar_mat4_t *mat = (ar_mat4_t *)value;
         glUniformMatrix4fv(uniform_location, 1, GL_FALSE, mat->val);
     }
     else if (uniform_type == AR_SHADER_FLOAT) {

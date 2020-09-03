@@ -2,6 +2,7 @@
 #define AR_RR_TEXTURE_H
 
 #include <acheron/engine/image/image.h>
+#include <acheron/engine/renderer/rr_texturetarget.h>
 
 #include <GL/glew.h>
 #include <GL/gl.h>

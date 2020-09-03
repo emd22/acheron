@@ -4,8 +4,8 @@
 #include <acheron/engine/core/cr_controls.h>
 
 #include <SDL2/SDL.h>
-
-int player_move(camera_t *camera) {
+/*
+int player_move(ar_camera_t *camera) {
     int moved = 0;
     
     static ar_vector3f_t velocity;
@@ -30,13 +30,13 @@ int player_move(camera_t *camera) {
     const float friction = 0.08;
     if (velocity.x) {
         if (velocity.x > 0.0f) {
-            camera_move(selected_camera, CAMERA_RIGHT);
+            ar_camera_move(camera, CAMERA_RIGHT);
             velocity.x -= friction;
             if (velocity.x < 0.0)
                 velocity.x = 0;
         }
         else {
-            camera_move(selected_camera, CAMERA_LEFT);
+            ar_camera_move(camera, CAMERA_LEFT);
             velocity.x += friction; 
             if (velocity.x > 0.0)
                 velocity.x = 0;      
@@ -47,13 +47,13 @@ int player_move(camera_t *camera) {
     }
     if (velocity.z) {
         if (velocity.z > 0.0f) {
-            camera_move(selected_camera, CAMERA_FORWARD);
+            ar_camera_move(camera, CAMERA_FORWARD);
             velocity.z -= friction;
             if (velocity.z < 0.0)
                 velocity.z = 0;
         }
         else {
-            camera_move(selected_camera, CAMERA_BACKWARD);
+            ar_camera_move(camera, CAMERA_BACKWARD);
             velocity.z += friction;
             if (velocity.z > 0.0)
                 velocity.z = 0;
@@ -71,6 +71,8 @@ int player_move(camera_t *camera) {
     }
     return moved;
 }
+
+*/
 
 /*
 int player_move(camera_t *camera) {   

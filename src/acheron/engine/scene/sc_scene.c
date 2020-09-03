@@ -76,12 +76,12 @@ void ar_scene_object_update(ar_scene_t *scene, ar_object_t *object, ar_shader_t 
     }
 }
 
-void ar_scene_objects_render(ar_scene_t *scene, ar_shader_t *shader, camera_t *camera, bool render_materials) {
+void ar_scene_objects_render(ar_scene_t *scene, ar_shader_t *shader, ar_camera_t *camera, bool render_materials) {
     ar_object_t *objects = *((ar_object_t **)scene->objects.data);
     ar_objects_draw(objects, scene->objects.index, shader, camera, render_materials);
 }
 
-void ar_scene_render(ar_shader_t *shader_main, ar_scene_t *scene) {
+void ar_scene_render(ar_shader_t *shader_main, ar_scene_t *scene, ar_camera_t *camera) {
     // set framebuffer to our 'default' framebuffer
     ar_framebuffer_bind(NULL);
     
@@ -106,7 +106,7 @@ void ar_scene_render(ar_shader_t *shader_main, ar_scene_t *scene) {
     }
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    ar_handle_call(AR_HANDLE_RENDER_MESHES, selected_camera);
+    ar_handle_call(AR_HANDLE_RENDER_MESHES, camera);
     ar_shader_use(shader_main);
     ui_render();
 }

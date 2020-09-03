@@ -5,7 +5,7 @@
 #include <acheron/engine/util.h>
 #include <acheron/engine/object/ob_mesh.h>
 #include <acheron/engine/renderer/rr_shader.h>
-#include <acheron/engine/rendering/camera.h>
+#include <acheron/engine/scene/sc_camera.h>
 #include <acheron/engine/rendering/framebuffer.h>
 #include <acheron/engine/object/material.h>
 #include <acheron/engine/physics/object.h>
@@ -45,7 +45,7 @@ typedef struct object_s {
     ar_vector3f_t rotation;
     ar_vector3f_t scale;
     
-    mat4_t matrix;
+    ar_mat4_t matrix;
     ar_quat_t quat_rotation;
     
     physics_object_t physics;
@@ -66,9 +66,9 @@ void object_scale_v(ar_object_t *object, ar_vector3f_t val);
 
 ar_object_t *ar_object_get(const char *name);
 void ar_objects_sort(ar_object_t *objects, int objects_size);
-void ar_objects_draw(ar_object_t *objects, int objects_size, ar_shader_t *shader, camera_t *camera, bool render_materials);
+void ar_objects_draw(ar_object_t *objects, int objects_size, ar_shader_t *shader, ar_camera_t *camera, bool render_materials);
 void ar_object_attach(ar_object_t *object, int type, void *data);
-void ar_object_draw(ar_object_t *object, ar_shader_t *shader, camera_t *camera);
+void ar_object_draw(ar_object_t *object, ar_shader_t *shader, ar_camera_t *camera);
 void ar_object_buffer_destroy(void);
 
 #endif

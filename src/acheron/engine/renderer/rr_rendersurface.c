@@ -1,0 +1,1 @@
+typedef int iso_error_t;

@@ -6,7 +6,7 @@
 
 // http://mathinfo.univ-reims.fr/IMG/pdf/Rotating_Objects_Using_Quaternions.pdf
 
-void ar_quat_from_mat4(ar_quat_t *quat, mat4_t *mat) {
+void ar_quat_from_mat4(ar_quat_t *quat, ar_mat4_t *mat) {
     int nxt[] = {1, 2, 0};
     
     float tr = mat->val[QUAT_INDEX(0, 0)] + mat->val[QUAT_INDEX(1, 1)] + mat->val[QUAT_INDEX(2, 2)];
@@ -44,7 +44,7 @@ void ar_quat_from_mat4(ar_quat_t *quat, mat4_t *mat) {
     }
 }
 
-void ar_quat_to_mat4(ar_quat_t *quat, mat4_t *mat) {
+void ar_quat_to_mat4(ar_quat_t *quat, ar_mat4_t *mat) {
     float xx, xy, xz;
     float yy, yz, zz;
     float wx, wy, wz;

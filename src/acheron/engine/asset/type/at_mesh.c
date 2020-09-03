@@ -205,19 +205,19 @@ ar_mesh_t *ar_mesh_load(ar_mesh_t *mesh, const char *path, int type, int flags) 
     return mesh;
 }
 
-void ar_mesh_draw(ar_mesh_t *mesh, mat4_t *matrix, ar_quat_t *rotation, camera_t *camera, ar_shader_t *shader) {
+void ar_mesh_draw(ar_mesh_t *mesh, ar_mat4_t *matrix, ar_quat_t *rotation, ar_camera_t *camera, ar_shader_t *shader) {
     if (mesh == NULL || mesh->type == MODEL_NONE)
         return;
         
     if (camera != NULL && matrix != NULL && shader != NULL) {
-        mat4_t full_mat = (*matrix);
-        mat4_t rot_mat;
+        ar_mat4_t full_mat = (*matrix);
+        ar_mat4_t rot_mat;
         ar_quat_to_mat4(rotation, &rot_mat);
-        full_mat = mat4_mul(full_mat, rot_mat);
+        full_mat = ar_mat4_mul(full_mat, rot_mat);
 
 
-        mat4_t mvp = mat4_mul(camera->mat_projection, camera->mat_view);
-        mvp = mat4_mul(mvp, full_mat);
+        ar_mat4_t mvp = ar_mat4_mul(camera->projection, camera->view);
+        mvp = ar_mat4_mul(mvp, full_mat);
 
         ar_shader_set_uniform(shader, AR_SHADER_MAT4, "mvp", &mvp);
         ar_shader_set_uniform(shader, AR_SHADER_MAT4, "m", &full_mat);

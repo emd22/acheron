@@ -7,10 +7,14 @@
 #include <acheron/engine/core/cr_log.h>
 #include <acheron/engine/core/cr_time.h>
 
+#include <acheron/engine/camera/cm_perspective.h>
+
 #include <GL/glew.h>
 #include <GL/gl.h>
 
-#define MOUSE_SPEED 0.07\
+#define MOUSE_SPEED 0.07
+
+ar_camera_t *selected_camera;
 
 int check_mouse(void *arg) {
     ar_control_mouse_event_t *mouse_event;
@@ -45,7 +49,7 @@ void init_objects(ar_scene_t *scene) {
 int main() {
     // create a new instance for graphics
     ar_instance_t *instance = ar_instance_new(AR_INSTANCE_GRAPHICS);
-    ar_window_t *window = ar_window_new("Acheron3d", 640, 480, 0);
+    ar_window_t *window = ar_window_new("Acheron3d", 1024, 720, 0);
     // attach window to engine instance
     ar_instance_attach(instance, AR_INSTANCE_ATTACH_WINDOW, window);
     // initialize instance
@@ -54,12 +58,11 @@ int main() {
     render_init();
     time_init();
 
-    camera_t camera = camera_new(CAMERA_PERSPECTIVE);
-    camera.move_speed = 6.0f;
-    camera.position = (ar_vector3f_t){0, 3, 4};
-    camera.rotation.x = 3.14f;
-    camera_select(&camera);
-    
+    ar_camera_perspective_t camera = ar_camera_perspective_new();
+    camera.camera.position = (ar_vector3f_t){0, 3, 4};
+    camera.camera.rotation.x = 3.14f;
+    selected_camera = &camera.camera;
+
     ar_control_set_mode(SDLK_q, AR_CONTROL_MODE_TOGGLE);
     ar_control_set_mode(SDLK_e, AR_CONTROL_MODE_TOGGLE);
     ar_control_set_mode(SDLK_ESCAPE, AR_CONTROL_MODE_TOGGLE);
@@ -74,7 +77,7 @@ int main() {
     
     ar_scene_render_shadows(scene, shader_main);
     ar_window_option_set(window, AR_WINDOW_OPTION_MOUSE_VISIBLE, false);
-    
+
     while (instance->running) {
         time_tick();
         ar_controls_poll_events();
@@ -86,10 +89,11 @@ int main() {
         }
         ar_shader_use(shader_main);
 
-        player_move(&camera);
-        camera_update(selected_camera);
+        //player_move(&camera);
+        //camera_update(selected_camera);
+        ar_camera_update(&camera.camera);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        render_all();
+        render_all(&camera.camera);
         ar_window_buffers_swap(window);
         time_end();
     }
