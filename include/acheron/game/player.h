@@ -1,8 +1,12 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include <acheron/engine/scene/sc_camera.h>
+#include <acheron/engine/camera/cm_perspective.h>
 
-int player_move(ar_camera_t *camera);
+typedef struct {
+    ar_camera_perspective_t *camera;
+} player_t;
+
+int player_move(player_t *player);
 
 #endif

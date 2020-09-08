@@ -14,7 +14,7 @@ ar_camera_perspective_t ar_camera_perspective_new(void) {
     camera.camera = ar_camera_new();
     camera.near = 0.1f;
     camera.far = 200.0f;
-    camera.fov = 80.0f;
+    camera.fov = 100.0f;
     camera.camera.reload = &perspective_reload;
     camera.camera.update = &perspective_update;
     

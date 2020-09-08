@@ -26,6 +26,10 @@ int check_mouse(void *arg) {
 }
 
 void init_lights(ar_scene_t *scene) {
+    ar_asset_t *asset = ar_asset_load(AR_ASSET_IMAGE, "../images/test.png");
+    ar_asset_wait(asset);
+
+
     ar_light_t *light = ar_light_new(AR_LIGHT_POINT);
     light->position = (ar_vector3f_t){-1.37f, 3.0f, -6.13f};
     light->diffuse = (ar_vector3f_t){0.2, 1.0, 0.2};
@@ -78,6 +82,9 @@ int main() {
     ar_scene_render_shadows(scene, shader_main);
     ar_window_option_set(window, AR_WINDOW_OPTION_MOUSE_VISIBLE, false);
 
+    player_t player;
+    player.camera = &camera;
+
     while (instance->running) {
         time_tick();
         ar_controls_poll_events();
@@ -88,6 +95,8 @@ int main() {
             ar_window_option_set(window, AR_WINDOW_OPTION_MOUSE_VISIBLE, true);
         }
         ar_shader_use(shader_main);
+
+        player_move(&player);
 
         //player_move(&camera);
         //camera_update(selected_camera);

@@ -4,8 +4,6 @@
 #include <acheron/engine/object/ob_mesh.h>
 #include <acheron/engine/image/image.h>
 
-#if 0
-
 typedef enum {
     AR_ASSET_TYPE_NONE,
     AR_ASSET_TYPE_IMAGE,
@@ -60,5 +58,4 @@ typedef struct {
     ar_asset_t *asset;
 } ar_asset_operation_t;
 
-#endif
 #endif

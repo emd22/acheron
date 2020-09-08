@@ -1,9 +1,36 @@
 #include <acheron/game/player.h>
 
 #include <acheron/engine/acheron.h>
+#include <acheron/engine/core/cr_time.h>
 #include <acheron/engine/core/cr_controls.h>
 
 #include <SDL2/SDL.h>
+
+int player_move(player_t *player) {
+    const float speed = 10.0f*ar_time_get_delta();
+    ar_camera_t *camera = &player->camera->camera;
+    
+    camera->direction.y = 0;
+
+    if (ar_control_check(SDLK_w)) {
+        ar_vector_mul_value(AR_VEC3F, &camera->direction, speed, &camera->direction);
+        ar_vector_add(AR_VEC3F, &camera->position, &camera->direction, &camera->position);
+    }
+    if (ar_control_check(SDLK_s)) {
+        ar_vector_mul_value(AR_VEC3F, &camera->direction, speed, &camera->direction);
+        ar_vector_sub(AR_VEC3F, &camera->position, &camera->direction, &camera->position);
+    }
+    if (ar_control_check(SDLK_d)) {
+        ar_vector_mul_value(AR_VEC3F, &camera->right, speed, &camera->right);
+        ar_vector_add(AR_VEC3F, &camera->position, &camera->right, &camera->position);
+    }
+    if (ar_control_check(SDLK_a)) {
+        ar_vector_mul_value(AR_VEC3F, &camera->right, speed, &camera->right);
+        ar_vector_sub(AR_VEC3F, &camera->position, &camera->right, &camera->position);
+    }
+    return 0;
+}
+
 /*
 int player_move(ar_camera_t *camera) {
     int moved = 0;
