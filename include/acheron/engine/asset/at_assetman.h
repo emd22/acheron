@@ -2,8 +2,43 @@
 #define AR_AT_ASSETMAN_H
 
 #include <acheron/engine/object/ob_mesh.h>
-#include <acheron/engine/image/image.h>
+#include <ar_image/ar_image.h>
 
+typedef enum {
+    AR_ASSET_NONE,
+    AR_ASSET_IMAGE,
+    AR_ASSET_MESH,
+    AR_ASSET_SHADER,
+    AR_ASSET_BINARY,
+} ar_asset_type_t;
+
+typedef enum {
+    AR_ASSET_LOADED,
+    AR_ASSET_IN_MEM,
+    AR_ASSET_QUEUED,
+} ar_asset_status_t;
+
+typedef enum {
+    AR_ASSET_OP_NONE,
+    AR_ASSET_OP_LOAD,
+    AR_ASSET_OP_FREE,
+} ar_asset_operation_t;
+
+typedef struct {
+    char *path;
+    ar_asset_type_t type;
+    ar_asset_operation_t operation;
+    union {
+        void *raw;
+        ar_mesh_t *mesh;
+        ari_image_t image;
+    } data;
+} ar_asset_t;
+
+
+
+
+/*
 typedef enum {
     AR_ASSET_TYPE_NONE,
     AR_ASSET_TYPE_IMAGE,
@@ -57,5 +92,5 @@ typedef struct {
     char path[AR_PATH_LENGTH];
     ar_asset_t *asset;
 } ar_asset_operation_t;
-
+*/
 #endif

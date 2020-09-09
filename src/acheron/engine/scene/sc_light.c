@@ -15,7 +15,7 @@ int count_light_types(ar_light_type_t type) {
     unsigned i;
     int amt = 0;
     ar_light_t *light;
-    for (i = 0; i < lights.index-1; i++) {
+    for (i = 0; i < lights.index; i++) {
         light = ar_buffer_get(&lights, i);
         if (light->type == type)
             amt++;
@@ -39,7 +39,7 @@ ar_light_t *ar_light_new(ar_light_type_t type) {
     if (!ar_buffer_is_initialized(&lights)) {
         ar_buffer_init(&lights, AR_BUFFER_STATIC, sizeof(ar_light_t), MAX_LIGHTS, 0);
     }
-    
+
     memset(&dummy, 0, sizeof(ar_light_t));
     dummy.type = AR_LIGHT_DUMMY;
     
@@ -51,6 +51,7 @@ ar_light_t *ar_light_new(ar_light_type_t type) {
     memset(light, 0, sizeof(ar_light_t));
     // count amount of a type of light because of the shader having
     // multiple arrays for different lights
+
     light->index = count_light_types(type);
     light->type = type;
     light->use_shadows = false;

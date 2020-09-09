@@ -7,6 +7,12 @@
 #include <stdint.h>
 #include <stddef.h>
 
+enum {
+    AR_BUFFER_ITEM_FREE,
+    AR_BUFFER_ITEM_USED,
+};
+
+
 // NOTE: buffers can resize dynamically, resizing using the resize_func per buffer object.
 
 // NOTE 2: buffers can now be static, so they hold indexes and sizes while also providing 
@@ -30,6 +36,12 @@ int ar_buffer_init(ar_buffer_t *buffer, ar_buffer_type_t type, uint16_t obj_sz, 
     buffer->data = buffer_malloc(buffer, size_in_bytes);
     // dynamic buffers resize n*2 by default
     buffer->resize_func = &ar_buffer_resize_func_double;
+
+    // to find free items, we allocate a second buffer to store a status value
+    if (flags & AR_BUFFER_PACK) {
+        buffer->free_map = malloc(start_size);
+        memset(buffer->free_map, AR_BUFFER_ITEM_FREE, start_size);
+    }
     
     if (buffer->data == NULL) {
         ar_log(
@@ -37,7 +49,6 @@ int ar_buffer_init(ar_buffer_t *buffer, ar_buffer_type_t type, uint16_t obj_sz, 
             "Error allocating buffer of size %u*%u(%lu) :: 0x%02X\n", 
             obj_sz, start_size, size_in_bytes, buffer->flags
         );
-        // TODO: F3D_FAILURE and F3D_SUCCESS return codes
         return 1;
     }
     buffer->flags |= AR_BUFFER_INITIALIZED;
@@ -56,6 +67,7 @@ void *ar_buffer_new_item(ar_buffer_t *buffer) {
         ar_log(AR_LOG_ERROR, "Buffer not initialized\n", 0);
         return NULL;
     }
+
     if (buffer->index >= buffer->size) {
         if (buffer->type != AR_BUFFER_DYNAMIC) {
             ar_log(AR_LOG_ERROR, "Hit end of non-dynamic buffer\n", 0);
@@ -63,9 +75,27 @@ void *ar_buffer_new_item(ar_buffer_t *buffer) {
         }
         ar_buffer_resize(buffer, AR_BUFFER_RESIZE_AUTO);
     }
-    const size_t index = (buffer->index)*(buffer->obj_sz);
+
+    size_t index = (buffer->index)*(buffer->obj_sz);
+
+    if (buffer->flags & AR_BUFFER_PACK) {
+        // linear search for a free slot
+        uint32_t i;
+        for (i = 0; i < buffer->index; i++) {
+            // slot is free, set index
+            if (buffer->free_map[i] == AR_BUFFER_ITEM_FREE) {
+                index = i*buffer->obj_sz;
+                buffer->free_map[i] = AR_BUFFER_ITEM_USED;
+                break;
+            }
+        }
+        if (i == buffer->index-1) {
+            index = (buffer->index)*(buffer->obj_sz);
+            buffer->index++;
+        }
+    }
+
     uint8_t *mem = ((uint8_t *)buffer->data)+(index);
-    buffer->index++;
     return mem;
 }
 
@@ -75,9 +105,17 @@ void *ar_buffer_push(ar_buffer_t *buffer, void *obj) {
     return mem;
 }
 
-void *ar_buffer_get(ar_buffer_t *buffer, unsigned index) {
+void ar_buffer_item_free(ar_buffer_t *buffer, unsigned index) {
     if (index > buffer->size)
+        return;
+    buffer->free_map[index] = AR_BUFFER_ITEM_FREE;
+}
+
+void *ar_buffer_get(ar_buffer_t *buffer, unsigned index) {
+    if (index > buffer->size) {
+        ar_log(AR_LOG_WARN, "index(%d) > buffer_size(%d)\n", index, buffer->size);
         return NULL;
+    }
     void *ptr = ((uint8_t *)buffer->data)+(buffer->obj_sz*index);
     return ptr;
 }
@@ -133,6 +171,9 @@ void ar_buffer_resize(ar_buffer_t *buffer, int size) {
     
     const size_t size_in_bytes = buffer->size*buffer->obj_sz;
     buffer->data = buffer_mrealloc(buffer, size_in_bytes);
+    if (buffer->flags & AR_BUFFER_PACK) {
+        buffer->free_map = realloc(buffer->free_map, buffer->size);
+    }
 
     // error in realloc, probably ran out of memory
     if (buffer->data == NULL) {
@@ -151,8 +192,10 @@ size_t ar_buffer_resize_func_double(ar_buffer_t *buffer) {
 void ar_buffer_destroy(ar_buffer_t *buffer) {
     if (!ar_buffer_is_initialized(buffer))
         return;
-    
+
     buffer_mfree(buffer);
+    if (buffer->flags & AR_BUFFER_PACK)
+        free(buffer->free_map);
     buffer->flags &= ~AR_BUFFER_INITIALIZED;
     buffer->data = NULL;
     buffer->size = 0;
