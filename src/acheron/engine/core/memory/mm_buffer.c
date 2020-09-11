@@ -84,15 +84,22 @@ void *ar_buffer_new_item(ar_buffer_t *buffer) {
         for (i = 0; i < buffer->index; i++) {
             // slot is free, set index
             if (buffer->free_map[i] == AR_BUFFER_ITEM_FREE) {
+                // index is item index * size of object
                 index = i*buffer->obj_sz;
+                // set slot to used
                 buffer->free_map[i] = AR_BUFFER_ITEM_USED;
                 break;
             }
         }
-        if (i == buffer->index-1) {
+        // if no slot is free, use next in index
+        if (i == buffer->index || i == buffer->index-1) {
             index = (buffer->index)*(buffer->obj_sz);
             buffer->index++;
         }
+    }
+    // regular linear buffer
+    else {
+        buffer->index++;
     }
 
     uint8_t *mem = ((uint8_t *)buffer->data)+(index);
@@ -105,9 +112,26 @@ void *ar_buffer_push(ar_buffer_t *buffer, void *obj) {
     return mem;
 }
 
+long ar_buffer_get_item_index(ar_buffer_t *buffer, void *item) {
+    // due to a buffer being one linear chunk of memory, we can get 
+    // the index of an item using simple pointer operations.
+
+    char *buf_ptr = buffer->data;
+    char *buf_final_ptr = buf_ptr+(buffer->size*buffer->obj_sz);
+    char *itemp = (char *)item;
+
+    // check if pointer in buffer
+    if (itemp >= buf_ptr && itemp <= buf_final_ptr) {
+        return (itemp-buf_ptr)/buffer->obj_sz;
+    }
+    return -1;
+}
+
 void ar_buffer_item_free(ar_buffer_t *buffer, unsigned index) {
     if (index > buffer->size)
         return;
+    if (index == buffer->index)
+        buffer->index--;
     buffer->free_map[index] = AR_BUFFER_ITEM_FREE;
 }
 

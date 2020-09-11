@@ -14,8 +14,7 @@ int ar_thread_intern_init(ar_thread_intern_t *thread, void *(*thread_func)(void 
 void ar_thread_intern_sleep(unsigned msec) {
     //usleep(msec*1000);
     //struct timespec tim, rem;
-    sleep(1);
-    (void)msec;
+    sleep((double)msec/1000.0);
     
     //tim.tv_sec = 0;
     //tim.tv_nsec = msec*1000000;

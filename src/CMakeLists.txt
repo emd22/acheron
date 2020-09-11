@@ -13,7 +13,7 @@ if (${DEBUG})
     # dynamic is used to place symbol names into exectuable for
     # internal backtrace
     set(LINKER_DEBUG_FLAGS "-rdynamic")
-    set(C_DEBUG_FLAGS "-g -DAR_DEBUG")
+    set(C_DEBUG_FLAGS "-g -DAR_DEBUG -DAR_MEMORY_DEBUG")
     # link with dl for access to linux dlfcn library
     set(DEBUG_LIBARIES "dl")
 else()

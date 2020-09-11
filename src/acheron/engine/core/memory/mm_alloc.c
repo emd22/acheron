@@ -102,14 +102,19 @@ void *ar_memory_realloc(void *ptr, size_t size) {
 void ar_memory_cleanup(void) {
 #ifdef AR_MEMORY_DEBUG
     unsigned i;
+    unsigned leaks = 0;
+    double leaked_kb = 0;
     ar_memory_alloc_t *alloc;
     for (i = 0; i < memory_allocs.index; i++) {
         alloc = ar_buffer_get(&memory_allocs, i);
         if (ar_memory_is_allocated(alloc)) {
-            ar_log(AR_LOG_INFO, "%.02fKB of leaked memory from %s!\n", (float)alloc->size/1024.0f, alloc->calling_func);
+            ar_log(AR_LOG_DEBUG, "%.02fKB of leaked memory from %s!\n", (float)alloc->size/1024.0f, alloc->calling_func);
+            leaks++;
+            leaked_kb += (double)alloc->size/1024.0f;
             ar_memory_free(alloc->ptr);
         }
     }
+    ar_log(AR_LOG_DEBUG, "Mem Info:\n\t* Leaked blocks: %u\n\t* Leaked memory: %.2f KiB\n", leaks, leaked_kb);
     ar_buffer_destroy(&memory_allocs);
 #endif
 }
