@@ -7,6 +7,7 @@
 
 #include <acheron/engine/scene/sc_scene.h>
 #include <acheron/engine/scene/sc_light.h>
+#include <acheron/engine/asset/at_assetman.h>
 
 #define AR_GL_VERSION_MAJOR 4
 #define AR_GL_VERSION_MINOR 2
@@ -73,8 +74,10 @@ static void signal_handler(int sig) {
 }
 
 void ar_init(ar_instance_t *instance) {
+    ar_threadman_init();
     ar_handles_init();
     ar_meshes_init();
+    ar_assetman_init();
     
     // setup system signals
     signal(SIGINT,  &signal_handler);
@@ -105,6 +108,9 @@ void ar_instance_destroy(void) {
 }
 
 void ar_cleanup(void) {
+    ar_assetman_destroy();
+    ar_threadman_destroy();
+
     ar_light_buffer_destroy();
     ar_object_buffer_destroy();
     ar_scene_buffer_destroy();

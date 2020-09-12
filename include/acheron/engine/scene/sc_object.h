@@ -9,6 +9,7 @@
 #include <acheron/engine/rendering/framebuffer.h>
 #include <acheron/engine/object/material.h>
 #include <acheron/engine/physics/object.h>
+#include <acheron/engine/asset/at_asset.h>
 
 #include <acheron/engine/math/mt_quat.h>
 
@@ -38,7 +39,8 @@ typedef struct object_s {
     char name[32];
     hash_t hash;
 
-    ar_mesh_t *mesh;
+    //ar_mesh_t *mesh;
+    ar_asset_t *mesh;
     material_t *material;
     
     ar_vector3f_t position;
@@ -57,12 +59,12 @@ ar_object_t *ar_object_new(const char *name);
 void render_set_target(int target, void *ptr);
 void ar_object_update(ar_object_t *object);
 
-void object_move(ar_object_t *object, float x, float y, float z);
-void object_move_v(ar_object_t *object, ar_vector3f_t val);
-void object_rotate(ar_object_t *object, float x, float y, float z);
-void object_rotate_v(ar_object_t *object, ar_vector3f_t val);
-void object_scale(ar_object_t *object, float x, float y, float z);
-void object_scale_v(ar_object_t *object, ar_vector3f_t val);
+void ar_object_move(ar_object_t *object, float x, float y, float z);
+void ar_object_move_v(ar_object_t *object, ar_vector3f_t val);
+void ar_object_rotate(ar_object_t *object, float x, float y, float z);
+void ar_object_rotate_v(ar_object_t *object, ar_vector3f_t val);
+void ar_object_scale(ar_object_t *object, float x, float y, float z);
+void ar_object_scale_v(ar_object_t *object, ar_vector3f_t val);
 
 ar_object_t *ar_object_get(const char *name);
 void ar_objects_sort(ar_object_t *objects, int objects_size);

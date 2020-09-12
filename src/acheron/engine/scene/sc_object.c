@@ -44,71 +44,59 @@ void render_set_target(int target, void *ptr) {
     }
 }
 
-/*void scale_object(ar_object_t *object) {
-    ar_mat4_t *mat = &object->matrix;
-    // x
-    mat->val[0] *= object->scale.x;
-    mat->val[1] *= object->scale.x;
-    mat->val[2] *= object->scale.x;
-    //mat->val[3] *= object->scale.x;
-    
-    mat->val[4] *= object->scale.y;
-    mat->val[5] *= object->scale.y;
-    mat->val[6] *= object->scale.y;
-    //mat->val[7] *= object->scale.y;
-    
-    mat->val[8] *= object->scale.z;
-    mat->val[9] *= object->scale.z;
-    mat->val[10] *= object->scale.z;
-    //mat->val[11] *= object->scale.z;
-}*/
+static void scale_object(ar_object_t *object) {
+    // lazy way of mat3(matrix)*(x,y,z)
+    object->matrix = ar_mat4_mul_vec4(
+        object->matrix, 
+        (ar_vector4f_t){
+            object->scale.x, 
+            object->scale.y, 
+            object->scale.z,
+            1.0 /* Don't modify translations */
+        }
+    );
+}
 
-void object_move_v(ar_object_t *object, ar_vector3f_t val) {
+void ar_object_move_v(ar_object_t *object, ar_vector3f_t val) {
     object->position = val;
     object->flags |= AR_OBJECT_FLAG_UPDATE;
 }
 
-void object_rotate_v(ar_object_t *object, ar_vector3f_t val) {
+void ar_object_rotate_v(ar_object_t *object, ar_vector3f_t val) {
     object->rotation = val;
     object->flags |= AR_OBJECT_FLAG_UPDATE;
 }
-void object_scale_v(ar_object_t *object, ar_vector3f_t val) {
+void ar_object_scale_v(ar_object_t *object, ar_vector3f_t val) {
     object->scale = val;
     object->flags |= AR_OBJECT_FLAG_UPDATE;
 }
 
-void object_move(ar_object_t *object, float x, float y, float z) {
-    object_move_v(object, (ar_vector3f_t){x, y, z});
+void ar_object_move(ar_object_t *object, float x, float y, float z) {
+    ar_object_move_v(object, (ar_vector3f_t){x, y, z});
 }
 
-void object_rotate(ar_object_t *object, float x, float y, float z) {
-    object_rotate_v(object, (ar_vector3f_t){x, y, z});
+void ar_object_rotate(ar_object_t *object, float x, float y, float z) {
+    ar_object_rotate_v(object, (ar_vector3f_t){x, y, z});
 }
 
-void object_scale(ar_object_t *object, float x, float y, float z) {
-    object_scale_v(object, (ar_vector3f_t){x, y, z});
+void ar_object_scale(ar_object_t *object, float x, float y, float z) {
+    ar_object_scale_v(object, (ar_vector3f_t){x, y, z});
 }
 
 void ar_object_update(ar_object_t *object) {
     // translations
     ar_mat4_translate(&object->matrix, object->position);
-    
-    // do rotations
-    //object->matrix = mat4_rotate_x(object->matrix, object->rotation.x);
-    //object->matrix = mat4_rotate_y(object->matrix, object->rotation.y);
-    //object->matrix = mat4_rotate_z(object->matrix, object->rotation.z);
-    
     ar_quat_from_euler(&object->quat_rotation, object->rotation);
 
-    //scale_object(object);
+    scale_object(object);
     object->physics.collider.position = object->position;
     object->physics.collider.scale = object->scale;
 }
 
 void ar_object_attach(ar_object_t *object, int type, void *data) {
     if (type == AR_OBJECT_ATTACH_MESH) {
-        object->mesh = (ar_mesh_t *)data;
-        physics_collider_stretch_to_vertices(&object->physics.collider, &object->mesh->vertices);
+        object->mesh = (ar_asset_t *)data;
+        //physics_collider_stretch_to_vertices(&object->physics.collider, &object->mesh->vertices);
     }
     else if (type == AR_OBJECT_ATTACH_MATERIAL) {
         object->material = (material_t *)data;
@@ -141,7 +129,9 @@ void ar_object_draw(ar_object_t *object, ar_shader_t *shader, ar_camera_t *camer
         ar_object_update(object);
     }
     if (object->mesh != NULL) {
-        ar_mesh_draw(object->mesh, &object->matrix, &object->quat_rotation, camera, shader);
+        if (object->mesh->status == AR_ASSET_IN_MEM)
+            ar_asset_resolve(object->mesh);
+        ar_mesh_draw(ar_asset_get_mesh(object->mesh), &object->matrix, &object->quat_rotation, camera, shader);
     }
 }
 

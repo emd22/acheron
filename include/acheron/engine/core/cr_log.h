@@ -1,5 +1,5 @@
-#ifndef F3D_LOG_H
-#define F3D_LOG_H
+#ifndef AR_CR_LOG_H
+#define AR_CR_LOG_H
 
 #include <stdarg.h>
 

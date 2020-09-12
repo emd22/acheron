@@ -172,6 +172,7 @@ void linear_collision_impulse(physics_object_t *obj, physics_object_t *ground) {
 void physics_update_gravity(physics_object_t *obj) {
     if (obj->locked)
         return;
+    const float delta_time = ar_time_get_delta();
     float velocityy = -(obj->velocity.y * delta_time)+(0.5f*9.81f*delta_time*delta_time);
     obj->collider.position.x += obj->velocity.x;
     obj->collider.position.y += velocityy;

@@ -5,6 +5,9 @@
 #include <unistd.h>
 #include <acheron/engine/core/threads/cr_thread_pthread.h>
 
+#include <sys/time.h>
+#include <sys/select.h>
+
 int ar_thread_intern_init(ar_thread_intern_t *thread, void *(*thread_func)(void *), void *arg) {
     int res;
     res = pthread_create(&thread->pthread, NULL, thread_func, arg);
@@ -12,13 +15,10 @@ int ar_thread_intern_init(ar_thread_intern_t *thread, void *(*thread_func)(void 
 }
 
 void ar_thread_intern_sleep(unsigned msec) {
-    //usleep(msec*1000);
-    //struct timespec tim, rem;
-    sleep((double)msec/1000.0);
-    
-    //tim.tv_sec = 0;
-    //tim.tv_nsec = msec*1000000;
-    //nanosleep(&tim, &rem);
+    struct timeval tv;
+    tv.tv_sec = msec/1000;
+    tv.tv_usec = msec % 1000;
+    select(0, NULL, NULL, NULL, &tv);
 }
 
 int ar_thread_intern_join(ar_thread_intern_t *thread, void **retval) {

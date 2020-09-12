@@ -8,8 +8,8 @@
 
 #include <SDL2/SDL.h>
 
-#define AR_CONTROL_COOLDOWN_SPEED (0.6f)
-#define AR_CONTROL_COOLDOWN_LENGTH (5.0f)
+#define AR_CONTROL_COOLDOWN_SPEED (0.1f)
+#define AR_CONTROL_DEFAULT_COOLDOWN_LENGTH (50.0f)
 
 #define KEYDOWN 1
 #define KEYUP   0
@@ -68,7 +68,12 @@ int ar_controls_get_modifiers(void) {
 }
 
 void ar_control_set_mode(int controln, ar_control_mode_t mode) {
-    ar_control_get(controln)->mode = mode;
+    ar_control_t *control = ar_control_get(controln);
+    if (mode == AR_CONTROL_MODE_TOGGLE) {
+        control->cooldown_length = AR_CONTROL_DEFAULT_COOLDOWN_LENGTH;
+        control->cooldown = control->cooldown_length;
+    }
+    control->mode = mode;
 }
 
 bool ar_control_check(int controln) {
@@ -83,7 +88,7 @@ bool ar_control_check(int controln) {
     }
     else {
         if (control->mode == AR_CONTROL_MODE_TOGGLE && control->pressed) {
-            control->cooldown = AR_CONTROL_COOLDOWN_LENGTH;
+            control->cooldown = control->cooldown_length;
         }
     }
     return control->pressed;

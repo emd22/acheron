@@ -111,7 +111,7 @@ static void generate_packed_vertices(ar_mesh_t *mesh, ar_buffer_t *vertices, ar_
             vertex.uv = (ar_vector2f_t){0, 0};
             
         if (normals != NULL)
-            vertex.normal =   ((ar_vector3f_t *)normals->data)[i];
+            vertex.normal = ((ar_vector3f_t *)normals->data)[i];
         else
             vertex.normal = (ar_vector3f_t){0, 0, 0};
             
@@ -181,7 +181,8 @@ ar_mesh_t *ar_mesh_from_data(ar_mesh_t *mesh, ar_buffer_t *vertices, ar_buffer_t
     return mesh;
 }
 
-ar_mesh_t *ar_mesh_load(ar_mesh_t *mesh, const char *path, int type, int flags) {
+ar_mesh_t *ar_mesh_load_raw(ar_mesh_t *mesh, const char *path, int type, int flags) {
+    (void)flags;
     if (mesh == NULL)
         mesh = ar_mesh_new();
         
@@ -199,10 +200,13 @@ ar_mesh_t *ar_mesh_load(ar_mesh_t *mesh, const char *path, int type, int flags) 
         ar_log(AR_LOG_ERROR, "Cannot load mesh of unknown type\n", 0);
         return NULL;
     }
-    
-    ar_mesh_init(mesh, flags);
-    
     return mesh;
+}
+
+ar_mesh_t *ar_mesh_load(ar_mesh_t *mesh, const char *path, int type, int flags) {
+    ar_mesh_t *tmesh = ar_mesh_load_raw(mesh, path, type, flags);
+    ar_mesh_init(tmesh, flags);
+    return tmesh;
 }
 
 void ar_mesh_draw(ar_mesh_t *mesh, ar_mat4_t *matrix, ar_quat_t *rotation, ar_camera_t *camera, ar_shader_t *shader) {

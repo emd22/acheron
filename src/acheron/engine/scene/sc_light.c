@@ -186,7 +186,7 @@ void ar_light_update(ar_light_t *light, ar_shader_t *shader) {
 
 void ar_light_destroy(ar_light_t *light) {
     if (light->use_shadows) {
-        shadows_destroy(&light->point_shadow);
+    //    shadows_destroy(&light->point_shadow);
     }
 }
 

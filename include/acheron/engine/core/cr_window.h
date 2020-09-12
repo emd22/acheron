@@ -1,5 +1,5 @@
-#ifndef F3D_WINDOW_H
-#define F3D_WINDOW_H
+#ifndef AR_CR_WINDOW_H
+#define AR_CR_WINDOW_H
 
 #include <SDL2/SDL.h>
 

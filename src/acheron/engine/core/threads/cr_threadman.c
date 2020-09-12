@@ -19,7 +19,7 @@ static void *thread_update(void *ptr) {
 }
 #endif
 
-static void init_thread_buffer() {
+void ar_threadman_init(void) {
     ar_buffer_init(&thread_buffer, AR_BUFFER_STATIC, sizeof(ar_thread_t), AR_MAX_THREADS, 0);
     int i;
     ar_thread_t *thread;
@@ -42,10 +42,7 @@ static ar_thread_t *find_free_thread(void) {
     return NULL;
 }
 
-ar_thread_t *ar_thread_new(ar_thread_update_func_t update_func, void *arg) {
-    if (!ar_buffer_is_initialized(&thread_buffer))
-        init_thread_buffer();
-    
+ar_thread_t *ar_thread_new(ar_thread_update_func_t update_func, void *arg) {    
     ar_thread_t *thread = find_free_thread();
     ar_thread_init(thread, update_func, arg);
     return thread;
@@ -53,4 +50,8 @@ ar_thread_t *ar_thread_new(ar_thread_update_func_t update_func, void *arg) {
 
 void ar_thread_destroy(ar_thread_t *thread) {
     thread->status = AR_THREAD_STOPPING;
+}
+
+void ar_threadman_destroy(void) {
+    ar_buffer_destroy(&thread_buffer);
 }

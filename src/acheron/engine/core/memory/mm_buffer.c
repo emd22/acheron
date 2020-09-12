@@ -130,7 +130,7 @@ long ar_buffer_get_item_index(ar_buffer_t *buffer, void *item) {
 void ar_buffer_item_free(ar_buffer_t *buffer, unsigned index) {
     if (index > buffer->size)
         return;
-    if (index == buffer->index)
+    if (index == buffer->index-1)
         buffer->index--;
     buffer->free_map[index] = AR_BUFFER_ITEM_FREE;
 }

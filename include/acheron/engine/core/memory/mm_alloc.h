@@ -8,7 +8,7 @@
 typedef struct {
     size_t size;
     void *ptr;
-    char calling_func[32];
+    char *calling_func;
 } ar_memory_alloc_t;
 
 void *_ar_memory_alloc(const char *func, size_t size);

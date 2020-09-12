@@ -36,6 +36,7 @@ typedef struct {
     bool pressed;
 
     float cooldown;
+    float cooldown_length;
 } ar_control_t;
 
 typedef struct {
