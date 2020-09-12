@@ -5,16 +5,11 @@
 
 #ifdef AR_USE_OPENGL
 
-typedef enum {
-
-} ar_renderer_texture_target;
-
 typedef struct {
-    int
+    unsigned id;
+
 } ar_intern_framebuffer_t;
 
 
 #endif
-
-
 #endif

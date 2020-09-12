@@ -1,6 +1,5 @@
 #include <acheron/engine/object/ob_mesh.h>
 #include <acheron/engine/renderer/rr_shaderman.h>
-#include <acheron/engine/rendering/camera.h>
 #include <acheron/engine/image/texture.h>
 #include <acheron/engine/rendering/ui.h>
 #include <acheron/engine/math/mt_math.h>

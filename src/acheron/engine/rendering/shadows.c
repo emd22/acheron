@@ -1,7 +1,6 @@
 #include <acheron/engine/rendering/shadows.h>
 #include <acheron/engine/rendering/framebuffer.h>
 #include <acheron/engine/rendering/cubemap.h>
-#include <acheron/engine/rendering/camera.h>
 
 #include <acheron/engine/core/cr_handles.h>
 #include <acheron/engine/core/cr_log.h>

@@ -3,7 +3,6 @@
 
 #include <acheron/engine/image/texture.h>
 #include <acheron/engine/renderer/rr_shader.h>
-#include <acheron/engine/rendering/camera.h>
 #include <acheron/engine/object/ob_mesh.h>
 
 typedef struct {

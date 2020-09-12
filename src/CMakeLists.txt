@@ -6,7 +6,7 @@ project(${BUILD_NAME} C)
 
 find_package(Threads REQUIRED)
 
-set(DEBUG TRUE)
+set(DEBUG FALSE)
 set(CMAKE_CXX_COMPILER gcc)
 
 if (${DEBUG})

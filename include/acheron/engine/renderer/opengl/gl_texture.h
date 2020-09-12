@@ -1,13 +1,12 @@
-#ifndef AR_RR_TEXTURE_H
-#define AR_RR_TEXTURE_H
+#ifndef AR_GL_TEXTURE_H
+#define AR_GL_TEXTURE_H
+#ifdef AR_USE_OPENGL
 
-#include <acheron/engine/image/image.h>
-#include <acheron/engine/renderer/rr_ar_texturetarget.h>
+typedef struct {
+    unsigned id;
 
-#include <GL/glew.h>
-#include <GL/gl.h>
 
-typedef unsigned ar_texture_id_t;
+} ar_intern_texture_t;
 
 #define AR_TEXTURE_TYPE_RGB     GL_RGB
 #define AR_TEXTURE_TYPE_RGBA    GL_RGBA
@@ -36,5 +35,7 @@ void ar_texture_set_data(ar_texture_t *ar_texture, int width, int height, int ty
 void ar_texture_set_parameter(ar_texture_t *ar_texture, int parameter, int value);
 void ar_texture_destroy(ar_texture_t *tex);
 void ar_textures_cleanup(void);
- 
+
+
+#endif
 #endif

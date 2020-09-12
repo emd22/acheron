@@ -15,7 +15,7 @@
 
 #define BACKTRACE_SIZE 32
 
-static char *get_location(char *str) {
+char *ar_debug_get_location(char *str) {
     char ch;
     while ((ch = *(str++)) != '(');
     return str-1;
@@ -29,34 +29,34 @@ void _ar_assert(int cond, const char *calling_func, const char *assertstr, int c
 }
 
 void ar_debug_print_backtrace(void) {
-    #ifdef __linux__
+#ifdef __linux__
     void *trace[BACKTRACE_SIZE];
     int trace_size;
     trace_size = backtrace(trace, BACKTRACE_SIZE);
     char **symbols;
     symbols = backtrace_symbols(trace, trace_size);
-    #ifndef BACKTRACE_NO_FUNCTION_NAMES
+#ifndef BACKTRACE_NO_FUNCTION_NAMES
     char *end;
     int size;
     ar_log(AR_LOG_DEBUG, "Retrieving function names...\n", 0);
     Dl_info bt_info;
-    #endif
+#endif
     ar_log(AR_LOG_DEBUG, "Printing Backtrace\n", 0);
     int i;
     for (i = 0; i < trace_size; i++) {
-        #ifndef BACKTRACE_NO_FUNCTION_NAMES
-        end = get_location(symbols[i]);
+    #ifndef BACKTRACE_NO_FUNCTION_NAMES
+        end = ar_debug_get_location(symbols[i]);
         size = end-symbols[i];
         
         dladdr(trace[i], &bt_info);
         // print function pointer, function name, and location
         printf("|%-14p || %-24s || %-16.*s|\n", trace[i], bt_info.dli_sname, size, symbols[i]);
-        #else
+    #else
         // we dont have access to the dl library, so just print location+address
         printf("%s\n", symbols[i]);
-        #endif
+    #endif
     }
     ar_log(AR_LOG_DEBUG, "Backtrace end\n", 0);
     free(symbols);
-    #endif //__linux__
+#endif //__linux__
 }
