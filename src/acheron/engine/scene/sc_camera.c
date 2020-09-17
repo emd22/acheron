@@ -55,8 +55,9 @@ void ar_camera_update(ar_camera_t *camera) {
     ar_vector_add(AR_VEC3F, &camera->position, &camera->direction, &look_position);
     
     camera->view = ar_math_lookat(camera->position, look_position, camera->up);
-
-    ar_shader_set_uniform(shader_main, AR_SHADER_VEC3F, "view_pos", &camera->position);
+    
+    ar_shader_t *shader = ar_shaderman_get_render_shader();
+    ar_shader_set_uniform(shader, AR_SHADER_VEC3F, "view_pos", &camera->position);
 }
 
 static void *camera_update_default(ar_camera_t *camera, void *arg) {

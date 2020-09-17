@@ -128,7 +128,7 @@ void *ar_scene_attach(ar_scene_t *scene, ar_scene_attach_type_t type, void *ptr)
         scene_object = ar_buffer_push(&scene->lights, &light);
         
         if (!light->initialized) {
-            ar_light_init(light, shader_main);
+            ar_light_init(light, ar_shaderman_get_render_shader());
         }
         //ar_light_init(light, shader_main);
         //ar_light_update(light, shader_main);

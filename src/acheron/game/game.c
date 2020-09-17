@@ -16,6 +16,7 @@
 
 #define MOUSE_SPEED 0.09
 
+#if 0
 ar_camera_t *selected_camera;
 ar_asset_t *mesh;
 
@@ -56,13 +57,11 @@ void init_objects(ar_scene_t *scene) {
 int main() {
     // create a new instance for graphics
     ar_instance_t *instance = ar_instance_new(AR_INSTANCE_GRAPHICS);
-    ar_window_t *window = ar_window_new("Acheron3d", 600, 600, 0);
+    ar_window_t *window = ar_window_new("Acheron3d", 1024, 768, AR_WINDOW_OPTION_MOUSE_VISIBLE);
     // attach window to engine instance
     ar_instance_attach(instance, AR_INSTANCE_ATTACH_WINDOW, window);
     // initialize instance
     ar_init(instance);
-
-    render_init();
     ar_time_init();
 
     ar_camera_perspective_t camera = ar_camera_perspective_new();
@@ -72,9 +71,8 @@ int main() {
 
     ar_control_set_mode(SDLK_q, AR_CONTROL_MODE_TOGGLE);
     ar_control_set_mode(SDLK_e, AR_CONTROL_MODE_TOGGLE);
-    ar_control_set_mode(SDLK_r, AR_CONTROL_MODE_TOGGLE);
-    ar_control_set_mode(SDLK_e, AR_CONTROL_MODE_TOGGLE);
     ar_control_set_mode(SDLK_ESCAPE, AR_CONTROL_MODE_TOGGLE);
+
     ar_handle_set(AR_HANDLE_MOUSE_MOVE, &check_mouse);
     
     ar_scene_t *scene = ar_scene_new("Main Scene");
@@ -82,17 +80,20 @@ int main() {
     init_objects(scene);
     init_lights(scene);
 
-    ar_scene_select(scene, shader_main);
+    ar_shader_t *shader = ar_shaderman_get_render_shader();
+
+    ar_scene_select(scene, shader);
     
-    ar_scene_render_shadows(scene, shader_main);
+    ar_scene_render_shadows(scene, shader);
     ar_window_option_set(window, AR_WINDOW_OPTION_MOUSE_VISIBLE, false);
     player_t player;
     player.camera = &camera;
 
     while (instance->running) {
         ar_time_tick();
-
+        // check for events (mouse, keyboard, window, etc.)
         ar_controls_poll_events();
+
         if (ar_control_check(SDLK_q)) {
             instance->running = false;
         }
@@ -100,13 +101,11 @@ int main() {
             ar_window_option_set(window, AR_WINDOW_OPTION_MOUSE_VISIBLE, true);
         }
 
-        ar_shader_use(shader_main);
-
         player_move(&player);
         ar_camera_update(&camera.camera);
  
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        render_all(&camera.camera);
+        ar_renderer_draw(&camera.camera);
         ar_window_buffers_swap(window);
     }
     ar_time_end();
@@ -120,3 +119,4 @@ int main() {
 
     ar_memory_cleanup();
 }
+#endif

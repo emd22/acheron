@@ -79,7 +79,7 @@ void ar_light_shadow_new(ar_light_t *light, int width, int height) {
         return;
     }
     if (!light->initialized)
-        ar_light_init(light, shader_main);
+        ar_light_init(light, ar_shaderman_get_render_shader());
         
     light->point_shadow = shadows_point_init(light->position, width, height, light->radius);
     light->use_shadows = true;
@@ -150,7 +150,7 @@ void ar_light_init(ar_light_t *light, ar_shader_t *shader) {
     else {
         ar_log(AR_LOG_ERROR, "light type #%d not implemented\n", light->type);
     }
-    ar_light_update(light, shader_main);    
+    ar_light_update(light, ar_shaderman_get_render_shader());    
 }
 
 void ar_light_update(ar_light_t *light, ar_shader_t *shader) {

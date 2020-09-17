@@ -16,6 +16,8 @@
 
 static ar_buffer_t shader_buffer;
 
+static ar_shader_t *render_shader = NULL;
+
 ar_shader_t *ar_shader_new(const char *name) {
     if (!ar_buffer_is_initialized(&shader_buffer)) {
         ar_buffer_init(&shader_buffer, AR_BUFFER_DYNAMIC, sizeof(ar_shader_t), 8, 0);
@@ -31,6 +33,14 @@ ar_shader_t *ar_shader_new(const char *name) {
     
     strcpy(shader->name, name);
     return shader;
+}
+
+void ar_shaderman_set_render_shader(ar_shader_t *shader) {
+    render_shader = shader;
+}
+
+ar_shader_t *ar_shaderman_get_render_shader(void) {
+    return render_shader;
 }
 
 ar_shader_t *ar_shader_get(const char *name) {

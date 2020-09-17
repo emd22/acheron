@@ -4,6 +4,7 @@
 #include <acheron/engine/core/cr_controls.h>
 #include <acheron/engine/core/cr_debug.h>
 #include <acheron/engine/core/cr_log.h>
+#include <acheron/engine/core/cr_time.h>
 
 #include <acheron/engine/scene/sc_scene.h>
 #include <acheron/engine/scene/sc_light.h>
@@ -34,6 +35,7 @@ ar_instance_t *ar_instance_new(int flags) {
         ar_instance_selected = &ar_instance;
 
     ar_controls_init();
+    ar_time_init();
 
     return &ar_instance;
 }
@@ -117,4 +119,5 @@ void ar_cleanup(void) {
     ar_window_buffer_destroy();
     ar_shader_buffer_destroy();
     ar_meshes_cleanup();
+    ar_memory_cleanup();
 }

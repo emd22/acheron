@@ -1,6 +1,8 @@
 #ifndef AR_RR_RENDERER_H
 #define AR_RR_RENDERER_H
 
+#include <acheron/engine/scene/sc_camera.h>
+
 typedef enum {
     AR_RENDERER_BLEND,
     AR_RENDERER_CULL_FACE,
@@ -24,6 +26,8 @@ ar_renderer_instance_t ar_renderer_init(void);
 void ar_renderer_intern_init(ar_renderer_instance_t *instance);
 void ar_renderer_destroy(ar_renderer_instance_t *instance);
 
+int ar_render_scene_objects(void *camera);
+void ar_renderer_draw(ar_camera_t *camera);
 const char *ar_renderer_check_error(void);
 
 void ar_renderer_enable(ar_renderer_enable_t code);
