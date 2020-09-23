@@ -4,8 +4,6 @@
 
 typedef struct {
     unsigned id;
-
-
 } ar_intern_texture_t;
 
 #define AR_TEXTURE_TYPE_RGB     GL_RGB

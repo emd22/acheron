@@ -1,32 +1,48 @@
 #ifndef AR_RR_TEXTURE_H
 #define AR_RR_TEXTURE_H
 
-#include <acheron/engine/image/image.h>
+#include <acheron/ar_image/ar_image.h>
 #include <acheron/engine/renderer/rr_ar_texturetarget.h>
 
 #include <GL/glew.h>
 #include <GL/gl.h>
 
-typedef unsigned ar_texture_id_t;
-
-#define AR_TEXTURE_TYPE_RGB     GL_RGB
-#define AR_TEXTURE_TYPE_RGBA    GL_RGBA
+typedef long ar_texture_id_t;
 
 typedef struct {
-    unsigned id;
-    // type of data stored e.g RGB, RGBA, etc.
-    int data_type;
-    int draw_type;
-    int bind_type;
-    int index;
-    
-    image_t image;
+    ar_texture_id_t id;
+    ari_image_t image;
+
+    ar_texture_data_width_t data_width
+    ar_texture_bind_type_t bind_type;
+    ar_texture_data_type_t draw_type;
+    ar_texture_data_type_t data_type;
 } ar_texture_t;
 
-typedef struct {
-    unsigned id;
-} ar_texture_t;
+typedef enum {
+    AR_TEXTURE_2D,
+} ar_texture_bind_type_t;
 
+typedef enum {
+    AR_TEXTURE_RGB,
+    AR_TEXTURE_RGBA,
+    AR_TEXTURE_BGR,
+    AR_TEXTURE_BGRA,
+} ar_texture_data_type_t;
+
+typedef enum {
+    AR_TEXTURE_BYTE,
+    AR_TEXTURE_SHORT,
+    AR_TEXTURE_LONG,
+} ar_texture_data_width_t;
+
+
+
+
+
+
+/*** OLD ***/
+/*
 ar_texture_t *ar_texture_new(void);
 void ar_texture_init(ar_texture_t *ar_texture);
 void ar_texture_bind(ar_texture_t *ar_texture);
@@ -37,4 +53,5 @@ void ar_texture_set_parameter(ar_texture_t *ar_texture, int parameter, int value
 void ar_texture_destroy(ar_texture_t *tex);
 void ar_textures_cleanup(void);
  
+*/ 
 #endif
