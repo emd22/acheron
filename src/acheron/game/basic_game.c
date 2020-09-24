@@ -51,6 +51,29 @@ void init_object_stuffs() {
     ar_scene_select(scene, ar_shaderman_get_render_shader());
 }
 
+void fps_move(ar_camera_t *camera) {
+    float speed = 7.0f*ar_time_get_delta();
+
+    // comment out this line for flycam
+    camera->direction.y = 0;
+
+    if (ar_control_check(SDLK_w)) {
+        ar_vector_mul_value(AR_VEC3F, &camera->direction, speed, &camera->direction);
+        ar_vector_add(AR_VEC3F, &camera->position, &camera->direction, &camera->position);
+    }
+    if (ar_control_check(SDLK_s)) {
+        ar_vector_mul_value(AR_VEC3F, &camera->direction, speed, &camera->direction);
+        ar_vector_sub(AR_VEC3F, &camera->position, &camera->direction, &camera->position);
+    }
+    if (ar_control_check(SDLK_d)) {
+        ar_vector_mul_value(AR_VEC3F, &camera->right, speed, &camera->right);
+        ar_vector_add(AR_VEC3F, &camera->position, &camera->right, &camera->position);
+    }
+    if (ar_control_check(SDLK_a)) {
+        ar_vector_mul_value(AR_VEC3F, &camera->right, speed, &camera->right);
+        ar_vector_sub(AR_VEC3F, &camera->position, &camera->right, &camera->position);
+    }
+}
 
 int main() {
     ar_instance_t *instance = ar_instance_new(AR_INSTANCE_GRAPHICS);
@@ -76,16 +99,8 @@ int main() {
 
         if (ar_control_check(SDLK_q))
             instance->running = false;
-        
-        // change field of vision and reload camera
-        if (ar_control_check(SDLK_e)) {
-            pers_camera.fov -= 5.0f;
-            camera->reload(camera, &pers_camera);
-        }
-        if (ar_control_check(SDLK_r)) {
-            pers_camera.fov += 5.0f;
-            camera->reload(camera, &pers_camera);
-        }
+
+        fps_move(camera);
         ar_camera_update(camera);
 
         ar_renderer_draw(camera);
