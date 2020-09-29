@@ -127,7 +127,7 @@ long ar_buffer_get_item_index(ar_buffer_t *buffer, void *item) {
     return -1;
 }
 
-void ar_buffer_item_free_at_index(ar_buffer_t *buffer, unsigned index) {
+void ar_buffer_item_free_at_index(ar_buffer_t *buffer, long index) {
     if (index > buffer->size)
         return;
     if (index == buffer->index-1)
@@ -136,7 +136,7 @@ void ar_buffer_item_free_at_index(ar_buffer_t *buffer, unsigned index) {
 }
 
 void ar_buffer_item_free(ar_buffer_t *buffer, void *item) {
-    ar_buffer_item_free_at_index(buffer, ar_buffer_get_item_index(item));
+    ar_buffer_item_free_at_index(buffer, ar_buffer_get_item_index(buffer, item));
 }
 
 void *ar_buffer_get(ar_buffer_t *buffer, unsigned index) {

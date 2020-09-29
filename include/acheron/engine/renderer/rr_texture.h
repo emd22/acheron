@@ -3,7 +3,7 @@
 
 #include <ar_image/ar_image.h>
 
-typedef long ar_texture_id_t;
+typedef unsigned ar_texture_id_t;
 
 typedef enum {
     AR_TEXTURE_RGB,
@@ -15,16 +15,34 @@ typedef enum {
 typedef enum {
     AR_TEXTURE_BYTE,
     AR_TEXTURE_SHORT,
-    AR_TEXTURE_LONG,
+    AR_TEXTURE_INT,
 } ar_texture_data_width_t;
 
 typedef enum {
     AR_TEXTURE_2D,
 } ar_texture_bind_type_t;
 
-typedef struct {
+typedef enum {
+    AR_TEXTURE_MIN_FILTER,
+    AR_TEXTURE_MAG_FILTER,
+    AR_TEXTURE_WRAP_S,
+    AR_TEXTURE_WRAP_T,
+} ar_texture_parameter_t;
+
+typedef enum {
+    AR_TEXTURE_LINEAR,
+    AR_TEXTURE_LINEAR_MIPMAP,
+    AR_TEXTURE_REPEAT,
+} ar_texture_parameter_value_t;
+
+typedef struct ar_texture_s {
     ar_texture_id_t id;
     ari_image_t image;
+
+    int width, height;
+    unsigned lod;
+
+    void (*update)(struct ar_texture_s *);
 
     ar_texture_data_width_t data_width;
     ar_texture_bind_type_t bind_type;
@@ -32,37 +50,13 @@ typedef struct {
     ar_texture_data_type_t data_type;
 } ar_texture_t;
 
-
 ar_texture_t *ar_texture_new(void);
-void ar_texture_init(ar_texture_t *ar_texture);
-void ar_texture_bind(ar_texture_t *ar_texture);
-ar_texture_t *ar_texture_load(ar_texture_t *ar_texture, const char *path, ari_image_type_t type);
-ar_texture_t *ar_texture_load_data(ar_texture_t *ar_texture, const char *path, ari_image_type_t type);
-void ar_texture_set_data(ar_texture_t *ar_texture, int width, int height, int type_size, unsigned char *data);
-void ar_texture_set_parameter(ar_texture_t *ar_texture, int parameter, int value);
-void ar_texture_destroy(ar_texture_t *tex);
-void ar_textures_cleanup(void);
-
-
-ar_texture_t *ar_texture_new(void);
-
-
+void ar_texture_set_parameter(ar_texture_t *texture, ar_texture_parameter_t param, ar_texture_parameter_value_t value);
+ari_image_t *ar_texture_get_image(ar_texture_t *texture);
+void ar_texture_update(ar_texture_t *texture);
+void ar_texture_set_data(ar_texture_t *texture, int width, int height, ar_texture_data_type_t data_type, ar_texture_data_width_t data_width, void *data);
+void ar_texture_bind(ar_texture_t *texture);
 void ar_texture_destroy(ar_texture_t *texture);
+void ar_texture_buffer_destroy(void);
 
-
-
-
-/*** OLD ***/
-/*
-ar_texture_t *ar_texture_new(void);
-void ar_texture_init(ar_texture_t *ar_texture);
-void ar_texture_bind(ar_texture_t *ar_texture);
-ar_texture_t *ar_texture_load(ar_texture_t *ar_texture, const char *path, ar_image_type_t type);
-ar_texture_t *ar_texture_load_data(ar_texture_t *ar_texture, const char *path, ar_image_type_t type);
-void ar_texture_set_data(ar_texture_t *ar_texture, int width, int height, int type_size, unsigned char *data);
-void ar_texture_set_parameter(ar_texture_t *ar_texture, int parameter, int value);
-void ar_texture_destroy(ar_texture_t *tex);
-void ar_textures_cleanup(void);
- 
-*/ 
 #endif

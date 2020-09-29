@@ -14,13 +14,13 @@ static bool objects_sorted = false;
 
 void ar_objects_sort(ar_object_t *objects, int objects_size);
 
-ar_object_t *ar_object_new(const char *name) {
+ar_object_t *ar_object_new(char *name) {
     if (!ar_buffer_is_initialized(&object_buffer)) {
         ar_buffer_init(&object_buffer, AR_BUFFER_DYNAMIC, sizeof(ar_object_t), DEFAULT_OBJECTS, 0);
     }
     ar_object_t *object = ar_buffer_new_item(&object_buffer);
     
-    strcpy(object->name, name);
+    object->name = name;
     object->hash = util_hash_str(name);
     object->mesh = NULL;
     object->position = (ar_vector3f_t){0, 0, 0};

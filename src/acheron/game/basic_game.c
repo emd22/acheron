@@ -77,7 +77,7 @@ void fps_move(ar_camera_t *camera) {
 
 int main() {
     ar_instance_t *instance = ar_instance_new(AR_INSTANCE_GRAPHICS);
-    ar_window_t *window = ar_window_new("Window Title", 1024, 768, 0);
+    ar_window_t *window = ar_window_new("Acheron3d FPS Test", 1024, 768, 0);
     
     ar_window_option_set(window, AR_WINDOW_OPTION_MOUSE_VISIBLE, 0);
     ar_instance_attach(instance, AR_INSTANCE_ATTACH_WINDOW, window);
@@ -89,6 +89,11 @@ int main() {
     ar_control_set_mode(SDLK_e, AR_CONTROL_MODE_TOGGLE);
 
     init_object_stuffs();
+
+    ar_texture_t *texture = ar_texture_new();
+    ar_image_load("/home/ethan/Pictures/gabe.jpg", &texture->image, ARI_TYPE_JPEG, ARI_RGBA);
+    texture->update(texture);
+    ar_texture_destroy(texture);
 
     // handle camera rotations
     ar_handle_set(AR_HANDLE_MOUSE_MOVE, &handle_mouse);

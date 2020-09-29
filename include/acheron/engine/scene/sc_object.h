@@ -36,7 +36,7 @@ typedef enum {
 } ar_object_update_type_t;
 
 typedef struct object_s {
-    char name[32];
+    char *name;
     hash_t hash;
 
     //ar_mesh_t *mesh;
@@ -55,7 +55,7 @@ typedef struct object_s {
     int flags;
 } ar_object_t;
 
-ar_object_t *ar_object_new(const char *name);
+ar_object_t *ar_object_new(char *name);
 void render_set_target(int target, void *ptr);
 void ar_object_update(ar_object_t *object);
 

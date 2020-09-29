@@ -15,13 +15,13 @@
 ar_buffer_t scenes;
 static ar_scene_t *selected_scene = NULL;
 
-ar_scene_t *ar_scene_new(const char *name) {
+ar_scene_t *ar_scene_new(char *name) {
     if (!ar_buffer_is_initialized(&scenes)) {
         ar_buffer_init(&scenes, AR_BUFFER_DYNAMIC, sizeof(ar_scene_t), 4, 0);
     }
     
     ar_scene_t *scene = ar_buffer_new_item(&scenes);
-    strcpy(scene->name, name);
+    scene->name = name;
     ar_buffer_init(&scene->lights, AR_BUFFER_STATIC, sizeof(ar_light_t *), MAX_SCENE_LIGHTS, 0);
     scene->flags = 0;
     

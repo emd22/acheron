@@ -70,16 +70,18 @@ static void generate_indices(ar_mesh_t *mesh) {
     unsigned i;
     ar_buffer_init(&mesh->indices, AR_BUFFER_STATIC, sizeof(unsigned), mesh->vertices.index, 0);
     
-    ar_buffer_t new_verts;
-    ar_buffer_init(&new_verts, AR_BUFFER_STATIC, sizeof(vertex_t), mesh->vertices.index, 0);
-    vertex_t *vertex;
+    //ar_buffer_t new_verts;
+    //ar_buffer_init(&new_verts, AR_BUFFER_STATIC, sizeof(vertex_t), mesh->vertices.index, 0);
+    //vertex_t *vertex;
 
-    int amt_created = 0;
-    int index;
-    int amt_reused = 0;
+    //int amt_created = 0;
+    //int index;
+    //int amt_reused = 0;
     
     for (i = 0; i < mesh->vertices.index; i++) {
-        vertex = &((vertex_t *)mesh->vertices.data)[i];
+        ar_buffer_push(&mesh->indices, &i);
+        continue;
+        /*vertex = &((vertex_t *)mesh->vertices.data)[i];
         if ((index = check_vertex_matches(&new_verts, vertex)) != -1) {
             ar_buffer_push(&mesh->indices, &index);
             amt_reused++;
@@ -88,11 +90,11 @@ static void generate_indices(ar_mesh_t *mesh) {
             ar_buffer_push(&mesh->indices, &new_verts.index);
             ar_buffer_push(&new_verts, vertex);
             amt_created++;
-        }
+        }*/
     }
-    ar_buffer_destroy(&mesh->vertices);
-    mesh->vertices = new_verts;
-    ar_log(AR_LOG_INFO, "Saved %.02f KB of VRAM\n", ((float)amt_reused*sizeof(vertex_t))/1024.0f);
+    //ar_buffer_destroy(&mesh->vertices);
+    //mesh->vertices = new_verts;
+    //ar_log(AR_LOG_INFO, "Saved %.02f KB of VRAM\n", ((float)amt_reused*sizeof(vertex_t))/1024.0f);
 }
 
 static void generate_packed_vertices(ar_mesh_t *mesh, ar_buffer_t *vertices, ar_buffer_t *uvs, ar_buffer_t *normals) {

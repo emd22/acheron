@@ -2,6 +2,8 @@
 #define AR_RR_RENDERER_H
 
 #include <acheron/engine/scene/sc_camera.h>
+#include <acheron/engine/renderer/rr_shader.h>
+#include <acheron/engine/renderer/rr_texture.h>
 
 typedef enum {
     AR_RENDERER_BLEND,

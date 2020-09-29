@@ -45,7 +45,9 @@ ar_buffer_t ar_buffer_from_data(ar_buffer_type_t type, void *data, uint16_t obj_
 void *ar_buffer_push(ar_buffer_t *buffer, void *obj);
 void *ar_buffer_new_item(ar_buffer_t *buffer);
 long ar_buffer_get_item_index(ar_buffer_t *buffer, void *item);
-void ar_buffer_item_free(ar_buffer_t *buffer, unsigned index);
+
+void ar_buffer_item_free_at_index(ar_buffer_t *buffer, long index);
+void ar_buffer_item_free(ar_buffer_t *buffer, void *item);
 
 void *ar_buffer_get(ar_buffer_t *buffer, unsigned index);
 

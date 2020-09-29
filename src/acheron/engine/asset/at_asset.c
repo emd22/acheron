@@ -90,11 +90,11 @@ void ar_asset_check_queue(void) {
 
         if (item->operation == AR_ASSET_OP_LOAD) {
             asset_load(item);
-            ar_buffer_item_free(&asset_queue, i);
+            ar_buffer_item_free_at_index(&asset_queue, i);
         }
         else if (item->operation == AR_ASSET_OP_FREE) {
             asset_destroy(item);
-            ar_buffer_item_free(&asset_queue, i);
+            ar_buffer_item_free_at_index(&asset_queue, i);
         }
     }
 }
@@ -148,5 +148,5 @@ static void asset_destroy(ar_asset_queue_item_t *item) {
         default:
             break;
     }
-    ar_buffer_item_free(&asset_buffer, ar_buffer_get_item_index(&asset_buffer, item->asset));
+    ar_buffer_item_free(&asset_buffer, item->asset);
 }

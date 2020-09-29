@@ -22,26 +22,17 @@ typedef enum {
 } ar_scene_attach_type_t;
 
 typedef struct {
-    char name[32];
+    char *name;
     
     ar_buffer_t lights;
-    // hold pointers of objects
     ar_buffer_t objects;
-    
-    //skybox_t skybox;
+
     int flags;
 } ar_scene_t;
 
-/*typedef struct {
-    char name[32];
-    
-    ar_buffer_t objects;
-    ar_buffer_t lights;
-} ar_scene_t;*/
-
 extern ar_buffer_t scenes;
 
-ar_scene_t *ar_scene_new(const char *name);
+ar_scene_t *ar_scene_new(char *name);
 void ar_scene_render_shadows(ar_scene_t *scene, ar_shader_t *shader_main);
 void ar_scene_objects_render(ar_scene_t *scene, ar_shader_t *shader, ar_camera_t *camera, bool render_materials);
 void ar_scene_select(ar_scene_t *scene, ar_shader_t *shader_main);
