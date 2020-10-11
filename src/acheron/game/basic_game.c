@@ -13,9 +13,13 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
+#include <stdio.h>
+
 ar_camera_perspective_t pers_camera;
 ar_camera_t *camera;
 ar_scene_t *scene;
+
+ar_object_t *level;
 
 int handle_mouse(void *arg) {
     const float mouse_sensitivity = 0.09f;
@@ -35,7 +39,7 @@ void init_object_stuffs() {
     camera->position = (ar_vector3f_t){0, 3, -4};
 
     // create new object and load asset
-    ar_object_t *level = ar_object_new("Level");
+    level = ar_object_new("Level");
     ar_asset_t *level_asset = ar_asset_load(AR_ASSET_MESH, "../models/reception/reception.obj");
     // attach asset to object, attach object to scene
     ar_object_attach(level, AR_OBJECT_ATTACH_MESH, level_asset);
@@ -92,8 +96,19 @@ int main() {
 
     ar_texture_t *texture = ar_texture_new();
     ar_image_load("/home/ethan/Pictures/gabe.jpg", &texture->image, ARI_TYPE_JPEG, ARI_RGBA);
+    int i;
+    for (i = 0; i < 5; i++) {
+        printf("R:%02X G:%02X B:%02x\n", texture->image.data[i*3], texture->image.data[i*3+1], texture->image.data[i*3+2]);
+    }
     texture->update(texture);
-    ar_texture_destroy(texture);
+
+    ar_material_t *material = ar_material_new();
+    material->diffuse_texture = texture;
+    //material->specular_texture = NULL;
+    //material->normal_texture = NULL;
+    material->shininess = 32.0f;
+
+    //ar_object_attach(level, AR_OBJECT_ATTACH_MATERIAL, material);
 
     // handle camera rotations
     ar_handle_set(AR_HANDLE_MOUSE_MOVE, &handle_mouse);
@@ -111,6 +126,8 @@ int main() {
         ar_renderer_draw(camera);
         ar_window_buffers_swap(window);
     }
+
+    ar_texture_destroy(texture);
 
     ar_window_destroy(window);
     ar_scene_destroy(scene);

@@ -119,6 +119,8 @@ void ar_cleanup(void) {
     ar_window_buffer_destroy();
     ar_shader_buffer_destroy();
     ar_texture_buffer_destroy();
+    ar_material_buffer_destroy();
+    
     ar_meshes_cleanup();
     ar_memory_cleanup();
 }

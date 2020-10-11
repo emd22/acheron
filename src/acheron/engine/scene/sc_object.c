@@ -1,5 +1,5 @@
 #include <acheron/engine/scene/sc_object.h>
-#include <acheron/engine/object/material.h>
+#include <acheron/engine/object/ob_material.h>
 #include <acheron/engine/core/cr_log.h>
 #include <acheron/engine/util.h>
 #include <acheron/engine/types.h>
@@ -99,7 +99,7 @@ void ar_object_attach(ar_object_t *object, int type, void *data) {
         //physics_collider_stretch_to_vertices(&object->physics.collider, &object->mesh->vertices);
     }
     else if (type == AR_OBJECT_ATTACH_MATERIAL) {
-        object->material = (material_t *)data;
+        object->material = (ar_material_t *)data;
     }
     else {
         ar_log(AR_LOG_ERROR, "Attach type is not valid\n", 0);
@@ -140,18 +140,20 @@ void ar_objects_draw(ar_object_t *objects, int objects_size, ar_shader_t *shader
         ar_objects_sort(objects, objects_size);
     
     int i;
-    hash_t mat_hash = 1;
+    //hash_t mat_hash = 1;
     ar_object_t *object;
     for (i = 0; i < objects_size; i++) {
         object = &objects[i];
         if (render_materials == false) {
-            material_update(NULL, shader);
+            ar_material_set_active(NULL);
+            //material_update(NULL, shader);
         }
         else {
-            if (mat_hash != get_material_hash(object)) {
-                material_update(object->material, shader);
-                mat_hash = get_material_hash(object);
-            }        
+            ar_material_set_active(object->material);
+            //if (mat_hash != get_material_hash(object)) {
+            //    material_update(object->material, shader);
+            //    mat_hash = get_material_hash(object);
+            //}        
         }
         ar_object_draw(object, shader, camera);
     }

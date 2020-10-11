@@ -1,4 +1,5 @@
-#include <acheron/engine/object/material.h>
+typedef int isoerr_t;
+/*#include <acheron/engine/object/material.h>
 #include <acheron/engine/renderer/rr_shader.h>
 #include <acheron/engine/core/cr_handles.h>
 #include <acheron/engine/core/cr_log.h>
@@ -94,3 +95,4 @@ void material_destroy(material_t *material) {
     
     material->name[0] = '*';
 }
+*/

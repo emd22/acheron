@@ -10,6 +10,8 @@
 static ar_buffer_t texture_buffer;
 static ar_texture_t *bound_texture = NULL;
 
+static ar_texture_unit_t active_texture = AR_TEXTURE_UNIT_NONE;
+
 ar_texture_t *ar_texture_new(void) {
     if (!ar_buffer_is_initialized(&texture_buffer)) {
         ar_buffer_init(&texture_buffer, AR_BUFFER_DYNAMIC, sizeof(ar_texture_t), 64, AR_BUFFER_PACK);
@@ -19,14 +21,19 @@ ar_texture_t *ar_texture_new(void) {
     texture->draw_type = AR_TEXTURE_RGBA;
     texture->data_type = AR_TEXTURE_RGBA;
     texture->data_width = AR_TEXTURE_BYTE;
+    texture->texture_unit = AR_TEXTURE_UNIT0;
+
     texture->width = 0;
     texture->height = 0;
     texture->lod = 0;
+    
     texture->image.type = ARI_TYPE_UNKNOWN;
     glGenTextures(1, &texture->id);
 
     // functions
     texture->update = &ar_texture_update;
+    texture->bind   = &ar_texture_bind;
+    texture->bind_to = &ar_texture_bind_to;
 
     return texture;
 }
@@ -60,8 +67,9 @@ ari_image_t *ar_texture_get_image(ar_texture_t *texture) {
 }
 
 void ar_texture_update(ar_texture_t *texture) {
-    if (texture->image.type == ARI_TYPE_UNKNOWN)
+    if (texture->image.type == ARI_TYPE_UNKNOWN) {
         return;
+    }
     const int image_width = texture->image.width;
     const int image_height = texture->image.height;
     ar_texture_set_data(
@@ -102,11 +110,31 @@ void ar_texture_set_data(
     );
 }
 
-void ar_texture_bind(ar_texture_t *texture) {
+void ar_texture_bind_to(ar_texture_t *texture, ar_texture_unit_t texture_unit) {
     if (bound_texture && bound_texture->id == texture->id)
         return; // already bound, just return
-    
+
+    // check if the texture is already active
+    if (active_texture != texture_unit && texture_unit != AR_TEXTURE_UNIT_NONE) {
+        // acheron's texture units are just indices, so we just add to GL_TEXTURE0
+        ar_log(AR_LOG_INFO, "bind to texture unit %d\n", texture->texture_unit);
+        const unsigned gl_texture_c = GL_TEXTURE0+texture->texture_unit;
+        active_texture = texture->texture_unit;
+     
+        // activate the texture unit
+        glActiveTexture(gl_texture_c);
+    }
+
     glBindTexture(texture->bind_type, texture->id);
+}
+
+void ar_texture_bind(ar_texture_t *texture) {
+    ar_texture_unit_t unit;
+    unit = texture->texture_unit;
+    if (unit == AR_TEXTURE_UNIT_NONE)
+        unit = AR_TEXTURE_UNIT0; // TODO: don't overwrite texture0
+    
+    ar_texture_bind_to(texture, unit);
 }
 
 void ar_texture_destroy(ar_texture_t *texture) {

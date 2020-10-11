@@ -35,6 +35,18 @@ typedef enum {
     AR_TEXTURE_REPEAT,
 } ar_texture_parameter_value_t;
 
+typedef enum {
+    AR_TEXTURE_UNIT_NONE = -1,
+    AR_TEXTURE_UNIT0 = 0,
+    AR_TEXTURE_UNIT1,
+    AR_TEXTURE_UNIT2,
+    AR_TEXTURE_UNIT3,
+    AR_TEXTURE_UNIT4,
+    AR_TEXTURE_UNIT5,
+    AR_TEXTURE_UNIT6,
+    AR_TEXTURE_UNIT7,
+} ar_texture_unit_t;
+
 typedef struct ar_texture_s {
     ar_texture_id_t id;
     ari_image_t image;
@@ -43,6 +55,10 @@ typedef struct ar_texture_s {
     unsigned lod;
 
     void (*update)(struct ar_texture_s *);
+    void (*bind)(struct ar_texture_s *);
+    void (*bind_to)(struct ar_texture_s *, ar_texture_unit_t);
+
+    ar_texture_unit_t texture_unit;
 
     ar_texture_data_width_t data_width;
     ar_texture_bind_type_t bind_type;
@@ -55,6 +71,7 @@ void ar_texture_set_parameter(ar_texture_t *texture, ar_texture_parameter_t para
 ari_image_t *ar_texture_get_image(ar_texture_t *texture);
 void ar_texture_update(ar_texture_t *texture);
 void ar_texture_set_data(ar_texture_t *texture, int width, int height, ar_texture_data_type_t data_type, ar_texture_data_width_t data_width, void *data);
+void ar_texture_bind_to(ar_texture_t *texture, ar_texture_unit_t texture_unit);
 void ar_texture_bind(ar_texture_t *texture);
 void ar_texture_destroy(ar_texture_t *texture);
 void ar_texture_buffer_destroy(void);

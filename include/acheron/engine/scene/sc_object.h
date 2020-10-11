@@ -7,7 +7,7 @@
 #include <acheron/engine/renderer/rr_shader.h>
 #include <acheron/engine/scene/sc_camera.h>
 #include <acheron/engine/rendering/framebuffer.h>
-#include <acheron/engine/object/material.h>
+#include <acheron/engine/object/ob_material.h>
 #include <acheron/engine/physics/object.h>
 #include <acheron/engine/asset/at_asset.h>
 
@@ -41,7 +41,7 @@ typedef struct object_s {
 
     //ar_mesh_t *mesh;
     ar_asset_t *mesh;
-    material_t *material;
+    ar_material_t *material;
     
     ar_vector3f_t position;
     ar_vector3f_t rotation;
