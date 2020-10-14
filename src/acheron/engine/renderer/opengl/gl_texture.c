@@ -17,9 +17,9 @@ ar_texture_t *ar_texture_new(void) {
         ar_buffer_init(&texture_buffer, AR_BUFFER_DYNAMIC, sizeof(ar_texture_t), 64, AR_BUFFER_PACK);
     }
     ar_texture_t *texture = ar_buffer_new_item(&texture_buffer);
-    texture->bind_type = AR_TEXTURE_2D;
-    texture->draw_type = AR_TEXTURE_RGBA;
-    texture->data_type = AR_TEXTURE_RGBA;
+    texture->bind_type = GL_TEXTURE_2D;
+    texture->draw_type = GL_RGBA;
+    texture->data_type = GL_RGBA;
     texture->data_width = AR_TEXTURE_BYTE;
     texture->texture_unit = AR_TEXTURE_UNIT0;
 
@@ -72,6 +72,9 @@ void ar_texture_update(ar_texture_t *texture) {
     }
     const int image_width = texture->image.width;
     const int image_height = texture->image.height;
+    texture->width = image_width;
+    texture->height = image_height;
+    ar_log(AR_LOG_INFO, "t: %d\n", texture->data_type);
     ar_texture_set_data(
         texture, 
         image_width, image_height, 
@@ -101,23 +104,30 @@ void ar_texture_set_data(
     ar_texture_bind(texture);
     glTexImage2D(
         GL_TEXTURE_2D, 
-        texture->lod, 
+        0, 
         texture->draw_type, 
         width, height, 0, 
         texture->data_type,
         gl_data_width,
         data
     );
+
+    ar_texture_set_parameter(texture, AR_TEXTURE_MIN_FILTER, AR_TEXTURE_LINEAR_MIPMAP);
+    ar_texture_set_parameter(texture, AR_TEXTURE_MAG_FILTER, AR_TEXTURE_LINEAR);
+    ar_texture_set_parameter(texture, AR_TEXTURE_WRAP_S, AR_TEXTURE_REPEAT);
+    ar_texture_set_parameter(texture, AR_TEXTURE_WRAP_T, AR_TEXTURE_REPEAT);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
 }
 
 void ar_texture_bind_to(ar_texture_t *texture, ar_texture_unit_t texture_unit) {
-    if (bound_texture && bound_texture->id == texture->id)
+    if (bound_texture && bound_texture->id == texture->id) {
         return; // already bound, just return
+    }
 
     // check if the texture is already active
     if (active_texture != texture_unit && texture_unit != AR_TEXTURE_UNIT_NONE) {
         // acheron's texture units are just indices, so we just add to GL_TEXTURE0
-        ar_log(AR_LOG_INFO, "bind to texture unit %d\n", texture->texture_unit);
         const unsigned gl_texture_c = GL_TEXTURE0+texture->texture_unit;
         active_texture = texture->texture_unit;
      

@@ -19,7 +19,7 @@ ar_camera_perspective_t pers_camera;
 ar_camera_t *camera;
 ar_scene_t *scene;
 
-ar_object_t *level;
+ar_object_t *level, *cube;
 
 int handle_mouse(void *arg) {
     const float mouse_sensitivity = 0.09f;
@@ -41,9 +41,21 @@ void init_object_stuffs() {
     // create new object and load asset
     level = ar_object_new("Level");
     ar_asset_t *level_asset = ar_asset_load(AR_ASSET_MESH, "../models/reception/reception.obj");
+    ar_asset_wait(level_asset);
+
     // attach asset to object, attach object to scene
     ar_object_attach(level, AR_OBJECT_ATTACH_MESH, level_asset);
     ar_scene_attach(scene, AR_SCENE_ATTACH_OBJECT, level);
+
+    // create new object and load asset
+    cube = ar_object_new("Cube");
+    ar_asset_t *cube_asset = ar_asset_load(AR_ASSET_MESH, "../models/cube.obj");
+    ar_asset_wait(cube_asset);
+    
+    // attach asset to object, attach object to scene
+    ar_object_attach(cube, AR_OBJECT_ATTACH_MESH, cube_asset);
+    ar_object_move(cube, 1, 5, 0);
+    ar_scene_attach(scene, AR_SCENE_ATTACH_OBJECT, cube);
 
     // create new light, attach to scene
     ar_light_t *light = ar_light_new(AR_LIGHT_POINT);
@@ -95,11 +107,12 @@ int main() {
     init_object_stuffs();
 
     ar_texture_t *texture = ar_texture_new();
-    ar_image_load("/home/ethan/Pictures/gabe.jpg", &texture->image, ARI_TYPE_JPEG, ARI_RGBA);
+    ar_image_load("../images/brick.jpg", &texture->image, ARI_TYPE_JPEG, ARI_RGBA);
     int i;
     for (i = 0; i < 5; i++) {
         printf("R:%02X G:%02X B:%02x\n", texture->image.data[i*3], texture->image.data[i*3+1], texture->image.data[i*3+2]);
     }
+    ar_texture_update(texture);
     texture->update(texture);
 
     ar_material_t *material = ar_material_new();
@@ -108,7 +121,7 @@ int main() {
     //material->normal_texture = NULL;
     material->shininess = 32.0f;
 
-    //ar_object_attach(level, AR_OBJECT_ATTACH_MATERIAL, material);
+    ar_object_attach(cube, AR_OBJECT_ATTACH_MATERIAL, material);
 
     // handle camera rotations
     ar_handle_set(AR_HANDLE_MOUSE_MOVE, &handle_mouse);
@@ -117,8 +130,12 @@ int main() {
         ar_time_tick();
         ar_controls_poll_events();
 
+        ar_shader_use(ar_shaderman_get_render_shader());
+
         if (ar_control_check(SDLK_q))
             instance->running = false;
+        if (ar_control_check(SDLK_ESCAPE))
+            ar_window_option_set(window, AR_WINDOW_OPTION_MOUSE_VISIBLE, true);
 
         fps_move(camera);
         ar_camera_update(camera);

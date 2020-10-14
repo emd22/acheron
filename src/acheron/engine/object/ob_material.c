@@ -2,6 +2,7 @@
 #include <acheron/engine/renderer/rr_shaderman.h>
 
 #include <acheron/engine/core/memory/mm_memory.h>
+#include <acheron/engine/core/cr_log.h>
 
 static ar_buffer_t material_buffer;
 
@@ -46,17 +47,26 @@ void ar_material_set_active(ar_material_t *material) {
         ti = 1; ar_shader_set_uniform(shader, AR_SHADER_INT, "material.use_diffuse", &ti);
         ti = 0; ar_shader_set_uniform(shader, AR_SHADER_INT, "material.diffuse", &ti);
     }
+    else {
+        ti = 0; ar_shader_set_uniform(shader, AR_SHADER_INT, "material.use_diffuse", &ti);
+    }
     
     if (material->specular_texture) {
         ar_texture_bind_to(material->diffuse_texture, AR_TEXTURE_UNIT1);
         ti = 1; ar_shader_set_uniform(shader, AR_SHADER_INT, "material.use_specularmap", &ti);
         ti = 1; ar_shader_set_uniform(shader, AR_SHADER_INT, "material.specular", &ti);
     }
+    else {
+        ti = 0; ar_shader_set_uniform(shader, AR_SHADER_INT, "material.use_specularmap", &ti);
+    }
 
     if (material->normal_texture) {
         ar_texture_bind_to(material->diffuse_texture, AR_TEXTURE_UNIT2);
         ti = 1; ar_shader_set_uniform(shader, AR_SHADER_INT, "material.use_normalmap", &ti);
         ti = 2; ar_shader_set_uniform(shader, AR_SHADER_INT, "material.normal", &ti);
+    }
+    else {
+        ti = 0; ar_shader_set_uniform(shader, AR_SHADER_INT, "material.use_normalmap", &ti);
     }
     ar_shader_set_uniform(shader, AR_SHADER_FLOAT, "material.shininess", &material->shininess);
 }

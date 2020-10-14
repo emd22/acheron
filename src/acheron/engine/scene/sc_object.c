@@ -16,7 +16,7 @@ void ar_objects_sort(ar_object_t *objects, int objects_size);
 
 ar_object_t *ar_object_new(char *name) {
     if (!ar_buffer_is_initialized(&object_buffer)) {
-        ar_buffer_init(&object_buffer, AR_BUFFER_DYNAMIC, sizeof(ar_object_t), DEFAULT_OBJECTS, 0);
+        ar_buffer_init(&object_buffer, AR_BUFFER_DYNAMIC, sizeof(ar_object_t), DEFAULT_OBJECTS, AR_BUFFER_PACK);
     }
     ar_object_t *object = ar_buffer_new_item(&object_buffer);
     
@@ -31,7 +31,7 @@ ar_object_t *ar_object_new(char *name) {
     object->physics = physics_object_new(PHYSICS_COLLIDER_AABB);
     
     ar_object_update(object);
-    
+
     return object;
 }
 
