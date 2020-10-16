@@ -4,6 +4,7 @@
 #include <acheron/engine/rendering/render.h>
 
 #include <acheron/engine/math/mt_math.h>
+#include <acheron/engine/math/mt_mat4.h>
 #include <acheron/engine/core/cr_time.h>
 #include <acheron/engine/core/cr_log.h>
 
@@ -56,6 +57,8 @@ void ar_camera_update(ar_camera_t *camera) {
     
     camera->view = ar_math_lookat(camera->position, look_position, camera->up);
     
+    //ar_mat4_identity(&camera->view);
+
     ar_shader_t *shader = ar_shaderman_get_render_shader();
     ar_shader_set_uniform(shader, AR_SHADER_VEC3F, "view_pos", &camera->position);
 }

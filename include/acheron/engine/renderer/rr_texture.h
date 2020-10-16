@@ -5,6 +5,9 @@
 
 typedef unsigned ar_texture_id_t;
 
+#define AR_TEXTURE_MIPMAP   0x01
+#define AR_TEXTURE_EXISTS   0x02
+
 typedef enum {
     AR_TEXTURE_RGB,
     AR_TEXTURE_RGBA,
@@ -64,9 +67,11 @@ typedef struct ar_texture_s {
     ar_texture_bind_type_t bind_type;
     ar_texture_data_type_t draw_type;
     ar_texture_data_type_t data_type;
+
+    int flags;
 } ar_texture_t;
 
-ar_texture_t *ar_texture_new(void);
+ar_texture_t *ar_texture_new(int flags);
 void ar_texture_set_parameter(ar_texture_t *texture, ar_texture_parameter_t param, ar_texture_parameter_value_t value);
 ari_image_t *ar_texture_get_image(ar_texture_t *texture);
 void ar_texture_update(ar_texture_t *texture);

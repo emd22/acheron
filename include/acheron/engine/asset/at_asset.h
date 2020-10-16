@@ -55,7 +55,8 @@ ar_thread_t **ar_assetman_get_thread(void);
 void ar_assetman_thread_set_state(ar_asset_thread_state_t state);
 void *ar_asset_thread_func(void *arg);
 
-ar_mesh_t *ar_asset_get_mesh(ar_asset_t *asset);
+ar_mesh_t   *ar_asset_get_mesh(ar_asset_t *asset);
+ari_image_t *ar_asset_get_image(ar_asset_t *asset);
 
 ar_asset_t *ar_asset_load(ar_asset_type_t type, char *path);
 void ar_asset_wait(ar_asset_t *asset);

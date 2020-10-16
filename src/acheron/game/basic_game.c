@@ -8,6 +8,7 @@
 
 #include <acheron/engine/asset/at_assetman.h>
 
+#include <acheron/engine/camera/cm_ortho.h>
 #include <acheron/engine/camera/cm_perspective.h>
 
 #include <GL/glew.h>
@@ -16,6 +17,8 @@
 #include <stdio.h>
 
 ar_camera_perspective_t pers_camera;
+ar_camera_ortho_t ortho_camera;
+
 ar_camera_t *camera;
 ar_scene_t *scene;
 
@@ -37,6 +40,9 @@ void init_object_stuffs() {
     pers_camera = ar_camera_perspective_new();
     camera = &pers_camera.camera;
     camera->position = (ar_vector3f_t){0, 3, -4};
+    //ortho_camera = ar_camera_ortho_new();
+    //camera = &ortho_camera.camera;
+    //camera->position = (ar_vector3f_t){0, 0, 0};
 
     // create new object and load asset
     level = ar_object_new("Level");
@@ -100,20 +106,19 @@ int main() {
 
     ar_init(instance);
 
+    //ar_shaderman_set_render_shader(shader_2d);
+
     // set R and E to be toggleable keys
     ar_control_set_mode(SDLK_r, AR_CONTROL_MODE_TOGGLE);
     ar_control_set_mode(SDLK_e, AR_CONTROL_MODE_TOGGLE);
 
     init_object_stuffs();
 
-    ar_texture_t *texture = ar_texture_new();
-    ar_image_load("../images/brick.jpg", &texture->image, ARI_TYPE_JPEG, ARI_RGBA);
-    int i;
-    for (i = 0; i < 5; i++) {
-        printf("R:%02X G:%02X B:%02x\n", texture->image.data[i*3], texture->image.data[i*3+1], texture->image.data[i*3+2]);
-    }
+    ar_texture_t *texture = ar_texture_new(AR_TEXTURE_MIPMAP);
+
+    texture->image = *ar_asset_get_image(ar_asset_load(AR_ASSET_IMAGE, "../images/brick.jpg"));
+
     ar_texture_update(texture);
-    texture->update(texture);
 
     ar_material_t *material = ar_material_new();
     material->diffuse_texture = texture;

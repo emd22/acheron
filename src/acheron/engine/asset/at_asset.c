@@ -79,6 +79,16 @@ ar_mesh_t *ar_asset_get_mesh(ar_asset_t *asset) {
     return asset->data.mesh;
 }
 
+ari_image_t *ar_asset_get_image(ar_asset_t *asset) {
+    if (asset->type != AR_ASSET_IMAGE)
+        return NULL;
+
+    // wait until image is fully loaded
+    ar_asset_wait(asset);
+
+    return &asset->data.image;
+} 
+
 void ar_asset_check_queue(void) {
     unsigned i;
     ar_asset_queue_item_t *item;
@@ -128,10 +138,16 @@ void ar_asset_resolve(ar_asset_t *asset) {
 }
 
 static void asset_load(ar_asset_queue_item_t *item) {
+    char *asset_path = item->path;
+
     switch (item->asset->type) {
         case AR_ASSET_MESH:
-            ar_log(AR_LOG_INFO, "Load asset %s\n", item->path);
-            item->asset->data.mesh = ar_mesh_load_raw(item->asset->data.mesh, item->path, MODEL_OBJ, 0);
+            ar_log(AR_LOG_INFO, "Load asset %s\n", asset_path);
+            item->asset->data.mesh = ar_mesh_load_raw(item->asset->data.mesh, asset_path, MODEL_OBJ, 0);
+            break;
+        case AR_ASSET_IMAGE:
+            ar_log(AR_LOG_INFO, "Load asset image %s\n", asset_path);
+            ar_image_load(asset_path, &item->asset->data.image, ARI_TYPE_AUTO, ARI_RGBA);
             break;
         default:
             break;
@@ -144,6 +160,9 @@ static void asset_destroy(ar_asset_queue_item_t *item) {
     switch (item->asset->type) {
         case AR_ASSET_MESH:
             ar_mesh_destroy(item->asset->data.mesh);
+            break;
+        case AR_ASSET_IMAGE:
+            ar_image_destroy(&item->asset->data.image);
             break;
         default:
             break;

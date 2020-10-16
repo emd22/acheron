@@ -7,6 +7,7 @@ typedef struct {
     float val[16];
 } ar_mat4_t;
 
+void ar_mat4_identity(ar_mat4_t *mat);
 void ar_mat4_set(ar_mat4_t *mat, float *data);
 void ar_mat4_print(ar_mat4_t *mat);
 void ar_mat4_scale(ar_mat4_t *mat, ar_mat4_t a, float k);

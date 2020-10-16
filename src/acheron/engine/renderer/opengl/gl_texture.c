@@ -12,12 +12,28 @@ static ar_texture_t *bound_texture = NULL;
 
 static ar_texture_unit_t active_texture = AR_TEXTURE_UNIT_NONE;
 
-ar_texture_t *ar_texture_new(void) {
+static unsigned ar_gl_texture_bind_type(ar_texture_bind_type_t type) {
+    static unsigned gl_bind_type_table[] = {
+        GL_TEXTURE_2D, // AR_TEXTURE_2D
+    };
+    return gl_bind_type_table[type];
+}
+
+static unsigned ar_gl_data_width(ar_texture_data_width_t width) {
+    const unsigned gl_data_width_table[] = {
+        GL_UNSIGNED_BYTE,  // AR_TEXTURE_BYTE
+        GL_UNSIGNED_SHORT, // AR_TEXTURE_SHORT
+        GL_UNSIGNED_INT,   // AR_TEXTURE_INT
+    };
+    return gl_data_width_table[width];
+}
+
+ar_texture_t *ar_texture_new(int flags) {
     if (!ar_buffer_is_initialized(&texture_buffer)) {
         ar_buffer_init(&texture_buffer, AR_BUFFER_DYNAMIC, sizeof(ar_texture_t), 64, AR_BUFFER_PACK);
     }
     ar_texture_t *texture = ar_buffer_new_item(&texture_buffer);
-    texture->bind_type = GL_TEXTURE_2D;
+    texture->bind_type = AR_TEXTURE_2D;
     texture->draw_type = GL_RGBA;
     texture->data_type = GL_RGBA;
     texture->data_width = AR_TEXTURE_BYTE;
@@ -26,6 +42,7 @@ ar_texture_t *ar_texture_new(void) {
     texture->width = 0;
     texture->height = 0;
     texture->lod = 0;
+    texture->flags = flags;
     
     texture->image.type = ARI_TYPE_UNKNOWN;
     glGenTextures(1, &texture->id);
@@ -74,7 +91,7 @@ void ar_texture_update(ar_texture_t *texture) {
     const int image_height = texture->image.height;
     texture->width = image_width;
     texture->height = image_height;
-    ar_log(AR_LOG_INFO, "t: %d\n", texture->data_type);
+
     ar_texture_set_data(
         texture, 
         image_width, image_height, 
@@ -83,41 +100,53 @@ void ar_texture_update(ar_texture_t *texture) {
     );
 }
 
+/*
+void ar_texture_update_data(ar_texture_t *texture) {
+    const unsigned gl_bind_type = ar_gl_texture_bind_type(texture->bind_type);
+    glTexSubImage2D(
+        gl_bind_type,
+        texture->lod,
+        0, 0,
+        texture->width,
+        texture->height,
+        texture->data_type,
+        ar_gl_data_width(texture->data_width),
+        texture->image.data
+    );
+}
+*/
+
 void ar_texture_set_data(
     ar_texture_t *texture, int width, int height, 
     ar_texture_data_type_t data_type,
     ar_texture_data_width_t data_width, void *data
 ){
-    const unsigned gl_data_width_table[] = {
-        GL_UNSIGNED_BYTE,  // AR_TEXTURE_BYTE
-        GL_UNSIGNED_SHORT, // AR_TEXTURE_SHORT
-        GL_UNSIGNED_INT,   // AR_TEXTURE_INT
-    };
-
     texture->data_width = data_width;
     texture->data_type = data_type;
     texture->width = width;
     texture->height = height;
 
-    const unsigned gl_data_width = gl_data_width_table[texture->data_width];
+    const unsigned gl_data_width = ar_gl_data_width(texture->data_width);
+    const unsigned gl_bind_type  = ar_gl_texture_bind_type(texture->bind_type);
 
     ar_texture_bind(texture);
     glTexImage2D(
-        GL_TEXTURE_2D, 
-        0, 
+        gl_bind_type, 
+        texture->lod, 
         texture->draw_type, 
         width, height, 0, 
         texture->data_type,
         gl_data_width,
         data
     );
+    glGenerateMipmap(gl_bind_type);
 
-    ar_texture_set_parameter(texture, AR_TEXTURE_MIN_FILTER, AR_TEXTURE_LINEAR_MIPMAP);
-    ar_texture_set_parameter(texture, AR_TEXTURE_MAG_FILTER, AR_TEXTURE_LINEAR);
-    ar_texture_set_parameter(texture, AR_TEXTURE_WRAP_S, AR_TEXTURE_REPEAT);
-    ar_texture_set_parameter(texture, AR_TEXTURE_WRAP_T, AR_TEXTURE_REPEAT);
-
-    glGenerateMipmap(GL_TEXTURE_2D);
+    if (texture->flags & AR_TEXTURE_MIPMAP) {
+        ar_texture_set_parameter(texture, AR_TEXTURE_MIN_FILTER, AR_TEXTURE_LINEAR_MIPMAP);
+    }
+    else {
+        ar_texture_set_parameter(texture, AR_TEXTURE_MIN_FILTER, AR_TEXTURE_LINEAR);
+    }
 }
 
 void ar_texture_bind_to(ar_texture_t *texture, ar_texture_unit_t texture_unit) {
