@@ -15,14 +15,14 @@ ar_camera_ortho_t ar_camera_ortho_new(void) {
     camera.camera = ar_camera_new();
 
     ar_instance_t *inst = ar_instance_get_selected();
-
     camera.left = 0.0f;
-    camera.right = (float)inst->window->width;
-    camera.bottom = (float)inst->window->height;
-    camera.top = 0.0f;
+    camera.right = 10;
+    (void)inst;
+    camera.bottom = 0.0f;
+    camera.top = 10.0f;
 
-    camera.near = -1.0f;
-    camera.far = 1.0f;
+    camera.near = 0.1f;
+    camera.far = 50.0f;
 
     camera.camera.reload = &ortho_reload;
     camera.camera.update = &ortho_update;
@@ -34,6 +34,11 @@ ar_camera_ortho_t ar_camera_ortho_new(void) {
 static void *ortho_update(ar_camera_t *camera, void *arg) {
     (void)arg;
     (void)camera;
+    camera->direction = (ar_vector3f_t){
+        sinf(camera->rotation.x),
+        camera->rotation.y,
+        cosf(camera->rotation.x)
+    };
     return NULL;
 }
 
