@@ -46,7 +46,7 @@ uniform sampler2D image;
 layout(location = 0) out vec4 output_colour;
 
 void main() {
-    vec3 result = vec3(1, 1, 1);
+    vec3 result = vec3(1, 0, 1);
     if (material.use_diffuse) {
         result = vec3(texture(material.diffuse, frag_uv));
     }

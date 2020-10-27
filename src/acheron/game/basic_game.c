@@ -37,12 +37,12 @@ void init_object_stuffs() {
     scene = ar_scene_new("Main Scene");
 
     // create camera, move to (0, 3, -4)
-    //pers_camera = ar_camera_perspective_new();
-    //camera = &pers_camera.camera;
-    //camera->position = (ar_vector3f_t){0, 3, -4};
-    ortho_camera = ar_camera_ortho_new();
-    camera = &ortho_camera.camera;
-    camera->position = (ar_vector3f_t){0, 0, 0};
+    pers_camera = ar_camera_perspective_new();
+    camera = &pers_camera.camera;
+    camera->position = (ar_vector3f_t){0, 3, -4};
+    //ortho_camera = ar_camera_ortho_new();
+    //camera = &ortho_camera.camera;
+    //camera->position = (ar_vector3f_t){0, 0, 0};
 
     // create new object and load asset
     level = ar_object_new("Level");
@@ -106,12 +106,12 @@ int main() {
 
     ar_init(instance);
 
-    ar_shader_t *shader2d = ar_shader_new("Render 2d");
-    ar_shader_attach(shader2d, AR_SHADER_FRAGMENT, "../shaders/2d/2d_frag.glsl");
-    ar_shader_attach(shader2d, AR_SHADER_VERTEX,   "../shaders/2d/2d_vert.glsl");
-    ar_shader_use(shader2d);
+    //ar_shader_t *shader2d = ar_shader_new("Render 2d");
+    //ar_shader_attach(shader2d, AR_SHADER_FRAGMENT, "../shaders/2d/2d_frag.glsl");
+    //ar_shader_attach(shader2d, AR_SHADER_VERTEX,   "../shaders/2d/2d_vert.glsl");
+    //ar_shader_use(shader2d);
+    //ar_shaderman_set_render_shader(shader2d);
 
-    ar_shaderman_set_render_shader(shader2d);
 
     // set R and E to be toggleable keys
     ar_control_set_mode(SDLK_r, AR_CONTROL_MODE_TOGGLE);
@@ -134,7 +134,7 @@ int main() {
     ar_object_attach(cube, AR_OBJECT_ATTACH_MATERIAL, material);
 
     // handle camera rotations
-    //ar_handle_set(AR_HANDLE_MOUSE_MOVE, &handle_mouse);
+    ar_handle_set(AR_HANDLE_MOUSE_MOVE, &handle_mouse);
 
     while (instance->running) {
         ar_time_tick();
