@@ -1,6 +1,10 @@
 #ifndef F3D_FRAMEBUFFER_H
 #define F3D_FRAMEBUFFER_H
 
+#include <acheron/engine/renderer/rr_framebuffer.h>
+
+/*
+
 #define FRAMEBUFFER_NO_TEXTURE -1
 
 #include <stdbool.h>
@@ -26,5 +30,5 @@ void ar_framebuffer_texture(ar_framebuffer_t *fb, int attachment);
 void ar_framebuffer_set_default(ar_framebuffer_t *fb);
 ar_framebuffer_t *ar_framebuffer_get_default(void);
 void ar_framebuffer_destroy(ar_framebuffer_t *fb);
-
+*/
 #endif

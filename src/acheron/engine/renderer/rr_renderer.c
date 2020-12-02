@@ -1,4 +1,5 @@
 #include <acheron/engine/renderer/rr_renderer.h>
+#include <acheron/engine/acheron.h>
 
 #include <acheron/engine/core/cr_log.h>
 #include <acheron/engine/types.h>
@@ -41,6 +42,8 @@ int ar_render_scene_objects(void *camera) {
 }
 
 void ar_renderer_draw(ar_camera_t *camera) {
+    // bind to our draw buffer
+    //ar_framebuffer_bind(NULL);
     const ar_shader_t *shader = ar_shaderman_get_render_shader();
     ar_scene_render((ar_shader_t *)shader, ar_scene_get_selected(), camera);
 }

@@ -10,5 +10,5 @@
 int render_all_objects(void *ptr);
 
 void render_destroy(void) {
-    textures_cleanup();
+    //textures_cleanup();
 }

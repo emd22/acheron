@@ -15,9 +15,10 @@ typedef enum {
 
 enum {
     AR_INSTANCE_GRAPHICS = 0x01,  
+    AR_INSTANCE_ASYNC_ASSETS = 0x02,
 };
 
-#define AR_INSTANCE_ALL (AR_INSTANCE_GRAPHICS)
+#define AR_INSTANCE_ALL (AR_INSTANCE_GRAPHICS | AR_INSTANCE_ASYNC_ASSETS)
 
 typedef struct {
     int flags;

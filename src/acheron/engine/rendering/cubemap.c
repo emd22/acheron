@@ -6,6 +6,8 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
+/*
+
 void cubemap_init(cubemap_t *cubemap, texture_t **textures) {
     cubemap->map = texture_new();
     cubemap->textures = textures;
@@ -52,3 +54,4 @@ void ar_framebuffer_cubemap_init(cubemap_t *cubemap, int width, int height) {
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 }
+*/

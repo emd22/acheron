@@ -37,8 +37,9 @@ void ar_scene_render_shadows(ar_scene_t *scene, ar_shader_t *shader_main) {
         light = *((ar_light_t **)ar_buffer_get(&scene->lights, i));
         // if shadows are setup, set shadow map in main shader
         if (light->use_shadows) {
-            ar_light_shadow_render(light, shader_main); 
-            ar_light_update(light, shader_main);  
+            (void)shader_main;
+            //ar_light_shadow_render(light, shader_main); 
+            //ar_light_update(light, shader_main);  
         }
     }
 }
@@ -99,9 +100,9 @@ void ar_scene_render(ar_shader_t *shader_main, ar_scene_t *scene, ar_camera_t *c
         light = *((ar_light_t **)ar_buffer_get(&scene->lights, i));
         // if shadows are setup, set shadow map in main shader
         if (light->use_shadows) {
-            glActiveTexture(GL_TEXTURE4+light->point_shadow.shadow_map_id);
+            //glActiveTexture(GL_TEXTURE4+light->point_shadow.shadow_map_id);
             //glBindTexture(GL_TEXTURE_CUBE_MAP, light->point_shadow.framebuffer.texture->id);
-            texture_bind(light->point_shadow.framebuffer.texture);
+            //ar_texture_bind(light->point_shadow.framebuffer.texture);
         }
     }
 

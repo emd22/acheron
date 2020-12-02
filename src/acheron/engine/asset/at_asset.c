@@ -4,6 +4,8 @@
 #include <acheron/engine/core/cr_log.h>
 #include <ar_image/ar_image.h>
 
+#include <acheron/engine/acheron.h>
+
 #include <stdlib.h>
 
 #define AR_ASSET_SLEEP_TIME 400
@@ -66,6 +68,10 @@ ar_asset_t *ar_asset_load(ar_asset_type_t type, char *path) {
 
     asset_thread_state = AR_ASSET_THREAD_RUNNING;
 
+    // Async disabled
+    if (!(ar_instance_get_selected()->flags & AR_INSTANCE_ASYNC_ASSETS))
+        ar_asset_wait(asset);
+
     return asset;
 }
 
@@ -110,8 +116,14 @@ void ar_asset_check_queue(void) {
 }
 
 void ar_asset_wait(ar_asset_t *asset) {
+    static int cycles = 0;
+    cycles = 0;
     while (asset->status == AR_ASSET_QUEUED) {
         ar_thread_sleep(AR_ASSET_SLEEP_TIME);
+        cycles++;
+        if (cycles == 5) {
+            ar_log(AR_LOG_DEBUG, "Waiting cycles for asset of type %d...\n", asset->type);
+        }
     }
 }
 

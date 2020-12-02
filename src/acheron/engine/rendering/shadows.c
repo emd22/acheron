@@ -56,15 +56,15 @@ shadows_point_t shadows_point_init(ar_vector3f_t position, int width, int height
     // generate perspective matrix
     ar_math_perspective(&shadow.mat_perspective, math_deg_to_rad(90.0f), (float)width/(float)height, near, far_plane);
     
-    ar_framebuffer_cubemap_init(&shadow.cubemap, width, height);
+    //ar_framebuffer_cubemap_init(&shadow.cubemap, width, height);
     generate_point_vps(&shadow, position);
     
-    shadow.framebuffer = ar_framebuffer_new(width, height, GL_DEPTH_ATTACHMENT, false);
-    shadow.framebuffer.texture = shadow.cubemap.map;
-    shadow.framebuffer.texture_target = GL_TEXTURE_CUBE_MAP;
-    ar_framebuffer_bind(&shadow.framebuffer);
+    //shadow.framebuffer = ar_framebuffer_new(width, height);
+    //shadow.framebuffer.texture = shadow.cubemap.map;
+    //shadow.framebuffer.texture.bind_type = AR_TEXTURE_CUBEMAP;
+    //ar_framebuffer_bind(&shadow.framebuffer);
     
-    ar_framebuffer_texture(&shadow.framebuffer, GL_DEPTH_ATTACHMENT);
+    //ar_framebuffer_texture(&shadow.framebuffer, GL_DEPTH_ATTACHMENT);
     //texture_set_parameter(shadow.framebuffer.texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     
     //shadow.collider = physics_collider_new(PHYSICS_COLLIDER_AABB);
@@ -118,7 +118,7 @@ void shadows_point_render(shadows_point_t *shadow, ar_vector3f_t position, ar_sh
     //ar_objects_draw(shadow->shader, &shadow_cam, false);
     ar_scene_objects_render(ar_scene_get_selected(), shadow->shader, &shadow->camera.camera, false);
     
-    ar_framebuffer_texture(&shadow->framebuffer, GL_DEPTH_ATTACHMENT);
+    //ar_framebuffer_texture(&shadow->framebuffer, GL_DEPTH_ATTACHMENT);
     ar_shader_use(shader_main);
     
     ar_framebuffer_bind(NULL);

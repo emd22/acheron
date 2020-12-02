@@ -14,7 +14,8 @@ skybox_t skybox_new(texture_t **textures) {
     }
     ar_shader_use(shader_skybox);
     skybox_t skybox;
-    cubemap_init(&skybox.cubemap, textures);
+    (void)textures;
+    //cubemap_init(&skybox.cubemap, textures);
     skybox.mesh = ar_mesh_load(NULL, "../models/basiccube.obj", MODEL_OBJ, AR_MESH_NO_TANGENTS);   
     return skybox;
 }

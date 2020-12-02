@@ -11,6 +11,8 @@
 #include <acheron/engine/camera/cm_ortho.h>
 #include <acheron/engine/camera/cm_perspective.h>
 
+#include <acheron/engine/renderer/rr_dp_shadows.h>
+
 #include <GL/glew.h>
 #include <GL/gl.h>
 
@@ -47,7 +49,7 @@ void init_object_stuffs() {
     // create new object and load asset
     level = ar_object_new("Level");
     ar_asset_t *level_asset = ar_asset_load(AR_ASSET_MESH, "../models/reception/reception.obj");
-    ar_asset_wait(level_asset);
+    //ar_asset_wait(level_asset);
 
     // attach asset to object, attach object to scene
     ar_object_attach(level, AR_OBJECT_ATTACH_MESH, level_asset);
@@ -56,7 +58,7 @@ void init_object_stuffs() {
     // create new object and load asset
     cube = ar_object_new("Cube");
     ar_asset_t *cube_asset = ar_asset_load(AR_ASSET_MESH, "../models/cube.obj");
-    ar_asset_wait(cube_asset);
+    //ar_asset_wait(cube_asset);
     
     // attach asset to object, attach object to scene
     ar_object_attach(cube, AR_OBJECT_ATTACH_MESH, cube_asset);
@@ -98,7 +100,7 @@ void fps_move(ar_camera_t *camera) {
 }
 
 int main() {
-    ar_instance_t *instance = ar_instance_new(AR_INSTANCE_GRAPHICS);
+    ar_instance_t *instance = ar_instance_new(AR_INSTANCE_GRAPHICS | AR_INSTANCE_ASYNC_ASSETS);
     ar_window_t *window = ar_window_new("Acheron3d FPS Test", 1024, 768, 0);
     
     ar_window_option_set(window, AR_WINDOW_OPTION_MOUSE_VISIBLE, 0);
@@ -106,23 +108,10 @@ int main() {
 
     ar_init(instance);
 
-    //ar_shader_t *shader2d = ar_shader_new("Render 2d");
-    //ar_shader_attach(shader2d, AR_SHADER_FRAGMENT, "../shaders/2d/2d_frag.glsl");
-    //ar_shader_attach(shader2d, AR_SHADER_VERTEX,   "../shaders/2d/2d_vert.glsl");
-    //ar_shader_use(shader2d);
-    //ar_shaderman_set_render_shader(shader2d);
-
-
-    // set R and E to be toggleable keys
-    ar_control_set_mode(SDLK_r, AR_CONTROL_MODE_TOGGLE);
-    ar_control_set_mode(SDLK_e, AR_CONTROL_MODE_TOGGLE);
-
     init_object_stuffs();
 
     ar_texture_t *texture = ar_texture_new(AR_TEXTURE_MIPMAP);
-
     texture->image = *ar_asset_get_image(ar_asset_load(AR_ASSET_IMAGE, "../images/brick.jpg"));
-
     ar_texture_update(texture);
 
     ar_material_t *material = ar_material_new();
@@ -132,6 +121,14 @@ int main() {
     material->shininess = 32.0f;
 
     ar_object_attach(cube, AR_OBJECT_ATTACH_MATERIAL, material);
+
+    //ar_framebuffer_t shadows = ar_shadows_dp_new(512, 512);
+
+    //ar_camera_perspective_t shadow_pers = ar_camera_perspective_new();
+    //ar_camera_t *shadow_cam = &shadow_pers.camera;
+    //(void)shadow_cam;
+    ar_framebuffer_t shadow_fb = ar_framebuffer_new(256, 256);
+    (void)shadow_fb;
 
     // handle camera rotations
     ar_handle_set(AR_HANDLE_MOUSE_MOVE, &handle_mouse);
@@ -150,10 +147,19 @@ int main() {
         fps_move(camera);
         ar_camera_update(camera);
 
+        //ar_framebuffer_bind(&shadow_fb);
+        //ar_renderer_draw(shadow_cam);
+        ar_framebuffer_bind(NULL);
         ar_renderer_draw(camera);
+
+        //glBlitNamedFramebuffer(shadow_fb.id, 0, 0, 0, 0, 0, 512, 512, 50, 50, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+        //ar_framebuffer_bind(&shadow_fb);
+
         ar_window_buffers_swap(window);
     }
 
+    //ar_framebuffer_destroy(&shadows);
+    //ar_framebuffer_destroy(&shadow_fb);
     ar_texture_destroy(texture);
 
     ar_window_destroy(window);

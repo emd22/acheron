@@ -23,6 +23,7 @@ typedef enum {
 
 typedef enum {
     AR_TEXTURE_2D,
+    AR_TEXTURE_CUBEMAP,
 } ar_texture_bind_type_t;
 
 typedef enum {
@@ -78,6 +79,7 @@ void ar_texture_update(ar_texture_t *texture);
 void ar_texture_set_data(ar_texture_t *texture, int width, int height, ar_texture_data_type_t data_type, ar_texture_data_width_t data_width, void *data);
 void ar_texture_bind_to(ar_texture_t *texture, ar_texture_unit_t texture_unit);
 void ar_texture_bind(ar_texture_t *texture);
+unsigned ar_gl_texture_bind_type(ar_texture_bind_type_t type);
 void ar_texture_destroy(ar_texture_t *texture);
 void ar_texture_buffer_destroy(void);
 

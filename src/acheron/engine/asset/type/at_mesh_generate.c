@@ -10,10 +10,10 @@ ar_mesh_t *ar_mesh_generate_icosphere() {
     //ar_buffer_init(&vertices, AR_BUFFER_STATIC, );
 
 
-    ar_mesh_t *mesh = ar_mesh_from_data(NULL, vertices, );
+    //ar_mesh_t *mesh = ar_mesh_from_data(NULL, vertices, );
 
-
-    return mesh;
+    return NULL;
+    //return mesh;
 }
 
 

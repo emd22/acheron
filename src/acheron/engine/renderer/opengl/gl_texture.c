@@ -12,9 +12,10 @@ static ar_texture_t *bound_texture = NULL;
 
 static ar_texture_unit_t active_texture = AR_TEXTURE_UNIT_NONE;
 
-static unsigned ar_gl_texture_bind_type(ar_texture_bind_type_t type) {
+unsigned ar_gl_texture_bind_type(ar_texture_bind_type_t type) {
     static unsigned gl_bind_type_table[] = {
         GL_TEXTURE_2D, // AR_TEXTURE_2D
+        GL_TEXTURE_CUBE_MAP, // AR_TEXTURE_CUBEMAP
     };
     return gl_bind_type_table[type];
 }
@@ -28,14 +29,24 @@ static unsigned ar_gl_data_width(ar_texture_data_width_t width) {
     return gl_data_width_table[width];
 }
 
+unsigned ar_gl_data_type(ar_texture_data_type_t data_type) {
+    const unsigned gl_data_type_table[] = {
+        GL_RGB,  /* AR_TEXTURE_RGB */
+        GL_RGBA, /* AR_TEXTURE_RGBA */
+        GL_BGR,  /* AR_TEXTURE_BGR */
+        GL_BGRA  /* AR_TEXTURE_BGRA */
+    };
+    return gl_data_type_table[data_type];
+}
+
 ar_texture_t *ar_texture_new(int flags) {
     if (!ar_buffer_is_initialized(&texture_buffer)) {
         ar_buffer_init(&texture_buffer, AR_BUFFER_DYNAMIC, sizeof(ar_texture_t), 64, AR_BUFFER_PACK);
     }
     ar_texture_t *texture = ar_buffer_new_item(&texture_buffer);
     texture->bind_type = AR_TEXTURE_2D;
-    texture->draw_type = GL_RGBA;
-    texture->data_type = GL_RGBA;
+    texture->draw_type = AR_TEXTURE_RGBA;
+    texture->data_type = AR_TEXTURE_RGBA;
     texture->data_width = AR_TEXTURE_BYTE;
     texture->texture_unit = AR_TEXTURE_UNIT0;
 
@@ -129,13 +140,16 @@ void ar_texture_set_data(
     const unsigned gl_data_width = ar_gl_data_width(texture->data_width);
     const unsigned gl_bind_type  = ar_gl_texture_bind_type(texture->bind_type);
 
+    const unsigned gl_draw_type = ar_gl_data_type(texture->draw_type);
+    const unsigned gl_data_type = ar_gl_data_type(texture->data_type);
+
     ar_texture_bind(texture);
     glTexImage2D(
         gl_bind_type, 
         texture->lod, 
-        texture->draw_type, 
+        gl_draw_type, 
         width, height, 0, 
-        texture->data_type,
+        gl_data_type,
         gl_data_width,
         data
     );

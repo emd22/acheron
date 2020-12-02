@@ -8,6 +8,10 @@
 
 #include <stdio.h>
 
+typedef int iso_err_t;
+
+/*
+
 static ar_framebuffer_t *default_framebuffer = NULL;
 
 void ar_framebuffer_set_default(ar_framebuffer_t *fb) {
@@ -107,3 +111,4 @@ void ar_framebuffer_destroy(ar_framebuffer_t *fb) {
         texture_destroy(fb->texture);
     }
 }
+*/

@@ -11,6 +11,8 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
+/*
+
 static texture_t textures[MAX_TEXTURES];
 static int textures_index = 0;
 static texture_t *bound_texture = NULL;
@@ -128,3 +130,4 @@ void textures_cleanup(void) {
         texture_destroy(&textures[i]);
     }
 }
+*/
