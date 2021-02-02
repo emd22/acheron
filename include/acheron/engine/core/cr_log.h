@@ -15,6 +15,10 @@ typedef enum {
     AR_LOG_ERROR,
     AR_LOG_FATAL,
     AR_LOG_DEBUG,
+
+    AR_LOG_RENDER_INFO,
+    AR_LOG_RENDER_WARN,
+    AR_LOG_RENDER_ERROR,
 } ar_log_error_level_t;
 
 void _ar_log(const char *function, ar_log_error_level_t level, const char *str, ...);

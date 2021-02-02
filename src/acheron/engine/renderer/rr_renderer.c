@@ -12,6 +12,18 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 
+void GLAPIENTRY ar_gl_message_callback(
+    unsigned src, unsigned type, unsigned id, 
+    unsigned severity, int length, 
+    const char *message, const void *data)
+{
+    (void)src;
+    (void)id;
+    (void)data;
+    int log_sev = (type == GL_DEBUG_TYPE_ERROR) ? AR_LOG_RENDER_ERROR : AR_LOG_RENDER_INFO;
+    ar_log(log_sev, "GL message[0x%04X]: %.*s || SEV:0x%04X\n", type, length, message, severity);
+}
+
 ar_renderer_instance_t ar_renderer_init() {
     ar_renderer_instance_t instance;
     ar_renderer_intern_init(&instance);
@@ -30,6 +42,9 @@ ar_renderer_instance_t ar_renderer_init() {
     ar_shaderman_set_render_shader(render_shader);
     
     ar_handle_set(AR_HANDLE_RENDER_MESHES, &ar_render_scene_objects);
+
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(&ar_gl_message_callback, NULL);
 
     return instance;
 }

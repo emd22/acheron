@@ -79,7 +79,7 @@ void ar_framebuffer_to_texture(ar_framebuffer_t *fb, ar_texture_t *texture, ar_f
     const int gl_attach_table[] = {
         GL_COLOR_ATTACHMENT0, /* AR_FRAMEBUFFER_COLOR0 */
     };
-
+    ar_log(AR_LOG_INFO, "Framebuffer %d to texture\n", fb->id);
     glFramebufferTexture2D(
             GL_FRAMEBUFFER, 
             gl_attach_table[attachment],

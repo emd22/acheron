@@ -85,7 +85,9 @@ void ar_texture_set_parameter(ar_texture_t *texture, ar_texture_parameter_t para
 
     // bind our texture for OpenGL, set parameter for texture unit
     ar_texture_bind(texture);
-    glTexParameteri(texture->bind_type, gl_param, gl_value);
+
+    const unsigned gl_bind_type = ar_gl_texture_bind_type(texture->bind_type);
+    glTexParameteri(gl_bind_type, gl_param, gl_value);
 }
 
 ari_image_t *ar_texture_get_image(ar_texture_t *texture) {
@@ -178,7 +180,7 @@ void ar_texture_bind_to(ar_texture_t *texture, ar_texture_unit_t texture_unit) {
         glActiveTexture(gl_texture_c);
     }
 
-    glBindTexture(texture->bind_type, texture->id);
+    glBindTexture(ar_gl_texture_bind_type(texture->bind_type), texture->id);
 }
 
 void ar_texture_bind(ar_texture_t *texture) {
