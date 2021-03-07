@@ -1,7 +1,7 @@
 #ifndef ARI_PNG_H
 #define ARI_PNG_H
 
-#include <ar_image/ari_def.h>
+#include "ari_def.h"
 #include <stdint.h>
 #include <stdio.h>
 

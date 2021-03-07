@@ -37,5 +37,5 @@ link_directories(
 )
 
 add_executable(${BUILD_NAME} ${SOURCES} ${HEADERS})
-target_link_libraries(${BUILD_NAME} ${DEBUG_LIBARIES} turbojpeg z ar_image GLEW GL SDL2 m Threads::Threads)
+target_link_libraries(${BUILD_NAME} ${DEBUG_LIBARIES} turbojpeg z ar_asset GLEW GL SDL2 m Threads::Threads)
 set_target_properties(${BUILD_NAME} PROPERTIES COMPILE_FLAGS ${C_FLAGS} LINK_FLAGS ${LINKER_FLAGS})

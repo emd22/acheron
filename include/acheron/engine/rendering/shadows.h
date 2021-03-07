@@ -13,7 +13,7 @@ typedef struct {
     int width, height;
 
     ar_shader_t *shader;
-    ar_camera_perspective_t camera;
+    //ar_camera_perspective_t camera;
     cubemap_t cubemap;
     ar_mat4_t point_vps[6];
     ar_framebuffer_t framebuffer;

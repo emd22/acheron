@@ -83,10 +83,6 @@ void ar_scene_objects_render(ar_scene_t *scene, ar_shader_t *shader, ar_camera_t
 }
 
 void ar_scene_render(ar_shader_t *shader_main, ar_scene_t *scene, ar_camera_t *camera) {
-    // set framebuffer to our 'default' framebuffer
-    ar_framebuffer_bind(NULL);
-    
-    //if (shader_depth != NULL) {
     unsigned i;
     ar_light_t *light;
     char str[48];

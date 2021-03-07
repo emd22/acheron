@@ -18,10 +18,7 @@
 
 #include <stdio.h>
 
-ar_camera_perspective_t pers_camera;
-ar_camera_ortho_t ortho_camera;
-
-ar_camera_t *camera;
+ar_camera_t camera;
 ar_scene_t *scene;
 
 ar_object_t *level, *cube;
@@ -29,27 +26,21 @@ ar_object_t *level, *cube;
 int handle_mouse(void *arg) {
     const float mouse_sensitivity = 0.09f;
     ar_control_mouse_event_t *event = (ar_control_mouse_event_t *)arg;
-    camera->rotation.x -= ar_time_get_delta()*(mouse_sensitivity*event->relx);
-    camera->rotation.y -= ar_time_get_delta()*(mouse_sensitivity*event->rely);
+    camera.rotation.x -= ar_time_get_delta()*(mouse_sensitivity*event->relx);
+    camera.rotation.y -= ar_time_get_delta()*(mouse_sensitivity*event->rely);
     return 0;
 }
 
 void init_object_stuffs() {
-    // Scene
     scene = ar_scene_new("Main Scene");
 
     // create camera, move to (0, 3, -4)
-    pers_camera = ar_camera_perspective_new();
-    camera = &pers_camera.camera;
-    camera->position = (ar_vector3f_t){0, 3, -4};
-    //ortho_camera = ar_camera_ortho_new();
-    //camera = &ortho_camera.camera;
-    //camera->position = (ar_vector3f_t){0, 0, 0};
+    camera = ar_camera_perspective_new();
+    camera.position = (ar_vector3f_t){0, 3, -4};
 
     // create new object and load asset
     level = ar_object_new("Level");
     ar_asset_t *level_asset = ar_asset_load(AR_ASSET_MESH, "../models/reception/reception.obj");
-    //ar_asset_wait(level_asset);
 
     // attach asset to object, attach object to scene
     ar_object_attach(level, AR_OBJECT_ATTACH_MESH, level_asset);
@@ -58,7 +49,6 @@ void init_object_stuffs() {
     // create new object and load asset
     cube = ar_object_new("Cube");
     ar_asset_t *cube_asset = ar_asset_load(AR_ASSET_MESH, "../models/cube.obj");
-    //ar_asset_wait(cube_asset);
     
     // attach asset to object, attach object to scene
     ar_object_attach(cube, AR_OBJECT_ATTACH_MESH, cube_asset);
@@ -122,14 +112,6 @@ int main() {
 
     ar_object_attach(cube, AR_OBJECT_ATTACH_MATERIAL, material);
 
-    //ar_framebuffer_t shadows = ar_shadows_dp_new(512, 512);
-
-    //ar_camera_perspective_t shadow_pers = ar_camera_perspective_new();
-    //ar_camera_t *shadow_cam = &shadow_pers.camera;
-    //(void)shadow_cam;
-    ar_framebuffer_t shadow_fb = ar_framebuffer_new(256, 256);
-    (void)shadow_fb;
-
     // handle camera rotations
     ar_handle_set(AR_HANDLE_MOUSE_MOVE, &handle_mouse);
 
@@ -144,24 +126,19 @@ int main() {
         if (ar_control_check(SDLK_ESCAPE))
             ar_window_option_set(window, AR_WINDOW_OPTION_MOUSE_VISIBLE, true);
 
-        fps_move(camera);
-        ar_camera_update(camera);
+        fps_move(&camera);
+        ar_camera_update(&camera);
 
-        //ar_framebuffer_bind(&shadow_fb);
-        //ar_renderer_draw(shadow_cam);
+        // bind default framebuffer, render from our player camera perspective
         ar_framebuffer_bind(NULL);
-        ar_renderer_draw(camera);
-
-        //glBlitNamedFramebuffer(shadow_fb.id, 0, 0, 0, 0, 0, 512, 512, 50, 50, GL_COLOR_BUFFER_BIT, GL_NEAREST);
-        //ar_framebuffer_bind(&shadow_fb);
+        ar_renderer_draw(&camera);
 
         ar_window_buffers_swap(window);
     }
 
-    //ar_framebuffer_destroy(&shadows);
-    //ar_framebuffer_destroy(&shadow_fb);
     ar_texture_destroy(texture);
 
+    ar_camera_destroy(&camera);
     ar_window_destroy(window);
     ar_scene_destroy(scene);
 

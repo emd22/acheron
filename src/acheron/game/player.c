@@ -8,7 +8,7 @@
 
 int player_move(player_t *player) {
     const float speed = 10.0f*ar_time_get_delta();
-    ar_camera_t *camera = &player->camera->camera;
+    ar_camera_t *camera = player->camera;
     
     camera->direction.y = 0;
 

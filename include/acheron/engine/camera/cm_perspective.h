@@ -4,12 +4,10 @@
 #include <acheron/engine/scene/sc_camera.h>
 
 typedef struct {
-    ar_camera_t camera;
     float fov;
-
     float near, far;
-} ar_camera_perspective_t;
+} ar_camera_perspective_info_t;
 
-ar_camera_perspective_t ar_camera_perspective_new(void);
+ar_camera_t ar_camera_perspective_new(void);
 
 #endif

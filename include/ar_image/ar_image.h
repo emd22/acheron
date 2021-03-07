@@ -1,7 +1,7 @@
 #ifndef F3DIMG_H
 #define F3DIMG_H
 
-#include <ar_image/ari_def.h>
+#include "ari_def.h"
 
 typedef struct {
     ari_image_type_t type;

@@ -9,7 +9,9 @@
 
 void _ar_log(const char *function, ar_log_error_level_t level, const char *str, ...) {
     #ifndef AR_DEBUG
-    if (level == AR_LOG_INFO || level == AR_LOG_DEBUG) {
+    if (level == AR_LOG_INFO || level == AR_LOG_DEBUG ||
+        level == AR_LOG_RENDER_INFO) 
+    {
         return;
     }
     #endif

@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include <ar_image/ari_def.h>
+#include "ari_def.h"
 
 typedef struct {
     int width, height, pitch;

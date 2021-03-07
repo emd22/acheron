@@ -43,7 +43,7 @@ ar_renderer_instance_t ar_renderer_init() {
     
     ar_handle_set(AR_HANDLE_RENDER_MESHES, &ar_render_scene_objects);
 
-    glEnable(GL_DEBUG_OUTPUT);
+    //glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(&ar_gl_message_callback, NULL);
 
     return instance;

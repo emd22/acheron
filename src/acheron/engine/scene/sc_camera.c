@@ -8,17 +8,23 @@
 #include <acheron/engine/core/cr_time.h>
 #include <acheron/engine/core/cr_log.h>
 
+#include <acheron/engine/core/memory/mm_alloc.h>
+
 #include <math.h>
 #include <string.h>
 
-static void *camera_update_default(ar_camera_t *, void *);
-static void *camera_reload_default(ar_camera_t *, void *);
+static void *camera_update_default(ar_camera_t *);
+static void *camera_reload_default(ar_camera_t *);
+void *ar_camera_destroy(ar_camera_t *);
 
 ar_camera_t ar_camera_new(void) {
     ar_camera_t camera;
     memset(&camera, 0, sizeof(ar_camera_t));
+
+    camera.destroy = &ar_camera_destroy;
     camera.update = &camera_update_default;
     camera.reload = &camera_reload_default;
+
     return camera;
 }
 
@@ -29,9 +35,9 @@ static void clamp_axis(float *value, float min_r, float max_r) {
 void ar_camera_clamp(ar_camera_t *camera, ar_vector3f_t axis, float min_r, float max_r) {
     if (axis.x)
         clamp_axis(&camera->rotation.x, min_r, max_r);
-    else if (axis.y)
+    if (axis.y)
         clamp_axis(&camera->rotation.y, min_r, max_r);
-    else if (axis.z)
+    if (axis.z)
         clamp_axis(&camera->rotation.z, min_r, max_r);
 }
 
@@ -43,7 +49,7 @@ void ar_camera_rotate(ar_camera_t *camera, ar_vector3f_t value) {
 }
 
 void ar_camera_update(ar_camera_t *camera) {
-    camera->update(camera, NULL);
+    camera->update(camera);
 
     camera->up = (ar_vector3f_t){0, 1, 0};
     camera->right = (ar_vector3f_t){
@@ -56,21 +62,24 @@ void ar_camera_update(ar_camera_t *camera) {
     ar_vector_add(AR_VEC3F, &camera->position, &camera->direction, &look_position);
     
     camera->view = ar_math_lookat(camera->position, look_position, camera->up);
-    
-    //ar_mat4_identity(&camera->view);
 
     ar_shader_t *shader = ar_shaderman_get_render_shader();
     ar_shader_set_uniform(shader, AR_SHADER_VEC3F, "view_pos", &camera->position);
 }
 
-static void *camera_update_default(ar_camera_t *camera, void *arg) {
-    (void)camera;
-    (void)arg;
+void *ar_camera_destroy(ar_camera_t *camera) {
+    if (camera->info != NULL) {
+        ar_memory_free(camera->info);
+    }
     return NULL;
 }
 
-static void *camera_reload_default(ar_camera_t *camera, void *arg) {
+static void *camera_update_default(ar_camera_t *camera) {
     (void)camera;
-    (void)arg;
+    return NULL;
+}
+
+static void *camera_reload_default(ar_camera_t *camera) {
+    (void)camera;
     return NULL;
 }

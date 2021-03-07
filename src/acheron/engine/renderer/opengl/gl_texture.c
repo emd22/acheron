@@ -7,6 +7,8 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
+#define ar_gl_draw_type(data_type) ar_gl_data_type(data_type)
+
 static ar_buffer_t texture_buffer;
 static ar_texture_t *bound_texture = NULL;
 
@@ -128,6 +130,20 @@ void ar_texture_update_data(ar_texture_t *texture) {
     );
 }
 */
+
+void ar_texture_copy_to(ar_texture_t *dest, ar_texture_t *src, int xoff, int yoff, int width, int height) {
+    ar_texture_bind(dest);
+
+    glTexSubImage2D(
+        ar_gl_texture_bind_type(dest->bind_type),
+        dest->lod,
+        xoff, yoff,
+        width, height,
+        ar_gl_draw_type(src->draw_type),
+        ar_gl_data_width(src->data_width),
+        src->image.data
+    );
+}
 
 void ar_texture_set_data(
     ar_texture_t *texture, int width, int height, 
