@@ -9,6 +9,8 @@
 #include <acheron/engine/core/cr_controls.h>
 #include <acheron/engine/core/memory/mm_memory.h>
 
+#define AR_VALUE_QUERY -1
+
 typedef enum {
     AR_INSTANCE_ATTACH_WINDOW,
 } ar_instance_attach_type_t;

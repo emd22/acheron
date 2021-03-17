@@ -16,9 +16,11 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 
+#include <ar_image/ari_jpeg.h>
+
 #include <stdio.h>
 
-ar_camera_t camera;
+ar_camera_t camera, shadow_cam;
 ar_scene_t *scene;
 
 ar_object_t *level, *cube;
@@ -37,6 +39,11 @@ void init_object_stuffs() {
     // create camera, move to (0, 3, -4)
     camera = ar_camera_perspective_new();
     camera.position = (ar_vector3f_t){0, 3, -4};
+    ar_camera_fov(&camera, 100);
+
+    shadow_cam = ar_camera_perspective_new();
+    shadow_cam.position = camera.position;
+    ar_camera_fov(&shadow_cam, 160);
 
     // create new object and load asset
     level = ar_object_new("Level");
@@ -69,7 +76,7 @@ void fps_move(ar_camera_t *camera) {
     float speed = 7.0f*ar_time_get_delta();
 
     // comment out this line for flycam
-    camera->direction.y = 0;
+    //camera->direction.y = 0;
 
     if (ar_control_check(SDLK_w)) {
         ar_vector_mul_value(AR_VEC3F, &camera->direction, speed, &camera->direction);
@@ -87,6 +94,25 @@ void fps_move(ar_camera_t *camera) {
         ar_vector_mul_value(AR_VEC3F, &camera->right, speed, &camera->right);
         ar_vector_sub(AR_VEC3F, &camera->position, &camera->right, &camera->position);
     }
+}
+
+void save_image(ar_texture_t *texture) {
+    FILE *fp = fopen("atlas.jpg", "wb");
+    ari_jpeg_t jpeg;
+    jpeg.width = texture->width;
+    jpeg.height = texture->height;
+    jpeg.pitch = 0;
+    jpeg.channels = 4;
+    jpeg.pixel_format = ARI_RGBA;
+
+    void *data = ar_texture_get_data(texture);
+
+    jpeg.data = data;
+
+    ari_jpeg_save(fp, &jpeg, ARI_RGBA, ARI_SAMP_444, 80, ARI_TJFLAG_FASTDCT);
+    fclose(fp);
+
+    ar_memory_free(data);
 }
 
 int main() {
@@ -115,6 +141,24 @@ int main() {
     // handle camera rotations
     ar_handle_set(AR_HANDLE_MOUSE_MOVE, &handle_mouse);
 
+    ar_texture_t *atlas = ar_texture_new(0);
+    atlas->data_width = AR_TEXTURE_BYTE;
+    atlas->draw_type = AR_TEXTURE_RGBA;
+    atlas->data_type = AR_TEXTURE_RGBA;
+    atlas->bind_type = AR_TEXTURE_2D;
+
+    ar_texture_bind(atlas);
+    ar_texture_set_data(atlas, 512, 512, AR_TEXTURE_RGBA, AR_TEXTURE_BYTE, NULL);
+
+    material->diffuse_texture = atlas;
+
+    ar_control_set_mode(SDLK_ESCAPE, AR_CONTROL_MODE_TOGGLE);
+    ar_control_set_mode(SDLK_t, AR_CONTROL_MODE_TOGGLE);
+
+    ar_framebuffer_t shadow_fb = ar_framebuffer_new(512, 512);
+    ar_texture_t *shadow_tex = ar_texture_new(0);
+    ar_texture_set_data(shadow_tex, 512, 512, AR_TEXTURE_RGBA, AR_TEXTURE_BYTE, NULL);
+
     while (instance->running) {
         ar_time_tick();
         ar_controls_poll_events();
@@ -123,19 +167,33 @@ int main() {
 
         if (ar_control_check(SDLK_q))
             instance->running = false;
-        if (ar_control_check(SDLK_ESCAPE))
-            ar_window_option_set(window, AR_WINDOW_OPTION_MOUSE_VISIBLE, true);
+        if (ar_control_check(SDLK_ESCAPE)) {
+            ar_window_option_set(window, AR_WINDOW_OPTION_MOUSE_VISIBLE, !ar_window_option_get(window, AR_WINDOW_OPTION_MOUSE_VISIBLE));
+        }
 
         fps_move(&camera);
         ar_camera_update(&camera);
+
+        ar_framebuffer_bind(&shadow_fb);
+        ar_renderer_draw(&shadow_cam);
 
         // bind default framebuffer, render from our player camera perspective
         ar_framebuffer_bind(NULL);
         ar_renderer_draw(&camera);
 
+        if (ar_control_check(SDLK_t)) {
+            //glReadPixels(window->width/2-128, window->height/2-128, 256, 256, GL_RGBA, GL_UNSIGNED_BYTE, dfb);
+            ar_framebuffer_to_texture(&shadow_fb, shadow_tex, AR_FRAMEBUFFER_COLOR0);
+
+            void *data = ar_texture_get_data(shadow_tex);
+            ar_texture_sub_image(atlas, 0, 0, 512, 512, data);
+            ar_memory_free(data);
+            ar_log(AR_LOG_INFO, "Read pixels into subimg\n", 0);
+        }
+
         ar_window_buffers_swap(window);
     }
-
+    save_image(atlas); 
     ar_texture_destroy(texture);
 
     ar_camera_destroy(&camera);

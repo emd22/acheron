@@ -1,5 +1,5 @@
-#ifndef F3D_OBJECT_H
-#define F3D_OBJECT_H
+#ifndef AR_SC_OBJECT_H
+#define AR_SC_OBJECT_H
 
 #include <acheron/engine/types.h>
 #include <acheron/engine/util.h>
@@ -37,9 +37,9 @@ typedef enum {
 
 typedef struct object_s {
     char *name;
+
     hash_t hash;
 
-    //ar_mesh_t *mesh;
     ar_asset_t *mesh;
     ar_material_t *material;
     

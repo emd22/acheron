@@ -28,6 +28,15 @@ ar_camera_t ar_camera_perspective_new(void) {
     return camera;
 }
 
+int ar_camera_fov(ar_camera_t *camera, int value) {
+    ar_camera_perspective_info_t *info = camera->info;
+    if (value != AR_VALUE_QUERY)
+        info->fov = value;
+    // recalculate perspective matrix with new fov
+    camera->reload(camera);
+    return info->fov;
+}
+
 static void *perspective_update(ar_camera_t *camera) {
     camera->direction = (ar_vector3f_t){
         sinf(camera->rotation.x),
@@ -42,11 +51,10 @@ static void *perspective_reload(ar_camera_t *camera) {
     const float aspect = (float)inst->window->width/(float)inst->window->height;
 
     ar_camera_perspective_info_t *info = camera->info;
-    const float fov = ar_math_deg_to_rad(info->fov);
     
     ar_math_perspective(
         &camera->projection,
-        fov, aspect,
+        info->fov, aspect,
         info->near, info->far
     );
 

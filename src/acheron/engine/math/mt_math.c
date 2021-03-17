@@ -75,21 +75,18 @@ ar_mat4_t ar_math_lookat(ar_vector3f_t from, ar_vector3f_t to, ar_vector3f_t upv
 // https://www.khronos.org/opengl/wiki/GluPerspective_code
 
 void ar_math_perspective(ar_mat4_t *mat, float fovy, float aspect, float znear, float zfar) {
-    float a = 1.0f/tan(fovy/2.0f);
-   // const float zn = -((zfar+znear)/(zfar-znear));
-   // const float zn2 = -((2.0f*zfar*znear)/(zfar-znear));
-    
-    const float rangeinf = 1.0f/(znear-zfar);
-    const float zn = (znear+zfar)*rangeinf;
-    const float zn2 = znear*zfar*rangeinf*2;
-    
+    float a = 1.0f/tanf((fovy/2.0f)*(AR_PI/180.0f));
+
+    const float zn = -(zfar/(zfar-znear));
+    const float zn2 = -((zfar*znear)/(zfar-znear));
+
     ar_mat4_set(
         mat, 
         (float []){
-            a/aspect, 0, 0,   0,
-            0,        a, 0,   0,
-            0,        0, zn, -1,
-            0,        0, zn2, 0,
+            a/aspect, 0,    0,       0,
+            0,        a,    0,       0,
+            0,        0,    zn,     -1,
+            0,        0,    zn2,     0,
         }
     );
 }

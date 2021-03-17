@@ -63,6 +63,15 @@ void ar_window_option_set(ar_window_t *window, int option, int value) {
     }
 }
 
+int ar_window_option_get(ar_window_t *window, int option) {
+    if (option == AR_WINDOW_OPTION_FULLSCREEN) {
+         return SDL_SetWindowFullscreen(window->win, SDL_QUERY);
+    }
+    else if (option == AR_WINDOW_OPTION_MOUSE_VISIBLE) {
+        return !SDL_GetRelativeMouseMode();
+    }
+}
+
 void ar_window_destroy(ar_window_t *window) {
     SDL_GL_DeleteContext(window->context);
     SDL_DestroyWindow(window->win);

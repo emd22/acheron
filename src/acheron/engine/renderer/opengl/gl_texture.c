@@ -31,6 +31,15 @@ static unsigned ar_gl_data_width(ar_texture_data_width_t width) {
     return gl_data_width_table[width];
 }
 
+unsigned ar_gl_data_width_size(ar_texture_data_width_t width) {
+    const unsigned gl_data_width_size_table[] = {
+        sizeof(unsigned char),  /* AR_TEXTURE_BYTE */
+        sizeof(unsigned short), /* AR_TEXTURE_SHORT */
+        sizeof(unsigned int)    /* AR_TEXTURE_INT */
+    };
+    return gl_data_width_size_table[width];
+}
+
 unsigned ar_gl_data_type(ar_texture_data_type_t data_type) {
     const unsigned gl_data_type_table[] = {
         GL_RGB,  /* AR_TEXTURE_RGB */
@@ -39,6 +48,16 @@ unsigned ar_gl_data_type(ar_texture_data_type_t data_type) {
         GL_BGRA  /* AR_TEXTURE_BGRA */
     };
     return gl_data_type_table[data_type];
+}
+
+unsigned ar_gl_data_type_size(ar_texture_data_type_t data_type) {
+    const unsigned gl_data_type_size_table[] = {
+        3, /* AR_TEXTURE_RGB */
+        4, /* AR_TEXTURE_RGBA */
+        3, /* AR_TEXTURE_BGR */
+        4  /* AR_TEXTURE_BGRA */
+    };
+    return gl_data_type_size_table[data_type];
 }
 
 ar_texture_t *ar_texture_new(int flags) {
@@ -115,33 +134,23 @@ void ar_texture_update(ar_texture_t *texture) {
     );
 }
 
-/*
-void ar_texture_update_data(ar_texture_t *texture) {
-    const unsigned gl_bind_type = ar_gl_texture_bind_type(texture->bind_type);
-    glTexSubImage2D(
-        gl_bind_type,
+void ar_texture_sub_image(
+    ar_texture_t *texture,
+    int x, int y,
+    int width, int height,
+    void *data 
+){
+    const unsigned gl_data_type = ar_gl_data_type(texture->data_type);
+    const unsigned gl_data_width = ar_gl_data_width(texture->data_width);
+
+    glTextureSubImage2D(
+        texture->id,
         texture->lod,
-        0, 0,
-        texture->width,
-        texture->height,
-        texture->data_type,
-        ar_gl_data_width(texture->data_width),
-        texture->image.data
-    );
-}
-*/
-
-void ar_texture_copy_to(ar_texture_t *dest, ar_texture_t *src, int xoff, int yoff, int width, int height) {
-    ar_texture_bind(dest);
-
-    glTexSubImage2D(
-        ar_gl_texture_bind_type(dest->bind_type),
-        dest->lod,
-        xoff, yoff,
+        x, y,
         width, height,
-        ar_gl_draw_type(src->draw_type),
-        ar_gl_data_width(src->data_width),
-        src->image.data
+        gl_data_type,
+        gl_data_width,
+        data
     );
 }
 
@@ -179,6 +188,26 @@ void ar_texture_set_data(
     else {
         ar_texture_set_parameter(texture, AR_TEXTURE_MIN_FILTER, AR_TEXTURE_LINEAR);
     }
+}
+
+void *ar_texture_get_data(ar_texture_t *texture) {
+    const unsigned gl_data_type = ar_gl_data_type(texture->data_type);
+    const unsigned gl_data_width = ar_gl_data_width(texture->data_width);
+
+    unsigned pixel_size = (ar_gl_data_type_size(texture->data_type)*ar_gl_data_width_size(texture->data_width));
+    unsigned long buffer_size = (texture->width*texture->height)*pixel_size;
+
+    void *data = ar_memory_alloc(buffer_size);
+
+    glGetTextureImage(
+        texture->id, 
+        0, 
+        gl_data_type,
+        gl_data_width, 
+        buffer_size, 
+        data
+    );
+    return data;
 }
 
 void ar_texture_bind_to(ar_texture_t *texture, ar_texture_unit_t texture_unit) {

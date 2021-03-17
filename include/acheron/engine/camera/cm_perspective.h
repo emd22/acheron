@@ -9,5 +9,6 @@ typedef struct {
 } ar_camera_perspective_info_t;
 
 ar_camera_t ar_camera_perspective_new(void);
+int ar_camera_fov(ar_camera_t *camera, int value);
 
 #endif
