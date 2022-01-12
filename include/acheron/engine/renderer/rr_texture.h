@@ -13,12 +13,15 @@ typedef enum {
     AR_TEXTURE_RGBA,
     AR_TEXTURE_BGR,
     AR_TEXTURE_BGRA,
+    
+    AR_TEXTURE_DEPTH,
 } ar_texture_data_type_t;
 
 typedef enum {
     AR_TEXTURE_BYTE,
     AR_TEXTURE_SHORT,
     AR_TEXTURE_INT,
+    AR_TEXTURE_FLOAT,
 } ar_texture_data_width_t;
 
 typedef enum {

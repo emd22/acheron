@@ -6,12 +6,14 @@
 #include <acheron/engine/core/cr_log.h>
 #include <acheron/engine/core/cr_time.h>
 
+#include <acheron/engine/core/threads/cr_thread.h>
+
 #include <acheron/engine/scene/sc_scene.h>
 #include <acheron/engine/scene/sc_light.h>
 #include <acheron/engine/asset/at_assetman.h>
 
 #define AR_GL_VERSION_MAJOR 4
-#define AR_GL_VERSION_MINOR 2
+#define AR_GL_VERSION_MINOR 5
 
 #include <SDL2/SDL.h>
 
@@ -77,9 +79,6 @@ static void signal_handler(int sig) {
 
 void ar_init(ar_instance_t *instance) {
     ar_threadman_init();
-    ar_handles_init();
-    ar_meshes_init();
-    ar_assetman_init();
     
     // setup system signals
     signal(SIGINT,  &signal_handler);
@@ -90,9 +89,30 @@ void ar_init(ar_instance_t *instance) {
     signal(SIGTERM, &signal_handler);
     
     instance->running = true;
+    ar_handles_init();
+    ar_meshes_init();
+    ar_assetman_init();
+
     if (instance->flags & AR_INSTANCE_GRAPHICS) {
         instance->renderer = ar_renderer_init();
     }
+}
+
+void ar_instance_stop_threads(ar_instance_t *instance) {
+    // tell threads to stop
+    instance->running = false;
+
+    ar_thread_t **asset_thread = NULL;
+    // get assetman thread, wait for completion
+    asset_thread = ar_assetman_get_thread();
+    ar_thread_join((*asset_thread), NULL);
+}
+
+bool ar_instance_is_running(ar_instance_t *instance) {
+    // no instance passed in, check if any instance is running
+    if (instance == NULL)
+        instance = ar_instance_get_selected();
+    return instance->running;
 }
 
 ar_instance_t *ar_instance_get_selected(void) {
@@ -100,7 +120,7 @@ ar_instance_t *ar_instance_get_selected(void) {
 }
 
 void ar_instance_destroy(void) {
-    if (ar_instance.flags == 0)
+    if (!ar_instance.flags)
         return;
 
     if (ar_instance.flags & AR_INSTANCE_GRAPHICS)
@@ -123,4 +143,14 @@ void ar_cleanup(void) {
     
     ar_meshes_cleanup();
     ar_memory_cleanup();
+}
+
+void ar_exit(ar_instance_t *instance) {
+    if (instance == NULL)
+        instance = ar_instance_get_selected();
+
+    ar_instance_stop_threads(instance);
+
+    ar_instance_destroy();
+    ar_cleanup();
 }

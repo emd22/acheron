@@ -8,9 +8,9 @@ layout(location = 4) in vec3 vert_bitangent;
 
 uniform mat4 m;
 uniform mat4 mvp;
-
+/*
 uniform mat4 shadow_bias;
-
+*/
 out vec3 frag_eye_direction;
 
 out vec4 frag_shadow_coords;
@@ -42,7 +42,7 @@ void main() {
     frag_tangent = normalize(frag_tangent);
     frag_bitangent = normalize(cross(frag_normal, frag_tangent));
     
-    frag_shadow_coords = (shadow_bias*m)*vec4(vert_position, 1.0);
+    frag_shadow_coords = (/*shadow_bias**/m)*vec4(vert_position, 1.0);
 
     gl_Position = mvp * vec4(vert_position, 1.0);
 }

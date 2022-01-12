@@ -1,3 +1,4 @@
+#include <acheron/engine/acheron.h>
 #include <acheron/engine/core/cr_debug.h>
 #include <acheron/engine/core/cr_log.h>
 
@@ -16,15 +17,18 @@
 #define BACKTRACE_SIZE 32
 
 char *ar_debug_get_location(char *str) {
+    ar_assert(AR_LOG_FATAL, (str != NULL));
     char ch;
     while ((ch = *(str++)) != '(');
     return str-1;
 }
 
-void _ar_assert(int cond, const char *calling_func, const char *assertstr, int calling_line) {
+void _ar_assert(ar_log_error_level_t err_sev, int cond, const char *calling_func, const char *assertstr, int calling_line) {
     if (cond) {
-        ar_log(AR_LOG_FATAL, "Assertion '%s' failed in function %s at line %d\n", assertstr, calling_func, calling_line);
-        //ar_threads_force_kill_all(N);
+        ar_log(err_sev, "Assertion '%s' failed in %s at line %d\n", assertstr, calling_func, calling_line);
+        if (err_sev == AR_LOG_FATAL) {
+            ar_exit(NULL);
+        }
     }
 }
 

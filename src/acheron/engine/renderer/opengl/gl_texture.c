@@ -27,6 +27,7 @@ static unsigned ar_gl_data_width(ar_texture_data_width_t width) {
         GL_UNSIGNED_BYTE,  // AR_TEXTURE_BYTE
         GL_UNSIGNED_SHORT, // AR_TEXTURE_SHORT
         GL_UNSIGNED_INT,   // AR_TEXTURE_INT
+        GL_FLOAT, /* AR_TEXTURE_FLOAT */
     };
     return gl_data_width_table[width];
 }
@@ -35,7 +36,8 @@ unsigned ar_gl_data_width_size(ar_texture_data_width_t width) {
     const unsigned gl_data_width_size_table[] = {
         sizeof(unsigned char),  /* AR_TEXTURE_BYTE */
         sizeof(unsigned short), /* AR_TEXTURE_SHORT */
-        sizeof(unsigned int)    /* AR_TEXTURE_INT */
+        sizeof(unsigned int),    /* AR_TEXTURE_INT */
+        sizeof(float), /* AR_TEXTURE_FLOAT */
     };
     return gl_data_width_size_table[width];
 }
@@ -45,7 +47,8 @@ unsigned ar_gl_data_type(ar_texture_data_type_t data_type) {
         GL_RGB,  /* AR_TEXTURE_RGB */
         GL_RGBA, /* AR_TEXTURE_RGBA */
         GL_BGR,  /* AR_TEXTURE_BGR */
-        GL_BGRA  /* AR_TEXTURE_BGRA */
+        GL_BGRA,  /* AR_TEXTURE_BGRA */
+        GL_DEPTH_COMPONENT, /* AR_TEXTURE_DEPTH */
     };
     return gl_data_type_table[data_type];
 }
@@ -55,7 +58,8 @@ unsigned ar_gl_data_type_size(ar_texture_data_type_t data_type) {
         3, /* AR_TEXTURE_RGB */
         4, /* AR_TEXTURE_RGBA */
         3, /* AR_TEXTURE_BGR */
-        4  /* AR_TEXTURE_BGRA */
+        4,  /* AR_TEXTURE_BGRA */
+        2, /* AR_TEXTURE_DEPTH */
     };
     return gl_data_type_size_table[data_type];
 }
@@ -203,8 +207,8 @@ void *ar_texture_get_data(ar_texture_t *texture) {
         texture->id, 
         0, 
         gl_data_type,
-        gl_data_width, 
-        buffer_size, 
+        gl_data_width,
+        buffer_size,
         data
     );
     return data;

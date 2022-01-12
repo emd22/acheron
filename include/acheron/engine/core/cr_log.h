@@ -3,7 +3,6 @@
 
 #include <stdarg.h>
 
-
 // TODO: remove log_msg
 #define log_msg(errlvl, str, ...) _ar_log(__func__, errlvl, str, ##__VA_ARGS__)
 

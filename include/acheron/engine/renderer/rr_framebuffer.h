@@ -12,6 +12,7 @@ typedef enum {
 
 typedef enum {
     AR_FRAMEBUFFER_COLOR0,
+    AR_FRAMEBUFFER_DEPTH,
 } ar_framebuffer_attachment_type_t;
 
 typedef struct {

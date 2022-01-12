@@ -39,7 +39,7 @@ void ar_scene_render_shadows(ar_scene_t *scene, ar_shader_t *shader_main) {
         if (light->use_shadows) {
             (void)shader_main;
             //ar_light_shadow_render(light, shader_main); 
-            //ar_light_update(light, shader_main);  
+            ar_light_update(light, shader_main);  
         }
     }
 }
@@ -88,9 +88,8 @@ void ar_scene_render(ar_shader_t *shader_main, ar_scene_t *scene, ar_camera_t *c
     char str[48];
     for (i = 0; i < MAX_LIGHTS; i++) {
         if (i >= scene->lights.index) {
-            sprintf(str, "pointLights[%d].shadow_map", i);
-            const int temp = 4;
-            ar_shader_set_uniform(shader_main, AR_SHADER_INT, str, &temp);
+            const int temp = 0;
+            ar_shader_set_uniform(shader_main, AR_SHADER_INT, "pointLights[%d].shadows_enabled", &temp);
             continue;
         }
         light = *((ar_light_t **)ar_buffer_get(&scene->lights, i));
@@ -102,10 +101,8 @@ void ar_scene_render(ar_shader_t *shader_main, ar_scene_t *scene, ar_camera_t *c
         }
     }
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    ar_handle_call(AR_HANDLE_RENDER_MESHES, camera);
     ar_shader_use(shader_main);
-    ui_render();
+    ar_handle_call(AR_HANDLE_RENDER_MESHES, camera);
 }
 
 void *ar_scene_attach(ar_scene_t *scene, ar_scene_attach_type_t type, void *ptr) {

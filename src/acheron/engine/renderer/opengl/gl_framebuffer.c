@@ -74,12 +74,15 @@ void ar_framebuffer_bind(ar_framebuffer_t *fb) {
 
 void ar_framebuffer_to_texture(ar_framebuffer_t *fb, ar_texture_t *texture, ar_framebuffer_attachment_type_t attachment) {
     const int mipmap_level = 0;
-    (void)fb;
 
     const int gl_attach_table[] = {
         GL_COLOR_ATTACHMENT0, /* AR_FRAMEBUFFER_COLOR0 */
+        GL_DEPTH_ATTACHMENT,  /* AR_FRAMEBUFFER_DEPTH  */
     };
-    ar_log(AR_LOG_INFO, "Framebuffer %d to texture\n", fb->id);
+    ar_framebuffer_bind(fb);
+    if (fb != NULL)
+        ar_log(AR_LOG_INFO, "Framebuffer %d to texture\n", fb->id);
+    
     glFramebufferTexture2D(
             GL_FRAMEBUFFER, 
             gl_attach_table[attachment],

@@ -15,15 +15,16 @@
 
 static void *camera_update_default(ar_camera_t *);
 static void *camera_reload_default(ar_camera_t *);
+static void *camera_destroy_default(ar_camera_t *);
 void *ar_camera_destroy(ar_camera_t *);
 
 ar_camera_t ar_camera_new(void) {
     ar_camera_t camera;
     memset(&camera, 0, sizeof(ar_camera_t));
 
-    camera.destroy = &ar_camera_destroy;
     camera.update = &camera_update_default;
     camera.reload = &camera_reload_default;
+    camera.destroy = &camera_destroy_default;
 
     return camera;
 }
@@ -69,7 +70,7 @@ void ar_camera_update(ar_camera_t *camera) {
 
 void *ar_camera_destroy(ar_camera_t *camera) {
     if (camera->info != NULL) {
-        ar_memory_free(camera->info);
+        camera->destroy(camera);
     }
     return NULL;
 }
@@ -80,6 +81,11 @@ static void *camera_update_default(ar_camera_t *camera) {
 }
 
 static void *camera_reload_default(ar_camera_t *camera) {
+    (void)camera;
+    return NULL;
+}
+
+static void *camera_destroy_default(ar_camera_t *camera) {
     (void)camera;
     return NULL;
 }

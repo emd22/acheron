@@ -37,13 +37,16 @@ void ar_assetman_thread_set_state(ar_asset_thread_state_t state) {
 
 void *ar_asset_thread_func(void *arg) {
     (void)arg;
-    while (asset_thread_state) {
+    ar_instance_t *instance = ar_instance_get_selected();
+    while (instance->running && asset_thread_state) {
         while (asset_thread_state == AR_ASSET_THREAD_WAIT) {
+            if (!instance->running)
+                return NULL;
             ar_thread_sleep(AR_ASSET_SLEEP_TIME);
         }
         ar_asset_check_queue();
-        ar_thread_sleep(AR_ASSET_SLEEP_TIME);
     }
+    ar_log(AR_LOG_DEBUG, "Asset thread closing...\n", 0);
     return NULL;
 }
 
@@ -116,8 +119,7 @@ void ar_asset_check_queue(void) {
 }
 
 void ar_asset_wait(ar_asset_t *asset) {
-    static int cycles = 0;
-    cycles = 0;
+    int cycles = 0;
     while (asset->status == AR_ASSET_QUEUED) {
         ar_thread_sleep(AR_ASSET_SLEEP_TIME);
         cycles++;

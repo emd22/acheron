@@ -8,6 +8,7 @@
 
 static void *ortho_update(ar_camera_t *camera);
 static void *ortho_reload(ar_camera_t *camera);
+static void *ortho_destroy(ar_camera_t *camera);
 
 ar_camera_t ar_camera_ortho_new(void) {
     ar_camera_t camera = ar_camera_new();
@@ -27,6 +28,7 @@ ar_camera_t ar_camera_ortho_new(void) {
     // setup functions
     camera.reload = &ortho_reload;
     camera.update = &ortho_update;
+    camera.destroy = &ortho_destroy;
 
     camera.reload(&camera);
 
@@ -51,5 +53,12 @@ static void *ortho_reload(ar_camera_t *camera) {
         info->near,   info->far
     );
 
+    return NULL;
+}
+
+static void *ortho_destroy(ar_camera_t *camera) {
+    if (camera) {
+        ar_memory_free(camera->info);
+    }
     return NULL;
 }

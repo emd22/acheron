@@ -9,6 +9,7 @@
 
 static void *perspective_reload(ar_camera_t *camera);
 static void *perspective_update(ar_camera_t *camera);
+static void *perspective_destroy(ar_camera_t *camera);
 
 ar_camera_t ar_camera_perspective_new(void) {
     ar_camera_t camera = ar_camera_new();
@@ -23,6 +24,7 @@ ar_camera_t ar_camera_perspective_new(void) {
     // setup functions
     camera.reload = &perspective_reload;
     camera.update = &perspective_update;
+    camera.destroy = &perspective_destroy;
 
     camera.reload(&camera);
     return camera;
@@ -58,5 +60,12 @@ static void *perspective_reload(ar_camera_t *camera) {
         info->near, info->far
     );
 
+    return NULL;
+}
+
+static void *perspective_destroy(ar_camera_t *camera) {
+    if (camera) {
+        ar_memory_free(camera->info);
+    }
     return NULL;
 }

@@ -7,6 +7,7 @@
 #include <acheron/engine/rendering/cubemap.h>
 #include <acheron/engine/physics/object.h>
 
+/*
 extern ar_camera_t shadow_cam;
 
 typedef struct {
@@ -27,10 +28,11 @@ typedef struct {
 } shadows_point_t;
 
 shadows_point_t shadows_point_init(ar_vector3f_t position, int width, int height, float far_plane);
-void shadows_point_render(shadows_point_t *shadow, ar_vector3f_t position, ar_shader_t *shader_main);
-void shadows_point_update(shadows_point_t *shadow, ar_vector3f_t position);
+//void shadows_point_render(shadows_point_t *shadow, ar_vector3f_t position, ar_shader_t *shader_main);
+//void shadows_point_update(shadows_point_t *shadow, ar_vector3f_t position);
 
 void shadows_render(ar_shader_t *shader_main, ar_camera_t *camera);
 void shadows_destroy(shadows_point_t *shadow);
+*/
 
 #endif

@@ -12,18 +12,6 @@
 #include <stdbool.h>
 #include <SDL2/SDL.h>
 
-void GLAPIENTRY ar_gl_message_callback(
-    unsigned src, unsigned type, unsigned id, 
-    unsigned severity, int length, 
-    const char *message, const void *data)
-{
-    (void)src;
-    (void)id;
-    (void)data;
-    int log_sev = (type == GL_DEBUG_TYPE_ERROR) ? AR_LOG_RENDER_ERROR : AR_LOG_RENDER_INFO;
-    ar_log(log_sev, "GL message[0x%04X]: %.*s || SEV:0x%04X\n", type, length, message, severity);
-}
-
 ar_renderer_instance_t ar_renderer_init() {
     ar_renderer_instance_t instance;
     ar_renderer_intern_init(&instance);
@@ -44,7 +32,6 @@ ar_renderer_instance_t ar_renderer_init() {
     ar_handle_set(AR_HANDLE_RENDER_MESHES, &ar_render_scene_objects);
 
     //glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(&ar_gl_message_callback, NULL);
 
     return instance;
 }
@@ -57,9 +44,8 @@ int ar_render_scene_objects(void *camera) {
 }
 
 void ar_renderer_draw(ar_camera_t *camera) {
-    // bind to our draw buffer
-    //ar_framebuffer_bind(NULL);
     const ar_shader_t *shader = ar_shaderman_get_render_shader();
+    ar_renderer_clear(AR_RENDERER_BUFFER_COLOR | AR_RENDERER_BUFFER_DEPTH);
     ar_scene_render((ar_shader_t *)shader, ar_scene_get_selected(), camera);
 }
 

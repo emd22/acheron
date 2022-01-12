@@ -15,6 +15,16 @@ typedef enum {
 } ar_light_type_t;
 
 typedef struct {
+    int side_width;
+    int side_height;
+    
+    ar_mat4_t point_vps[6];
+    ar_framebuffer_t framebuffer;
+
+    int id;
+} ar_point_shadows_t;
+
+typedef struct {
     bool initialized;
     
     ar_light_type_t type;
@@ -24,7 +34,7 @@ typedef struct {
     ar_vector3f_t diffuse;
     ar_vector3f_t specular;
     
-    shadows_point_t point_shadow;
+    ar_point_shadows_t *point_shadows;
     bool use_shadows;
     
     // directional light
@@ -42,7 +52,7 @@ void ar_light_update(ar_light_t *light, ar_shader_t *shader);
 void ar_light_destroy(ar_light_t *light);
 void ar_light_buffer_destroy(void);
 
-void ar_light_shadow_new(ar_light_t *light, int width, int height);
+void ar_light_set_point_shadows(ar_light_t *light, ar_point_shadows_t *point_shadows);
 void ar_light_shadow_render(ar_light_t *light, ar_shader_t *shader_main);
 
 #endif

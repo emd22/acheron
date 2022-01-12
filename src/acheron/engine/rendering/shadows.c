@@ -12,6 +12,7 @@
 
 #include <stdio.h>
 
+/*
 static ar_shader_t *shader_point_shadow = NULL;
 
 void generate_point_vp(int index, ar_vector3f_t position, shadows_point_t *shadow, ar_vector3f_t offset, ar_vector3f_t upvec) {
@@ -91,7 +92,6 @@ void shadows_send_uniforms(shadows_point_t *shadow, ar_vector3f_t position) {
     }
     ar_shader_set_uniform(shadow->shader, AR_SHADER_VEC3F, "light_pos", &position);
 }
-
 void shadows_point_render(shadows_point_t *shadow, ar_vector3f_t position, ar_shader_t *shader_main) {
     if (shadow->shader == NULL)
         return;
@@ -125,7 +125,7 @@ void shadows_point_render(shadows_point_t *shadow, ar_vector3f_t position, ar_sh
     
     ar_framebuffer_bind(NULL);
 }
-
+*/
 /*void shadows_update(light_t *light, int width, int height) {
     //generate_vp(direction, center);
     gen_vps(light, width, height);
@@ -154,7 +154,6 @@ void shadows_point_render(shadows_point_t *shadow, ar_vector3f_t position, ar_sh
     shader_use(shader_main);
     framebuffer_bind(NULL);
     render_set_target(RENDER_TARGET_FRAMEBUFFER, NULL);
-}*/
 
 void shadows_destroy(shadows_point_t *shadow) {
     if (shadow->shader == NULL)
@@ -165,3 +164,5 @@ void shadows_destroy(shadows_point_t *shadow) {
     }
     shadow->shader = NULL;
 }
+}*/
+

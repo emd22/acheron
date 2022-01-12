@@ -73,6 +73,15 @@ ar_light_t *ar_light_new(ar_light_type_t type) {
     return light;
 }
 
+int ar_light_get_shadow_id(ar_light_t *light) {
+    return 0;
+}
+
+void ar_light_set_point_shadows(ar_light_t *light, ar_point_shadows_t *point_shadows) {
+    light->point_shadows = point_shadows;
+}
+
+/*)
 void ar_light_shadow_new(ar_light_t *light, int width, int height) {
     if (light == NULL) {
         ar_log(AR_LOG_ERROR, "light == NULL or light is not point light\n", 0);
@@ -84,13 +93,14 @@ void ar_light_shadow_new(ar_light_t *light, int width, int height) {
     light->point_shadow = shadows_point_init(light->position, width, height, light->radius);
     light->use_shadows = true;
     light->point_shadow.shadow_map_id = ++shadow_map_id;
-}
+}*/
 
 void ar_light_shadow_render(ar_light_t *light, ar_shader_t *shader_main) {
     if (light->use_shadows == false)
         return;
-    shadows_point_render(&light->point_shadow, light->position, shader_main);
+    //shadows_point_render(&light->point_shadow, light->position, shader_main);
 }
+
 
 
 // TODO: replace this with something better
@@ -138,11 +148,12 @@ void ar_light_init(ar_light_t *light, ar_shader_t *shader) {
         
         // Shadows
         sprintf(lightstr, "pointLights[%d].shadow_map", light->index);
-        int temp1 = 4+light->point_shadow.shadow_map_id;
+        int temp1 = 4+ar_light_get_shadow_id(light);
         ar_shader_set_uniform(shader, AR_SHADER_INT, lightstr, &temp1);
         
         sprintf(lightstr, "pointLights[%d].shadow_far_plane", light->index);
-        ar_shader_set_uniform(shader, AR_SHADER_FLOAT, lightstr, &light->point_shadow.far_plane);
+        float far_plane = 200.0f;
+        ar_shader_set_uniform(shader, AR_SHADER_FLOAT, lightstr, &far_plane);
         
         sprintf(lightstr, "pointLights[%d].shadows_enabled", light->index);
         ar_shader_set_uniform(shader, AR_SHADER_FLOAT, lightstr, &light->use_shadows);
@@ -163,23 +174,25 @@ void ar_light_update(ar_light_t *light, ar_shader_t *shader) {
         ar_shader_set_uniform(shader, AR_SHADER_VEC3F, lightstr, &light->direction);
     }
     else if (light->type == AR_LIGHT_POINT) {
-        light->point_shadow.far_plane = light->radius;
+        //light->point_shadows.far_plane = light->radius;
         sprintf(lightstr, "pointLights[%d].position", light->index);
         ar_shader_set_uniform(shader, AR_SHADER_VEC3F, lightstr, &light->position);
         
         if (light->use_shadows) {
             sprintf(lightstr, "pointLights[%d].shadow_map", light->index);
-            int temp0 = 4+light->point_shadow.shadow_map_id;
+            int temp0 = 4+ar_light_get_shadow_id(light);
             ar_shader_set_uniform(shader, AR_SHADER_INT, lightstr, &temp0);
             
             sprintf(lightstr, "pointLights[%d].shadow_far_plane", light->index);
-            ar_shader_set_uniform(shader, AR_SHADER_FLOAT, lightstr, &light->point_shadow.far_plane);
+            float far_plane = 200.0f;
+            ar_shader_set_uniform(shader, AR_SHADER_FLOAT, lightstr, &far_plane);
             
             sprintf(lightstr, "pointLights[%d].shadows_enabled", light->index);
+            ar_log(AR_LOG_INFO, "Shadows enabled::%d\n", light->use_shadows);
             ar_shader_set_uniform(shader, AR_SHADER_FLOAT, lightstr, &light->use_shadows);
             
-            shadows_point_update(&light->point_shadow, light->position);
-            ar_light_shadow_render(light, shader);
+            //shadows_point_update(&light->point_shadow, light->position);
+            //ar_light_shadow_render(light, shader);
         }
     }
 }

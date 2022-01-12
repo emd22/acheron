@@ -8,7 +8,7 @@
  */
  
 int ar_memory_strncpy(char *dest, char *src, int n) {
-    ar_assert((dest && src));
+    ar_assert(AR_LOG_FATAL, (dest && src));
     
     char *start = dest;
     do {

@@ -16,7 +16,7 @@
 
 #define MOUSE_SPEED 0.09
 
-#if 0
+/**
 ar_camera_t *selected_camera;
 ar_asset_t *mesh;
 
@@ -119,4 +119,4 @@ int main() {
 
     ar_memory_cleanup();
 }
-#endif
+**/
